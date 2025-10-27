@@ -1,9 +1,23 @@
-import tkinter as tk
-from tkinter import ttk
-from login import Login
-from logout import Logout
-from update_tasks import UpdateTasks
-from view_tasks import ViewTasks
-from delete_tasks import DeleteTasks
-from add_tasks import AddTasks
-from search_tasks import SearchTasks
+from fastapi import FastAPI
+from typing import Union
+from db_connect import connect_todo_db
+
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: Union[str, None] = None):
+    return {"item_id": item_id, "q": q}
+
+@app.get("/status")
+def read_status():
+    return {"status": "ok"}
+
+
+if __name__ == "__main__":    
+	import uvicorn
+	uvicorn.run("Main:app", host="0.0.0.0", port=9080, reload=True)
