@@ -9,3 +9,5 @@ python을 활용한 todoList
 실행:
  cd todo_list
  uvicorn main:app --reload
+
+ uvicorn todo_list.main:app --reload
