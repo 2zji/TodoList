@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from db_connect import SessionLocal, init_db, Todo, TodoUser
-import schemas
+from .db_connect import SessionLocal, init_db, Todo, TodoUser
+from .schemas import TodoCreate, TodoResponse, TodoUpdate, UserCreate, UserResponse
 from typing import List
 
 app = FastAPI(title="TodoList")
@@ -21,8 +21,8 @@ def on_startup():
 
 
 #user 생성
-@app.post("/users", response_model=schemas.UserResponse)    #schemas로 유효성 검사
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+@app.post("/users/", response_model=UserResponse)    #schemas로 유효성 검사
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = TodoUser(**user.dict())
     db.add(db_user)
     db.commit()
@@ -30,11 +30,46 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 #todo 생성
-@app.post("/todo", response_model=schemas.TodoResponse)
-def create_todo(todo: schemas.TodoCreate, db: Session = Depends(get_db)):
+@app.post("/todo/", response_model=TodoResponse)
+def create_todo(todo: TodoCreate, db: Session = Depends(get_db)):
     db_todo = Todo(**todo.dict())
     db.add(db_todo)
     db.commit() #트랜젝션 처리(커밋 후 refresh)
     db.refresh(db_todo)
     return db_todo
 
+#todo 조회
+@app.get("/todo/", response_model=List[TodoResponse])
+def read_todos(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    todos = db.query(Todo).offset(skip).limit(limit).all()
+    return todos
+
+#특정 todo 조회
+@app.get("/todo/{todo_id}", response_model=TodoResponse)
+def read_todo(todo_id: int, db: Session = Depends(get_db)):
+    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    if todo is None:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    return todo
+
+#todo 수정
+@app.put("/todo/{todo_id}", response_model=TodoResponse)
+def update_todo(todo_id: int, todo: TodoUpdate, db: Session = Depends(get_db)):
+    db_todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    if db_todo is None:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    for key, value in todo.dict(exclude_unset=True).items():
+        setattr(db_todo, key, value)
+    db.commit()
+    db.refresh(db_todo)
+    return db_todo
+
+#todo 삭제
+@app.delete("/todo/{todo_id}")
+def delete_todo(todo_id: int, db: Session = Depends(get_db)):
+    db_todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    if db_todo is None:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    db.delete(db_todo)
+    db.commit()
+    return {"detail": "Todo deleted"}
