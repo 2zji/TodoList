@@ -1,0 +1,31 @@
+Create User
+POST: http://127.0.0.1:8000/users/
+{
+    "email": "dochi@e-mirim.kr",
+    "passwd": "111111",
+    "name": "고슴도치"
+}
+
+Create Todo
+POST: http://127.0.0.1:8000/todo/
+
+{
+    "email": "dochi@e-mirim.kr",
+    "title": "고슴도치를 위한 법은?",
+    "description": "도치법",
+    "status": "pending",
+    "priority": "medium"
+}
+
+Read Todo
+GET: http://127.0.0.1:8000/todo/1
+
+Update Todo
+PUT: http://127.0.0.1:8000/todo/1
+{
+    "title": "나는 고슴도치",
+    "status": "completed"
+}
+
+Delete Todo
+DELETE: http://127.0.0.1:8000/todo/1
