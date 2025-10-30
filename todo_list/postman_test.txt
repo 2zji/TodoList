@@ -23,8 +23,8 @@ GET: http://127.0.0.1:8000/todo/1
 Update Todo
 PUT: http://127.0.0.1:8000/todo/1
 {
-    "title": "나는 고슴도치",
-    "status": "completed"
+    "title": "고양이를 치면?",
+    "description": "아웅~"
 }
 
 Delete Todo
