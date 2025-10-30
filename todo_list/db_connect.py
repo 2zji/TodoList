@@ -24,7 +24,7 @@ class Todo(Base):
     description = Column(Text)
     status = Column(Enum('pending', 'in_progress', 'completed'), default='pending')
     priority = Column(Enum('high', 'medium', 'low'), default='medium')
-    created_at = Column(DateTime, )
+    created_at = Column(DateTime, default=datetime.utcnow)
     completed_at = Column(DateTime, nullable=True)
 
 
