@@ -29,3 +29,6 @@ PUT: http://127.0.0.1:8000/todo/1
 
 Delete Todo
 DELETE: http://127.0.0.1:8000/todo/1
+
+Delete User
+DELETE: http://127.0.0.1:8000/users/1
