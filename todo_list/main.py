@@ -38,12 +38,6 @@ def create_todo(todo: TodoCreate, db: Session = Depends(get_db)):
     db.refresh(db_todo)
     return db_todo
 
-#todo 조회
-@app.get("/todo/", response_model=List[TodoResponse])
-def read_todos(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    todos = db.query(Todo).offset(skip).limit(limit).all()
-    return todos
-
 #특정 todo 조회
 @app.get("/todo/{todo_id}", response_model=TodoResponse)
 def read_todo(todo_id: int, db: Session = Depends(get_db)):
