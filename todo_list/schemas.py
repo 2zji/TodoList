@@ -16,10 +16,10 @@ class TodoCreate(TodoBase):
 
 
 class TodoUpdate(BaseModel):
-    title: Optional[str]
-    description: Optional[str]
-    status: Optional[str]
-    priority: Optional[str]
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = None
+    priority: Optional[str] = None
 
 
 class TodoResponse(TodoBase):
@@ -34,13 +34,13 @@ class TodoResponse(TodoBase):
 class UserCreate(BaseModel):
     email: EmailStr
     passwd: str
-    name: Optional[str]
+    name: Optional[str] = None
 
 
 class UserResponse(BaseModel):
     id: int
     email: EmailStr
-    name: Optional[str]
+    name: Optional[str] = None
 
     class Config:
         orm_mode = True
