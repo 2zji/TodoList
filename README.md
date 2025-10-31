@@ -7,9 +7,7 @@ python을 활용한 todoList
 -로그인 및 회원가입, 로그아웃
 
 실행:
-    cd todo_list
-    uvicorn main:app --reload
-
+    .\venv\Scripts\activate
     uvicorn todo_list.main:app --reload
 
 mySQL id값 초기화:
