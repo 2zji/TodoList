@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, Column, Integer, String, Text, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import sessionmaker, declarative_base
 from datetime import datetime
+# from pytz import timezone
 
 DATABASE_URL = "mysql+pymysql://root:111111@localhost:3306/todo_list"
 
@@ -24,7 +25,7 @@ class Todo(Base):
     description = Column(Text)
     status = Column(Enum('pending', 'in_progress', 'completed'), default='pending')
     priority = Column(Enum('high', 'medium', 'low'), default='medium')
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now)
     completed_at = Column(DateTime, nullable=True)
 
 

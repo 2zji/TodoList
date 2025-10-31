@@ -23,7 +23,7 @@ def on_startup():
 #user 생성
 @app.post("/users/", response_model=UserResponse)    #schemas로 유효성 검사
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = TodoUser(**user.dict())
+    db_user = TodoUser(**user.dict())   #언패킹 기법으로 dict형식을 클래스에 전달
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -41,9 +41,9 @@ def create_todo(todo: TodoCreate, db: Session = Depends(get_db)):
 #특정 todo 조회
 @app.get("/todo/{todo_id}", response_model=TodoResponse)
 def read_todo(todo_id: int, db: Session = Depends(get_db)):
-    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    todo = db.query(Todo).filter(Todo.id == todo_id).first() #첫번째 항목 반환
     if todo is None:
-        raise HTTPException(status_code=404, detail="Todo not found")
+        raise HTTPException(status_code=404, detail="Todo not found")  #예외처리
     return todo
 
 #todo 수정
