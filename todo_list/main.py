@@ -23,7 +23,7 @@ def on_startup():
 #user 생성
 @app.post("/users/", response_model=UserResponse)    #schemas로 유효성 검사
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = TodoUser(**user.dict())   #언패킹 기법으로 dict형식을 클래스에 전달
+    db_user = TodoUser(**user.model_dump())   #언패킹 기법으로 dict형식을 클래스에 전달
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -32,7 +32,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 #todo 생성
 @app.post("/todo/", response_model=TodoResponse)
 def create_todo(todo: TodoCreate, db: Session = Depends(get_db)):
-    db_todo = Todo(**todo.dict())
+    db_todo = Todo(**todo.model_dump())
     db.add(db_todo)
     db.commit() #트랜젝션 처리(커밋 후 refresh)
     db.refresh(db_todo)
@@ -52,7 +52,7 @@ def update_todo(todo_id: int, todo: TodoUpdate, db: Session = Depends(get_db)):
     db_todo = db.query(Todo).filter(Todo.id == todo_id).first()
     if db_todo is None:
         raise HTTPException(status_code=404, detail="Todo not found")
-    for key, value in todo.dict(exclude_unset=True).items():
+    for key, value in todo.model_dump(exclude_unset=True).items():
         setattr(db_todo, key, value)
     db.commit()
     db.refresh(db_todo)
