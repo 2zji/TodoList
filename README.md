@@ -22,8 +22,6 @@
 
 
         ALTER TABLE todo AUTO_INCREMENT = 1;
-
-
         ALTER TABLE todo_user AUTO_INCREMENT = 1;
 
   
