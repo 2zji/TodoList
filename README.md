@@ -28,7 +28,9 @@
 
   
 - 필수 요구사항:
-    fastapi >= 0.120.0,<1.0
+
+- 
+    fastapi >= 0.120.0, <1.0
 
   
     uvicorn[standard] >= 0.18
@@ -37,7 +39,7 @@
     sqlalchemy >= 1.4
 
   
-    pydantic >= 2.12,<3.0
+    pydantic >= 2.12, <3.0
 
   
     pymysql >= 1.0
