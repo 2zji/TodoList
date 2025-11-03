@@ -1,6 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from .db_connect import Todo, get_db
+from todo_list import APIRouter, Depends, HTTPException, Session, Todo, get_db
 
 router = APIRouter()
 

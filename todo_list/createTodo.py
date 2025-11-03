@@ -1,7 +1,4 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from .db_connect import Todo, get_db
-from .schemas import TodoCreate, TodoResponse
+from todo_list import APIRouter, Depends, Session, Todo, get_db, TodoCreate, TodoResponse
 
 router = APIRouter()
 
