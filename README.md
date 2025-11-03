@@ -17,7 +17,9 @@
     .\venv\Scripts\activate 
     uvicorn todo_list.main:app --reload
 <br/>
-- mySQL id값 초기화: 
+- mySQL id값 초기화:
+
+  
     ALTER TABLE todo AUTO_INCREMENT = 1;
 
   
