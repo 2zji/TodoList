@@ -4,6 +4,7 @@
 **/*.pyc
 
 .todo_list/__init__.py
+.todo_list/db_connect.py
 
 venv/
 env/
