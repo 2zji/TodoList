@@ -4,11 +4,7 @@
 
 - db: MySQL
 - python: 3.10 이상
-
-
 - CRUD 기능
-
-
 - 로그인 및 회원가입, 로그아웃
 
 ---
@@ -30,16 +26,16 @@
 - 필수 요구사항:
 
   
-    fastapi >= 0.120.0, <1.0
+    1. fastapi >= 0.120.0, <1.0
 
   
-    uvicorn[standard] >= 0.18
+    2. uvicorn[standard] >= 0.18
 
   
-    sqlalchemy >= 1.4
+    3. sqlalchemy >= 1.4
 
   
-    pydantic >= 2.12, <3.0
+    4. pydantic >= 2.12, <3.0
 
   
-    pymysql >= 1.0
+    5. pymysql >= 1.0
