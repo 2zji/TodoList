@@ -22,7 +22,6 @@ class TodoUser(Base):
 class Todo(Base):
     __tablename__ = "todo"
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(100))
     title = Column(String(100))
     description = Column(Text)
     status = Column(Enum('pending', 'in_progress', 'completed'), default='pending')

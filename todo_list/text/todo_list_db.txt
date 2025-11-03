@@ -1,7 +1,6 @@
 Todo
 CREATE TABLE todo (
     id INT NOT NULL AUTO_INCREMENT,
-    email VARCHAR(100) DEFAULT NULL,
     title VARCHAR(100) DEFAULT NULL,
     description TEXT DEFAULT NULL,
     status ENUM('pending', 'in_progress', 'completed') DEFAULT 'pending',

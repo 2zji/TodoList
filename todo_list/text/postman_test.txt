@@ -10,7 +10,6 @@ Create Todo
 POST: http://127.0.0.1:8000/todo/
 
 {
-    "email": "dochi@e-mirim.kr",
     "title": "고슴도치를 위한 법은?",
     "description": "도치법",
     "status": "pending",

@@ -3,7 +3,6 @@ from typing import Optional
 from datetime import datetime
 
 class TodoBase(BaseModel):
-    email: EmailStr
     title: str
     description: Optional[str] = None
     status: Optional[str] = "pending"
