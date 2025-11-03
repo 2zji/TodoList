@@ -13,9 +13,11 @@
 
 ---
 
-- 실행: 
-    .\venv\Scripts\activate 
-    uvicorn todo_list.main:app --reload
+- 실행:
+
+  
+        .\venv\Scripts\activate 
+        uvicorn todo_list.main:app --reload
 
   
 - mySQL id값 초기화:
