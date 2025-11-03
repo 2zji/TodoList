@@ -2,7 +2,6 @@ from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 from datetime import datetime
 
-
 class TodoBase(BaseModel):
     email: EmailStr
     title: str
@@ -10,17 +9,14 @@ class TodoBase(BaseModel):
     status: Optional[str] = "pending"
     priority: Optional[str] = "medium"
 
-
 class TodoCreate(TodoBase):
     pass
-
 
 class TodoUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     status: Optional[str] = None
     priority: Optional[str] = None
-
 
 class TodoResponse(TodoBase):
     id: int
@@ -34,7 +30,6 @@ class UserCreate(BaseModel):
     passwd: str
     name: Optional[str] = None
 
-
 class UserResponse(BaseModel):
     id: int
     email: EmailStr
@@ -42,4 +37,3 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
-

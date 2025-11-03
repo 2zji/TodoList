@@ -12,7 +12,6 @@ engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-
 class TodoUser(Base):
     __tablename__ = "todo_user"
     id = Column(Integer, primary_key=True, index=True)
@@ -30,7 +29,6 @@ class Todo(Base):
     priority = Column(Enum('high', 'medium', 'low'), default='medium')
     created_at = Column(DateTime, default=datetime.now)
     completed_at = Column(DateTime, nullable=True)
-
 
 def init_db():
     Base.metadata.create_all(bind=engine)
