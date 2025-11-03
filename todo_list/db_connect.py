@@ -1,7 +1,10 @@
 from sqlalchemy import create_engine, Column, Integer, String, Text, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import sessionmaker, declarative_base
 from datetime import datetime
-# from pytz import timezone
+
+from fastapi import FastAPI
+
+app = FastAPI(title="TodoList")
 
 DATABASE_URL = "mysql+pymysql://root:111111@localhost:3306/todo_list"
 
@@ -31,3 +34,15 @@ class Todo(Base):
 
 def init_db():
     Base.metadata.create_all(bind=engine)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+#db 초기화(테이블 초기화)
+@app.on_event("startup")
+def on_startup():
+    init_db()
