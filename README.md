@@ -16,15 +16,17 @@
 - 실행: 
     .\venv\Scripts\activate 
     uvicorn todo_list.main:app --reload
-<br/>
+
+  
 - mySQL id값 초기화:
 
-  
+
     ALTER TABLE todo AUTO_INCREMENT = 1;
 
-  
+
     ALTER TABLE todo_user AUTO_INCREMENT = 1;
-<br/>
+
+  
 - 필수 요구사항:
     fastapi >= 0.120.0,<1.0
     uvicorn[standard] >= 0.18
