@@ -1,3 +1,11 @@
+Login User
+POST: http://127.0.0.1:8000/auth/login
+{
+    "email": "dochi@e-mirim.kr",
+    "password": "111111"
+}
+
+
 Create User
 POST: http://127.0.0.1:8000/users/
 {
