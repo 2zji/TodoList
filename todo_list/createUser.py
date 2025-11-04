@@ -1,12 +1,24 @@
-from todo_list import APIRouter, Depends, Session, get_db, TodoUser, UserCreate, UserResponse
+from todo_list import APIRouter, Depends, HTTPException, Session, status, get_db, TodoUser, UserCreate, UserResponse
+from passlib.context import CryptContext
 
-router = APIRouter()
+router = APIRouter(prefix="/users", tags=["users"])
 
-#user 생성
-@router.post("/users/", response_model=UserResponse)    #schemas로 유효성 검사
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = TodoUser(**user.model_dump())   #언패킹 기법으로 dict형식을 클래스에 전달
-    db.add(db_user)
+    # 중복 이메일 체크
+    existing = db.query(TodoUser).filter(TodoUser.email == user.email).first()
+    if existing:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
+
+    hashed = pwd_context.hash(user.passwd)
+
+    new_user = TodoUser(email=user.email, passwd=hashed, name=user.name)
+
+    db.add(new_user)
     db.commit()
-    db.refresh(db_user)
-    return db_user
+    db.refresh(new_user)
+
+    return new_user
+
