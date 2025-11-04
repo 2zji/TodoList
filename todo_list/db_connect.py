@@ -1,12 +1,16 @@
 from sqlalchemy import create_engine, Column, Integer, String, Text, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import sessionmaker, declarative_base
 from datetime import datetime
+from dotenv import load_dotenv
+import os
 
 from fastapi import FastAPI
 
-app = FastAPI(title="TodoList")
+load_dotenv()
 
-DATABASE_URL = "mysql+pymysql://root:111111@localhost:3306/todo_list"
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+app = FastAPI(title="TodoList")
 
 engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
