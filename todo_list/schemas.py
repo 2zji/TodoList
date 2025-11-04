@@ -34,5 +34,8 @@ class UserResponse(BaseModel):
     email: EmailStr
     name: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
