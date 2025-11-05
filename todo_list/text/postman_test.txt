@@ -16,6 +16,7 @@ POST: http://127.0.0.1:8000/users/
 
 Create Todo
 POST: http://127.0.0.1:8000/todo/
+Authorization: Bearer <로그인 시 받은 토큰>
 
 {
     "title": "고슴도치를 위한 법은?",
@@ -25,10 +26,13 @@ POST: http://127.0.0.1:8000/todo/
 }
 
 Read Todo
-GET: http://127.0.0.1:8000/todo/1
+GET: http://127.0.0.1:8000/todo/
+Authorization: Bearer <로그인 시 받은 토큰>
 
 Update Todo
 PUT: http://127.0.0.1:8000/todo/1
+Authorization: Bearer <로그인 시 받은 토큰>
+
 {
     "title": "고양이를 치면?",
     "description": "아웅~"
@@ -36,6 +40,8 @@ PUT: http://127.0.0.1:8000/todo/1
 
 Delete Todo
 DELETE: http://127.0.0.1:8000/todo/1
+Authorization: Bearer <로그인 시 받은 토큰>
 
 Delete User
 DELETE: http://127.0.0.1:8000/users/1
+Authorization: Bearer <로그인 시 받은 토큰>
