@@ -7,10 +7,10 @@ CREATE TABLE todo (
     priority ENUM('high', 'medium', 'low') DEFAULT 'medium',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     completed_at DATETIME DEFAULT NULL,
+    user_id INT NOT NULL,
     PRIMARY KEY (id),
-    KEY (email)
+    FOREIGN KEY(user_id) REFERENCES todo_user (id)
 );
-
 
 Todo_user
 CREATE TABLE todo_user (
