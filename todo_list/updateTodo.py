@@ -1,15 +1,21 @@
-from todo_list import APIRouter, Depends, HTTPException, Session, Todo, get_db, TodoResponse, TodoUpdate
+from todo_list import APIRouter, Depends, HTTPException, status, Session, Todo, TodoUser, get_db, TodoResponse, TodoUpdate
+from todo_list.auth import get_current_user
 
-router = APIRouter()
+router = APIRouter(prefix="/todo", tags=["todo"])
 
-#todo 수정
-@router.put("/todo/{todo_id}", response_model=TodoResponse)
-def update_todo(todo_id: int, todo: TodoUpdate, db: Session = Depends(get_db)):
-    db_todo = db.query(Todo).filter(Todo.id == todo_id).first()
-    if db_todo is None:
+#todo 수정 (인증된 사용자만)
+@router.put("/{todo_id}", response_model=TodoResponse)
+def update_todo(todo_id: int, todo_data: TodoUpdate, db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
+    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+
+    if not todo:
         raise HTTPException(status_code=404, detail="Todo not found")
-    for key, value in todo.model_dump(exclude_unset=True).items():
-        setattr(db_todo, key, value)
+    if todo.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this todo")
+
+    for key, value in todo_data.model_dump(exclude_unset=True).items():
+        setattr(todo, key, value)
+
     db.commit()
-    db.refresh(db_todo)
-    return db_todo
+    db.refresh(todo)
+    return todo

@@ -1,6 +1,4 @@
 from todo_list import APIRouter, Depends, HTTPException, Session, TodoUser, get_db
-from passlib.context import CryptContext
-
 router = APIRouter()
 
 #user 삭제
