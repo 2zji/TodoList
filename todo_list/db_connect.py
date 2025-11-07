@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Text, Enum, DateTime, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Text, Enum, DateTime, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from datetime import datetime
 from dotenv import load_dotenv
@@ -24,7 +24,9 @@ class TodoUser(Base):
     email = Column(String(100), unique=True)
     passwd = Column(String(255))
     name = Column(String(50))
-
+    is_deleted = Column(Boolean, default=False)  #soft delete
+    deleted_at = Column(DateTime, nullable=True)  #삭제된 시간
+    
     #1:N 관계 설정
     todos = relationship("Todo", back_populates="user", cascade="all, delete-orphan")
 
