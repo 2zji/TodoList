@@ -7,8 +7,9 @@ from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 from os import getenv
 from dotenv import load_dotenv
-
-from todo_list.db_connect import get_db, TodoUser
+import threading, time
+from todo_list.db_connect import SessionLocal, TodoUser, get_db
+from datetime import datetime, timedelta
 from todo_list.schemas import UserLogin
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -34,7 +35,12 @@ def create_access_token(subject: str, expires_delta: int | None = None):
 #로그인 API
 @router.post("/login")
 def login(form_data: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(TodoUser).filter(TodoUser.email == form_data.email).first()
+    #삭제되지 않은 계정만 로그인 가능
+    user = db.query(TodoUser).filter(
+        TodoUser.email == form_data.email,
+        TodoUser.is_deleted == False
+    ).first()
+
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
@@ -61,8 +67,12 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     except JWTError:
         raise credentials_exception
 
-    #DB에서 사용자 정보 확인
-    user = db.query(TodoUser).filter(TodoUser.email == email).first()
+    #삭제되지 않은 사용자만 인증 허용
+    user = db.query(TodoUser).filter(
+        TodoUser.email == email,
+        TodoUser.is_deleted == False
+    ).first()
+
     if user is None:
         raise credentials_exception
 
