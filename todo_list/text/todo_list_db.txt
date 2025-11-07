@@ -18,6 +18,7 @@ CREATE TABLE todo_user (
     email VARCHAR(100) UNIQUE DEFAULT NULL,
     passwd VARCHAR(255) DEFAULT NULL,
     name VARCHAR(50) DEFAULT NULL,
-    tel VARCHAR(20) DEFAULT NULL,
-    PRIMARY KEY (id)
+    is_deleted_at DATETIME DEFAULT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY email (email)
 );

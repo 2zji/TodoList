@@ -2,7 +2,7 @@ Login User
 POST: http://127.0.0.1:8000/auth/login
 {
     "email": "dochi@e-mirim.kr",
-    "password": "111111"
+    "passwd": "111111"
 }
 
 
@@ -43,5 +43,5 @@ DELETE: http://127.0.0.1:8000/todo/1
 Authorization: Bearer <로그인 시 받은 토큰>
 
 Delete User
-DELETE: http://127.0.0.1:8000/users/1
+DELETE: http://127.0.0.1:8000/users/me
 Authorization: Bearer <로그인 시 받은 토큰>
