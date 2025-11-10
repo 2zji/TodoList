@@ -14,34 +14,54 @@ POST: http://127.0.0.1:8000/users/
     "name": "고슴도치"
 }
 
+--- 밑 예시부터 Authorization: Bearer <로그인 시 받은 토큰> 필수 ---
+
 Create Todo
 POST: http://127.0.0.1:8000/todo/
-Authorization: Bearer <로그인 시 받은 토큰>
 
 {
     "title": "고슴도치를 위한 법은?",
     "description": "도치법",
     "status": "pending",
-    "priority": "medium"
+    "priority": "medium",
+    "is_public": true
 }
 
 Read Todo
 GET: http://127.0.0.1:8000/todo/
-Authorization: Bearer <로그인 시 받은 토큰>
 
 Update Todo
 PUT: http://127.0.0.1:8000/todo/1
-Authorization: Bearer <로그인 시 받은 토큰>
 
 {
     "title": "고양이를 치면?",
-    "description": "아웅~"
+    "description": "아웅~",
+    "is_public": false
 }
 
 Delete Todo
 DELETE: http://127.0.0.1:8000/todo/1
-Authorization: Bearer <로그인 시 받은 토큰>
 
 Delete User
 DELETE: http://127.0.0.1:8000/users/me
-Authorization: Bearer <로그인 시 받은 토큰>
+
+Send Friend Request
+POST: http://127.0.0.1:8000/friends/1
+
+Friend Request accepted
+PUT: http://127.0.0.1:8000/friends/2/accept
+
+Reject Friend Request
+PUT: http://127.0.0.1:8000/friends/2/reject
+
+Friend list
+GET: http://127.0.0.1:8000/friends/
+
+Add Like
+POST: http://127.0.0.1:8000/like/1
+
+Remove Like
+DELETE: http://127.0.0.1:8000/like/1
+
+Get Like Count
+GET: http://127.0.0.1:8000/like/1
