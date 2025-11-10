@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Text, Enum, DateTime, ForeignKey, Boolean, DateTime
+from sqlalchemy import UniqueConstraint, create_engine, Column, Integer, String, Text, Enum, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from datetime import datetime
 from dotenv import load_dotenv
@@ -42,10 +42,39 @@ class Todo(Base):
     completed_at = Column(DateTime, nullable=True)
 
     #로그인한 사용자 연결용 외래키
-    user_id = Column(Integer, ForeignKey("todo_user.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("todo_user.id", ondelete="CASCADE"), nullable=False)
+
+    is_public = Column(Boolean, default=False)  #공개 여부
 
     #관계 설정
     user = relationship("TodoUser", back_populates="todos")
+
+#친구 테이블
+class Friends(Base):
+    __tablename__ = "friends"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    requester_id = Column(Integer, ForeignKey("todo_user.id", ondelete="CASCADE"), nullable=False)
+    addressee_id = Column(Integer, ForeignKey("todo_user.id", ondelete="CASCADE"), nullable=False)
+    status = Column(Enum('pending','accepted','rejected'), default='pending')
+    created_at = Column(DateTime, default=datetime.now)
+
+    __table_args__ = (UniqueConstraint('requester_id','addressee_id', name='uq_friend_pair'),)
+
+    requester = relationship("TodoUser", foreign_keys=[requester_id], backref="sent_requests")
+    addressee = relationship("TodoUser", foreign_keys=[addressee_id], backref="received_requests")
+
+#좋아요 테이블
+class Like(Base):
+    __tablename__ = "like"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("todo_user.id", ondelete="CASCADE"), nullable=False)
+    todo_id = Column(Integer, ForeignKey("todo.id", ondelete="CASCADE"), nullable=False)
+    created_at = Column(DateTime, default=datetime.now)
+
+    __table_args__ = (UniqueConstraint('user_id','todo_id', name='uq_user_todo_like'),)
+
+    user = relationship("TodoUser", backref="likes")
+    todo = relationship("Todo", backref="likes")
 
 def init_db():
     Base.metadata.create_all(bind=engine)

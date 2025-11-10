@@ -8,6 +8,7 @@ class TodoBase(BaseModel):
     description: Optional[str] = None
     status: Optional[str] = "pending"
     priority: Optional[str] = "medium"
+    is_public: Optional[bool] = False
 
 class TodoCreate(TodoBase):
 #Todo 생성 시 요청 본문
@@ -57,3 +58,17 @@ class Token(BaseModel):
 class TokenData(BaseModel):
 #JWT payload 데이터
     email: Optional[str] = None
+
+#Friends 스키마
+class FriendsResponse(BaseModel):
+    id: int
+    requester_id: int
+    addressee_id: int
+    status: str
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+#Like 스키마
+class LikeResponse(BaseModel):
+    todo_id: int
+    likes_count: int
