@@ -5,20 +5,55 @@ CREATE TABLE todo (
     description TEXT DEFAULT NULL,
     status ENUM('pending', 'in_progress', 'completed') DEFAULT 'pending',
     priority ENUM('high', 'medium', 'low') DEFAULT 'medium',
+    is_public TINYINT(1) DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     completed_at DATETIME DEFAULT NULL,
     user_id INT NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY(user_id) REFERENCES todo_user (id)
+    FOREIGN KEY (user_id) REFERENCES todo_user (id) ON DELETE CASCADE
 );
 
-Todo_user
+User
 CREATE TABLE todo_user (
     id INT NOT NULL AUTO_INCREMENT,
     email VARCHAR(100) UNIQUE DEFAULT NULL,
     passwd VARCHAR(255) DEFAULT NULL,
     name VARCHAR(50) DEFAULT NULL,
-    is_deleted_at DATETIME DEFAULT NULL,
+    is_deleted TINYINT(1) DEFAULT 0,
+    deleted_at DATETIME DEFAULT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY email (email)
+);
+
+
+Friend
+CREATE TABLE friends (
+    id INT NOT NULL AUTO_INCREMENT,
+    requester_id INT NOT NULL,
+    addressee_id INT NOT NULL,
+    status ENUM('pending','accepted','rejected') DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_friends_requester FOREIGN KEY (requester_id)
+        REFERENCES todo_user(id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_friends_addressee FOREIGN KEY (addressee_id)
+        REFERENCES todo_user(id)
+        ON DELETE CASCADE,
+    CONSTRAINT uq_friend_pair UNIQUE (requester_id, addressee_id)
+);
+Like
+CREATE TABLE `like` (
+    id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    todo_id INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_like_user FOREIGN KEY (user_id)
+        REFERENCES todo_user(id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_like_todo FOREIGN KEY (todo_id)
+        REFERENCES todo(id)
+        ON DELETE CASCADE,
+    CONSTRAINT uq_user_todo_like UNIQUE (user_id, todo_id)
 );
