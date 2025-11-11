@@ -43,7 +43,7 @@ CREATE TABLE friends (
     CONSTRAINT uq_friend_pair UNIQUE (requester_id, addressee_id)
 );
 Like
-CREATE TABLE `like` (
+CREATE TABLE likes (
     id INT NOT NULL AUTO_INCREMENT,
     user_id INT NOT NULL,
     todo_id INT NOT NULL,

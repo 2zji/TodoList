@@ -7,7 +7,6 @@ from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 from os import getenv
 from dotenv import load_dotenv
-import threading, time
 from todo_list.db_connect import SessionLocal, TodoUser, get_db
 from datetime import datetime, timedelta
 from todo_list.schemas import UserLogin
