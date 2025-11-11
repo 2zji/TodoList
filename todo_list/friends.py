@@ -56,8 +56,8 @@ def reject_friend_request(request_id: int, db: Session = Depends(get_db), curren
 @router.get("/", response_model=list[FriendsResponse])
 def get_my_friends(db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
     friends = db.query(Friends).filter(
-        ((Friends.requester_id == current_user.id) | (Friends.addressee_id == current_user.id)),
-        Friends.status == 'accepted'
+        ((Friends.requester_id == current_user.id) | (Friends.addressee_id == current_user.id)) &
+        (Friends.status == 'accepted')
     ).all()
     return friends
 

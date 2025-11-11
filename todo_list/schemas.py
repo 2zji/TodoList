@@ -20,6 +20,7 @@ class TodoUpdate(BaseModel):
     description: Optional[str] = None
     status: Optional[str] = None
     priority: Optional[str] = None
+    is_public: Optional[bool] = None
 
 class TodoResponse(TodoBase):
 #Todo 조회 시 응답

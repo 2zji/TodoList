@@ -3,7 +3,6 @@ from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from datetime import datetime
 from dotenv import load_dotenv
 import os
-
 from fastapi import FastAPI
 
 load_dotenv()
@@ -29,43 +28,47 @@ class TodoUser(Base):
     
     #1:N 관계 설정
     todos = relationship("Todo", back_populates="user", cascade="all, delete-orphan")
+    likes = relationship("Like", back_populates="user", cascade="all, delete-orphan")
+    sent_requests = relationship("Friends", foreign_keys="[Friends.requester_id]", back_populates="requester")
+    received_requests = relationship("Friends", foreign_keys="[Friends.addressee_id]", back_populates="addressee")
+
 
 #투두 테이블
 class Todo(Base):
     __tablename__ = "todo"
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     title = Column(String(100))
     description = Column(Text)
-    status = Column(Enum('pending', 'in_progress', 'completed'), default='pending')
-    priority = Column(Enum('high', 'medium', 'low'), default='medium')
+    status = Column(Enum('pending','in_progress','completed'), default='pending')
+    priority = Column(Enum('high','medium','low'), default='medium')
+    is_public = Column(Boolean, default=False)  #공개 여부
     created_at = Column(DateTime, default=datetime.now)
     completed_at = Column(DateTime, nullable=True)
 
     #로그인한 사용자 연결용 외래키
     user_id = Column(Integer, ForeignKey("todo_user.id", ondelete="CASCADE"), nullable=False)
 
-    is_public = Column(Boolean, default=False)  #공개 여부
-
     #관계 설정
     user = relationship("TodoUser", back_populates="todos")
+    likes = relationship("Like", back_populates="todo", cascade="all, delete-orphan")
 
 #친구 테이블
 class Friends(Base):
     __tablename__ = "friends"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    requester_id = Column(Integer, ForeignKey("todo_user.id", ondelete="CASCADE"), nullable=False)
-    addressee_id = Column(Integer, ForeignKey("todo_user.id", ondelete="CASCADE"), nullable=False)
-    status = Column(Enum('pending','accepted','rejected'), default='pending')
+    id = Column(Integer, primary_key=True, index=True)
+    requester_id = Column(Integer, ForeignKey("todo_user.id", ondelete="CASCADE"))
+    addressee_id = Column(Integer, ForeignKey("todo_user.id", ondelete="CASCADE"))
+    status = Column(Enum("pending", "accepted", "rejected"), default="pending")
     created_at = Column(DateTime, default=datetime.now)
 
     __table_args__ = (UniqueConstraint('requester_id','addressee_id', name='uq_friend_pair'),)
 
-    requester = relationship("TodoUser", foreign_keys=[requester_id], backref="sent_requests")
-    addressee = relationship("TodoUser", foreign_keys=[addressee_id], backref="received_requests")
+    requester = relationship("TodoUser", foreign_keys=[requester_id], back_populates="sent_requests")
+    addressee = relationship("TodoUser", foreign_keys=[addressee_id], back_populates="received_requests")
 
 #좋아요 테이블
 class Like(Base):
-    __tablename__ = "like"
+    __tablename__ = "likes"
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("todo_user.id", ondelete="CASCADE"), nullable=False)
     todo_id = Column(Integer, ForeignKey("todo.id", ondelete="CASCADE"), nullable=False)
@@ -73,8 +76,8 @@ class Like(Base):
 
     __table_args__ = (UniqueConstraint('user_id','todo_id', name='uq_user_todo_like'),)
 
-    user = relationship("TodoUser", backref="likes")
-    todo = relationship("Todo", backref="likes")
+    user = relationship("TodoUser", back_populates="likes")
+    todo = relationship("Todo", back_populates="likes")
 
 def init_db():
     Base.metadata.create_all(bind=engine)
