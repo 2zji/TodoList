@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from todo_list import auth, friends, like, todo, user, friends, like
+from todo_list import auth, todo, user, friends, like
 
 app = FastAPI()
 
