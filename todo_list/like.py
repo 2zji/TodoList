@@ -4,6 +4,34 @@ from todo_list import Like, Friends, Todo, TodoUser, get_db, get_current_user, L
 
 router = APIRouter(prefix="/like", tags=["like"])
 
+#내가 좋아요한 todo 목록 조회
+@router.get("/my")
+def get_my_liked_todo_details(db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
+    liked_todos = db.query(Like).filter(Like.user_id == current_user.id).all()
+
+    if not liked_todos:
+        return []
+
+    result = []
+    for like in liked_todos:
+        todo = db.query(Todo).filter(Todo.id == like.todo_id).first()
+        if todo:
+            friend = db.query(TodoUser).filter(TodoUser.id == todo.user_id).first()
+            likes_count = db.query(Like).filter(Like.todo_id == todo.id).count()
+            result.append({
+                "todo_id": todo.id,
+                "title": todo.title,
+                "description": todo.description,
+                "status": todo.status,
+                "priority": todo.priority,
+                "friend_name": friend.name if friend else "Unknown",
+                "created_at": todo.created_at,
+                "likes_count": likes_count
+            })
+
+    return result
+
+
 #좋아요 추가
 @router.post("/{todo_id}", response_model=LikeResponse)
 def add_like(todo_id: int, db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
@@ -45,7 +73,7 @@ def remove_like(todo_id: int, db: Session = Depends(get_db), current_user: TodoU
     likes_count = db.query(Like).filter(Like.todo_id == todo_id).count()
     return LikeResponse(todo_id=todo_id, likes_count=likes_count)
 
-#공개된 투두 좋아요 개수 조회
+#공개된 todo 좋아요 개수 조회
 @router.get("/{todo_id}", response_model=LikeResponse)
 def get_likes_count(todo_id: int, db: Session = Depends(get_db)):
     todo = db.query(Todo).filter(Todo.id == todo_id, Todo.is_public == True).first()
@@ -54,9 +82,3 @@ def get_likes_count(todo_id: int, db: Session = Depends(get_db)):
 
     likes_count = db.query(Like).filter(Like.todo_id == todo_id).count()
     return LikeResponse(todo_id=todo_id, likes_count=likes_count)
-
-#내가 좋아요한 투두 목록 조회
-@router.get("/", response_model=list[LikeResponse])
-def get_my_liked_todos(db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
-    liked_todos = db.query(Like).filter(Like.user_id == current_user.id).all()
-    return [LikeResponse(todo_id=like.todo_id, likes_count=db.query(Like).filter(Like.todo_id == like.todo_id).count()) for like in liked_todos]
