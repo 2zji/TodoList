@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
-from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 from os import getenv
 from dotenv import load_dotenv
 from todo_list.db_connect import SessionLocal, TodoUser, get_db
-from datetime import datetime, timedelta
 from todo_list.schemas import UserLogin
 
 router = APIRouter(prefix="/auth", tags=["auth"])

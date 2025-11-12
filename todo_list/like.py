@@ -6,7 +6,7 @@ router = APIRouter(prefix="/like", tags=["like"])
 
 #내가 좋아요한 todo 목록 조회
 @router.get("/my")
-def get_my_liked_todo_details(db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
+def get_my_liked_todo_detail(db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
     liked_todos = db.query(Like).filter(Like.user_id == current_user.id).all()
 
     if not liked_todos:
@@ -20,11 +20,11 @@ def get_my_liked_todo_details(db: Session = Depends(get_db), current_user: TodoU
             likes_count = db.query(Like).filter(Like.todo_id == todo.id).count()
             result.append({
                 "todo_id": todo.id,
+                "friend_name": friend.name if friend else "Unknown",
                 "title": todo.title,
                 "description": todo.description,
                 "status": todo.status,
                 "priority": todo.priority,
-                "friend_name": friend.name if friend else "Unknown",
                 "created_at": todo.created_at,
                 "likes_count": likes_count
             })

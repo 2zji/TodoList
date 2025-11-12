@@ -1,9 +1,9 @@
+from fastapi import FastAPI
 from sqlalchemy import UniqueConstraint, create_engine, Column, Integer, String, Text, Enum, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from datetime import datetime
 from dotenv import load_dotenv
 import os
-from fastapi import FastAPI
 
 load_dotenv()
 
