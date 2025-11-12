@@ -1,3 +1,5 @@
+------( USER )------
+
 Login User
 POST: http://127.0.0.1:8000/auth/login
 {
@@ -14,7 +16,12 @@ POST: http://127.0.0.1:8000/users/
     "name": "고슴도치"
 }
 
---- 밑 예시부터 Authorization: Bearer <로그인 시 받은 토큰> 필수 ---
+Delete User
+Authorization: Bearer <로그인 시 받은 토큰>
+DELETE: http://127.0.0.1:8000/users/me
+
+
+------( TODO | Authorization: Bearer <로그인 시 받은 토큰> )------
 
 Create Todo
 POST: http://127.0.0.1:8000/todo/
@@ -39,14 +46,19 @@ PUT: http://127.0.0.1:8000/todo/1
     "is_public": false
 }
 
+Read My Public Todo
+GET: http://127.0.0.1:8000/todo/my/public
+
+Read My Private Todo
+GET: http://127.0.0.1:8000/todo/my/private
+
 Delete Todo
 DELETE: http://127.0.0.1:8000/todo/1
 
-Delete User
-DELETE: http://127.0.0.1:8000/users/me
+------( FRIENDS | Authorization: Bearer <로그인 시 받은 토큰> )------
 
 Send Friend Request
-POST: http://127.0.0.1:8000/friends/2
+POST: http://127.0.0.1:8000/friends/1
 
 Friend Request accepted
 PUT: http://127.0.0.1:8000/friends/1
@@ -57,6 +69,17 @@ PUT: http://127.0.0.1:8000/friends/1
 Friend list
 GET: http://127.0.0.1:8000/friends/
 
+Get Friend Public Todo
+GET: http://127.0.0.1:8000/friends/1/todos
+
+Get Friend Request
+GET: http://127.0.0.1:8000/friends/requests
+
+Delete Friend
+DELETE: http://127.0.0.1:8000/friends/1
+
+------( LIKE | Authorization: Bearer <로그인 시 받은 토큰> )------
+
 Add Like
 POST: http://127.0.0.1:8000/like/1
 
@@ -65,3 +88,6 @@ DELETE: http://127.0.0.1:8000/like/1
 
 Get Like Count
 GET: http://127.0.0.1:8000/like/1
+
+Get My Liked Todo Details
+GET: http://127.0.0.1:8000/like/my
