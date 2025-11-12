@@ -1,4 +1,4 @@
-from todo_list import APIRouter, Depends, HTTPException, status, Session, TodoUser, get_db, Friends, get_current_user, FriendsResponse
+from todo_list import APIRouter, Depends, HTTPException, status, Session, TodoUser, get_db, Friends, Todo, get_current_user, FriendsResponse
 from sqlalchemy import or_
 
 router = APIRouter(prefix="/friends", tags=["friends"])
@@ -52,23 +52,44 @@ def reject_friend_request(request_id: int, db: Session = Depends(get_db), curren
     db.refresh(request)
     return request
 
-#내 친구 목록 조회
-@router.get("/", response_model=list[FriendsResponse])
+#친구 목록 조회
+@router.get("/")
 def get_my_friends(db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
     friends = db.query(Friends).filter(
-        ((Friends.requester_id == current_user.id) | (Friends.addressee_id == current_user.id)) &
-        (Friends.status == 'accepted')
+        ((Friends.requester_id == current_user.id) | (Friends.addressee_id == current_user.id)),
+        Friends.status == 'accepted'
     ).all()
-    return friends
+
+    friend_list = []
+    for f in friends:
+        friend_id = f.addressee_id if f.requester_id == current_user.id else f.requester_id
+        friend_user = db.query(TodoUser).filter(TodoUser.id == friend_id).first()
+        friend_list.append({
+            "friend_id": friend_user.id,
+            "friend_name": friend_user.name,
+            "status": f.status,
+            "created_at": f.created_at
+        })
+    return friend_list
 
 #새로 온 친구 요청 목록 조회
-@router.get("/requests", response_model=list[FriendsResponse])
+@router.get("/requests")
 def get_friend_requests(db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
     requests = db.query(Friends).filter(
         Friends.addressee_id == current_user.id,
         Friends.status == 'pending'
     ).all()
-    return requests
+
+    result = []
+    for req in requests:
+        requester = db.query(TodoUser).filter(TodoUser.id == req.requester_id).first()
+        result.append({
+            "request_id": req.id,
+            "requester_name": requester.name,
+            "status": req.status,
+            "created_at": req.created_at
+        })
+    return result
 
 #친구 삭제
 @router.delete("/{friend_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -86,3 +107,36 @@ def delete_friend(friend_id: int, db: Session = Depends(get_db), current_user: T
     db.delete(friendship)
     db.commit()
     return
+
+#친구의 public todo 목록 조회
+@router.get("/{friend_id}/todos")
+def get_friend_public_todos(friend_id: int, db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
+    # 친구 관계인지 확인
+    friendship = db.query(Friends).filter(
+        or_(
+            ((Friends.requester_id == current_user.id) & (Friends.addressee_id == friend_id)),
+            ((Friends.requester_id == friend_id) & (Friends.addressee_id == current_user.id))
+        ),
+        Friends.status == "accepted"
+    ).first()
+
+    if not friendship:
+        raise HTTPException(status_code=403, detail="You are not friends with this user")
+
+    # 친구의 공개된 todo만 가져오기
+    todos = db.query(Todo).filter(
+        Todo.user_id == friend_id,
+        Todo.is_public == True
+    ).all()
+
+    return [
+        {
+            "todo_id": t.id,
+            "title": t.title,
+            "description": t.description,
+            "status": t.status,
+            "priority": t.priority,
+            "created_at": t.created_at
+        }
+        for t in todos
+    ]
