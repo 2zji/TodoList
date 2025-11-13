@@ -1,0 +1,21 @@
+services:
+  db:
+    image: mysql:lts
+    container_name: todo-db
+    environment:
+      MYSQL_ROOT_PASSWORD: Soda0801!
+      MYSQL_DATABASE: todo_list
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+
+  app:
+    build: .
+    container_name: todo-app
+    environment:
+      DATABASE_URL: mysql+pymysql://root:Soda0801!@db:3306/todo_list
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db

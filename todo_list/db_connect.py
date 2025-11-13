@@ -10,8 +10,6 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-app = FastAPI(title="TodoList")
-
 engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -88,8 +86,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
-#db 초기화(테이블 초기화)
-@app.on_event("startup")
-def on_startup():
-    init_db()
