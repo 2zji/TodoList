@@ -7,4 +7,4 @@ COPY ./pyproject.toml /app/pyproject.toml
 
 RUN pip install .
 
-CMD uvicorn todo_list.main:app --reload
+CMD uvicorn todo_list.main:app --host 0.0.0.0 --port 8000 --reload
