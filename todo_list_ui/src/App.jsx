@@ -24,18 +24,22 @@ const styles = {
 function App() {
   return (
     <div style={{ display: "flex", width: "100vw", height: "100vh" }}>
-      {/* LeftSide */}
+
       <div style={{ ...styles.menu }}>
-          <div>Dashboard</div>
-          <div>My Page</div>
-          <div>My TODO</div>
-          <div>Friends</div>
-          <div>Logout</div>
+          <div style={{ margin: "30px", marginTop: "30px"}}>Dashboard</div>
+          <div style={{ margin: "30px"}}>My TODO</div>
+          <div style={{ margin: "30px"}}>Friends</div>
+          <div style={{ margin: "30px"}}>My Page</div>
+          <div style={{ margin: "30px", position: "absolute", bottom: 0}}>Logout</div>
       </div>
-      {/* Main */}
+
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <div style={{height: "100px", fontSize: "30px", textAlign:"center"}}>Header</div>
-        <div style={{height: "100%"}}>Main</div>
+        <div style={{height: "100px",width: "calc(100% - 20px)",fontSize: "30px",display: "flex",alignItems: "center",justifyContent: "flex-start",paddingLeft: "20px"}}>
+          Hi User!
+        </div>
+        <div style={{flex: 1,width: "100%",display: "flex",alignItems: "center",justifyContent: "center"}}>
+          Main
+        </div>
       </div>
     </div>
   );
