@@ -14,3 +14,8 @@ build/
 env/
 
 db/
+
+.node_modules/
+node_modules
+
+docker.txt
