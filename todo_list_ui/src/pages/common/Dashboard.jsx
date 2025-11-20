@@ -1,6 +1,34 @@
-import { Box, Grid } from "@mui/material";
+import { useCallback, useState } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { Box, Button, Modal, Typography, Pagination } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import NewTodo from "./NewTodo";
 
-function Dashboard({ onAddTask }) {
+function Dashboard() {
+  const navigate = useNavigate();
+  const handleNavigate = useCallback((path) => {
+    console.log(`Navigating to ${path}`);
+    navigate(path);
+  }, []);
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const modalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 900,
+    height: 600,
+    bgcolor: "background.paper",
+    border: "1px solid #ccc",
+    borderRadius: "1%",
+    boxShadow: 20,
+    p: 4,
+  };
+
   const styles = {
     container: {
       width: "100%",
@@ -47,6 +75,8 @@ function Dashboard({ onAddTask }) {
       height: "90%",
       marginLeft: "60px",
       marginRight: "60px",
+      flexDirection: "column",
+      gap: "20px",
     },
     sideColumn: {
       display: "flex",
@@ -59,6 +89,16 @@ function Dashboard({ onAddTask }) {
       width: "100%",
       height: "33.4vh",
     },
+    button: {
+      height: "30px",
+      minWidth: "30px",
+      maxWidth: "30px",
+      borderRadius: "50%",
+      backgroundColor: "#c5dbf0ff",
+      position: "absolute",
+      top: 10,
+      right: 10,
+    },
   };
 
   return (
@@ -67,7 +107,42 @@ function Dashboard({ onAddTask }) {
 
       <Box sx={styles.main}>
         <Box sx={styles.innerContainer}>
-          <Box sx={{ ...styles.box, ...styles.myTodo }}>My TODO</Box>
+          <Box sx={{ ...styles.box, ...styles.myTodo, position: "relative" }}>
+            My TODO
+
+            <Button
+              onClick={handleOpen}
+              sx={{
+                ...styles.button,
+                outline: "none",
+                "&:focus": { outline: "none" },
+                "&:focusVisible": { outline: "none", boxShadow: "none" },
+              }}
+            >
+              <AddIcon />
+            </Button>
+
+            <Modal open={open} onClose={handleClose}>
+              <Box sx={modalStyle}>
+                <NewTodo onClose={handleClose} />
+              </Box>
+            </Modal>
+
+            <Pagination
+              count={10}
+              color="primary"
+              sx={{
+                "& .MuiPaginationItem-root": {
+                  outline: "none",
+                  boxShadow: "none",
+                  "&:focus": { outline: "none" },
+                  "&:focusVisible": { outline: "none", boxShadow: "none" },
+                },
+                position: "absolute",
+                bottom: 20,
+              }}
+            />
+          </Box>
 
           <Box sx={styles.sideColumn}>
             <Box sx={{ ...styles.box, ...styles.sideBox }}>Friends TODO</Box>
