@@ -1,59 +1,50 @@
 import { Button } from "@mui/material";
+import { useEffect, useState } from "react";
 
-function NewTodo({ onClose }) {
-  const styles = {
-    button: {
-      backgroundColor: "#c5dbf0ff",
-      position: "absolute",
-    },
-  };
+const styles = {
+  button: {
+    backgroundColor: "#c5dbf0ff",
+    position: "absolute",
+  },
+};
+
+function NewTodo({updateMode, isViwer, infoObject = {}}) {
+  const [inputValue, setInputValue] = useState({
+    title:"",
+    discription:"",
+    status:"",
+    priority:"",
+    disclosure:"",
+  });
+
+  useEffect(()=>{
+    if(updateMode){
+      setInputValue(infoObject)
+    }
+  },[])
 
   return (
     <>
-      <h2 style={{ fontSize: "30px", margin: 0 }}>New TODO</h2>
-
-      <div style={{ marginTop: 20 }}>
-        <p>어쩌구저쩌구</p>
+      <div style={{ marginTop: 10 }}>
+        <p>제목</p> 
+        {updateMode && <input value={inputValue.title} readOnly={isViwer}/>}
       </div>
-
-      <Button
-        onClick={onClose}
-        sx={{
-            ...styles.button,
-          outline: "none",
-          "&:focus": { outline: "none" },
-          "&:focusVisible": { outline: "none", boxShadow: "none" },
-          top: 35, right: 35,
-        }}
-      >
-        닫기
-      </Button>
-
-      <Button
-        onClick={onClose}
-        sx={{
-            ...styles.button,
-          outline: "none",
-          "&:focus": { outline: "none" },
-          "&:focusVisible": { outline: "none", boxShadow: "none" },
-          bottom: 35, left: 400,
-        }}
-      >
-       등록
-      </Button>
-
-      <Button
-        onClick={onClose}
-        sx={{
-            ...styles.button,
-          outline: "none",
-          "&:focus": { outline: "none" },
-          "&:focusVisible": { outline: "none", boxShadow: "none" },
-          bottom: 35, right: 400,
-        }}
-      >
-        취소
-      </Button>
+      <div style={{ marginTop: 10 }}>
+        <p>내용</p> 
+        {updateMode && <input value={inputValue.discription} readOnly={isViwer}/>}
+      </div>
+      <div style={{ marginTop: 10 }}>
+        <p>상태</p> 
+        {updateMode && <input value={inputValue.status} readOnly={isViwer}/>}
+      </div>
+      <div style={{ marginTop: 10 }}>
+        <p>중요도</p> 
+        {updateMode && <input value={inputValue.priority} readOnly={isViwer}/>}
+      </div>
+      <div style={{ marginTop: 10 }}>
+        <p>공개여부</p> 
+        {updateMode && <input value={inputValue.disclosure} readOnly={isViwer}/>}
+      </div>
     </>
   );
 }
