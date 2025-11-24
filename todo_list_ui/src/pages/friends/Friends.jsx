@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
 import { Box, Button, Modal, Pagination, Tab, Tabs } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import NewTodo from "../../pages/common/NewTodo";
 import HeaderTemplet from "../../components/common/HeaderTemplet";
 
-function Friends() {
+function Dashboard() {
   const [open, setOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
 
@@ -58,7 +58,7 @@ function Friends() {
       }}
     >
       {/* Header */}
-      <Box
+      {/* <Box
         sx={{
           height: "120px",
           display: "flex",
@@ -69,7 +69,7 @@ function Friends() {
         }}
       >
         <h2 style={{ margin: 0, fontSize: "40px" }}>Hi User!</h2>
-      </Box>
+      </Box> */}
 
       {/* Main */}
       <Box sx={{ padding: 4, height: "calc(100% - 190px)" }}>
@@ -102,9 +102,11 @@ function Friends() {
             position: "relative",
           }}
         >
-          {tabValue === 0 && <div>My Friends</div>}
-          {tabValue === 1 && <div>Friend Request</div>}
-          {tabValue === 2 && <div>Add Friends</div>}
+          <Box sx={{ height: "95%" }}>
+            {tabValue === 0 && <div>My Friends</div>}
+            {tabValue === 1 && <div>Friend Request</div>}
+            {tabValue === 2 && <div>Add Friends</div>}
+          </Box>
 
           {/* Add Button
           {tabValue === 0 && (
@@ -125,20 +127,17 @@ function Friends() {
           )} */}
 
           {/* Pagination */}
-          <Pagination
-            count={10}
-            color="primary"
+          <Box
             sx={{
-              "& .MuiPaginationItem-root": {
-                outline: "none",
-                boxShadow: "none",
-                "&:focus": { outline: "none" },
-                "&:focusVisible": { outline: "none", boxShadow: "none" },
-              },
-              position: "absolute",
-              bottom: 20,
+              width: "100%",
+              height: "calc(100%-90%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
-          />
+          >
+            <Pagination count={10} color="primary" />
+          </Box>
         </Box>
       </Box>
 
@@ -147,6 +146,7 @@ function Friends() {
         <Box sx={modalStyle}>
           <HeaderTemplet title="New TODO" />
           <Box sx={{ height: "500px", mt: 2 }}>
+            <NewTodo updateMode={true} isViwer={true} infoObject={infoObject} />
           </Box>
           <FooterButtons />
         </Box>
@@ -155,4 +155,4 @@ function Friends() {
   );
 }
 
-export default Friends;
+export default Dashboard;

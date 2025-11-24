@@ -1,158 +1,148 @@
-import { useCallback, useState } from "react";
-import { Box, Button, Modal, Pagination, Tab, Tabs } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  Box,
+  Modal,
+  Tabs,
+  Tab,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+
 import NewTodo from "./NewTodo";
 import HeaderTemplet from "../../components/common/HeaderTemplet";
+import AppPagination from "../../components/common/AppPagination";
+import { myTodo, friendsTodo, likedTodo } from "../../data/TodoData";
 
 function Dashboard() {
   const [open, setOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 10;
+  const [currentList, setCurrentList] = useState([]);
 
-  const infoObject = {
-    title: "오늘의 할일",
-    discription: "오늘의 할일",
-    status: "진행전",
-    priority: "매우 높음",
-    disclosure: "비공개",
+  const dataSource = {
+    0: myTodo,
+    1: friendsTodo,
+    2: likedTodo,
   };
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  // const currentList = dataSource[tabValue] ?? [];
+  const pageCount = Math.ceil(currentList.length / rowsPerPage);
 
-  const handleTabChange = (_, newValue) => setTabValue(newValue);
-
-  const styles = {
-    button: {
-      backgroundColor: "#c5dbf0ff",
-      "&:focus": { outline: "none" },
-      "&:focusVisible": { outline: "none", boxShadow: "none" },
-    },
-  };
-
-  const modalStyle = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "900px",
-    height: "600px",
-    bgcolor: "background.paper",
-    borderRadius: "10px",
-    p: 4,
-    outline: "none",
-  };
-
-  const FooterButtons = () => (
-    <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
-      <Button sx={styles.button}>등록</Button>
-      <Button sx={styles.button}>취소</Button>
-    </Box>
+  const paginatedData = currentList.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
   );
 
+  useEffect(() => {
+    // console.log(tabValue)
+    getList();
+  }, [tabValue]);
+
+  const getList = () => {
+    const response =
+      tabValue === 0
+        ? { data: myTodo }
+        : tabValue === 1
+        ? { data: friendsTodo }
+        : { data: likedTodo }; //axios.
+    const data = response.data;
+    setCurrentList(data);
+  };
+
+  const handleTabChange = (_, newValue) => {
+    setTabValue(newValue);
+    setPage(1);
+  };
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        height: "100%",
-      }}
-    >
-      {/* Header */}
+    <Box sx={{ width: "100%", height: "100vh" }}>
+      {/* Main */}
       <Box
         sx={{
-          height: "120px",
-          display: "flex",
-          alignItems: "center",
-          paddingLeft: "40px",
-          background: "#f9f9f9",
-          borderBottom: "1px solid #ccc",
+          width: "100%",
+          height: "calc(100vh - 120px - 32px)",
+          padding: 4,
+          boxSizing: "border-box",
         }}
       >
-        <h2 style={{ margin: 0, fontSize: "40px" }}>Hi User!</h2>
-      </Box>
-
-      {/* Main */}
-      <Box sx={{ padding: 4, height: "calc(100% - 190px)" }}>
         {/* Tabs */}
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
-          sx={{
-            "& .MuiTab-root": {
-              outline: "none",
-              boxShadow: "none",
-              "&:focus": { outline: "none" },
-              "&:focusVisible": { outline: "none", boxShadow: "none" },
-            },
-            marginBottom: 3,
-          }}
+          sx={{ marginBottom: 2, "& .MuiTab-root": { outline: "none" } }}
         >
           <Tab label="My TODO" />
           <Tab label="Friends TODO" />
           <Tab label="Likes TODO" />
         </Tabs>
 
-        {/* Content */}
-        <Box
-          sx={{
-            border: "1px solid #ccc",
-            height: "85%",
-            borderRadius: "6px",
-            padding: 2,
-            position: "relative",
-          }}
+        {/* Table */}
+        <TableContainer
+          component={Paper}
+          sx={{ borderRadius: "6px", overflow: "hidden", maxHeight: "100%" }}
         >
-          <Box sx={{ height: "95%" }}>
-            {tabValue === 0 && <div>My TODO</div>}
-            {tabValue === 1 && <div>Friends TODO</div>}
-            {tabValue === 2 && <div>Likes TODO</div>}
-          </Box>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>No.</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Title</TableCell>
+                <TableCell>Priority</TableCell>
+                <TableCell>Status</TableCell>
+              </TableRow>
+            </TableHead>
 
-          {/* Add Button
-          {tabValue === 0 && (
-            <Button
-              onClick={handleOpen}
-              sx={{
-                ...styles.button,
-                position: "absolute",
-                top: 10,
-                right: 10,
-                borderRadius: "50%",
-                minWidth: "40px",
-                maxWidth: "40px",
-              }}
-            >
-              <AddIcon />
-            </Button>
-          )} */}
+            <TableBody>
+              {paginatedData.map((item, i) => (
+                <TableRow key={item.id} hover>
+                  <TableCell>{(page - 1) * rowsPerPage + i + 1}</TableCell>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.title}</TableCell>
+                  <TableCell>{item.priority}</TableCell>
+                  <TableCell>{item.status}</TableCell>
+                </TableRow>
+              ))}
 
-          {/* Pagination */}
-          <Box
-            sx={{
-              width: "100%",
-              height: "calc(100%-90%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Pagination
-              count={10}
-              color="primary"
-              
-            />
-          </Box>
+              {paginatedData.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    데이터가 없습니다.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        {/* Pagination */}
+        <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
+          <AppPagination page={page} count={pageCount} onChange={setPage} />
         </Box>
       </Box>
 
       {/* Modal */}
-      <Modal open={open} onClose={handleClose}>
-        <Box sx={modalStyle}>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <Box
+          sx={{
+            width: 900,
+            height: 600,
+            bgcolor: "white",
+            p: 4,
+            borderRadius: "12px",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
           <HeaderTemplet title="New TODO" />
-          <Box sx={{ height: "500px", mt: 2 }}>
-            <NewTodo updateMode={true} isViwer={true} infoObject={infoObject} />
-          </Box>
-          <FooterButtons />
+          <NewTodo />
         </Box>
       </Modal>
     </Box>

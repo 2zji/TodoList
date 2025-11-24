@@ -2,13 +2,13 @@ import { useCallback } from "react";
 
 export function Menu({ onAddTask }) {
   return (
-    <div className="menu" style={styles.menu}>
-      <div style={styles.item}>Dashboard</div>
-      <div style={styles.item}>My Page</div>
-      <div style={styles.item}>My TODO</div>
-      <div style={styles.item}>Friends</div>
-      <div style={styles.item}>Logout</div>
-    </div>
+    <div style={{ ...styles.menu }}>
+          <a href="index.html"><div style={{ margin: "30px", marginTop: "30px" }}>Dashboard</div></a>
+          <a href="MyTodo.jsx"><div style={{ margin: "30px" }}>My TODO</div></a>
+          <a href="Friends.jsx"><div style={{ margin: "30px" }}>Friends</div></a>
+          <a href="index.html"><div style={{ margin: "30px" }}>My Page</div></a>
+          <a href="index.html"><div style={{ margin: "30px", position: "absolute", bottom: 0 }}>Logout</div></a>
+      </div>
   );
 }
 
@@ -19,11 +19,7 @@ const styles = {
     gap: "10px",
     padding: "20px",
     borderRight: "1px solid #ccc",
-    width: "150px",
-    height: "100vh",
-    position: "fixed",
-    top: 0,
-    left: 0,
+    width: "200px", 
     background: "#f9f9f9",
   },
   item: {
