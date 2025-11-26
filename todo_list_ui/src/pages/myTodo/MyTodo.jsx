@@ -19,7 +19,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import NewTodo from "../../pages/common/NewTodo";
+import NewTodo from "../common/TodoModal";
 import HeaderTemplet from "../../components/common/HeaderTemplet";
 import AppPagination from "../../components/common/AppPagination";
 import { myTodo as initialMyTodo } from "../../data/TodoData";
@@ -28,7 +28,13 @@ function MyTodo() {
   const [todoList, setTodoList] = useState(initialMyTodo);
   const [open, setOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
-  const [selectedTodo, setSelectedTodo] = useState(null);
+  const [selectedTodo, setSelectedTodo] = useState({
+    title: "",
+    discription: "",
+    priority: "public",
+    disclosure: "medium",
+    status: "proceed",
+  });
 
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState([]);
@@ -81,14 +87,18 @@ function MyTodo() {
     setPage((p) => Math.min(p, newPageCount));
   };
 
-  // 모달 저장(새로 만들기 또는 업데이트 시 호출)
+  // 모달 저장
   const handleSaveNewTodo = (newItem) => {
     if (modalMode === "edit" && selectedTodo) {
       // 업데이트
-      setTodoList((prev) => prev.map((t) => (t.id === selectedTodo.id ? { ...t, ...newItem } : t)));
+      setTodoList((prev) =>
+        prev.map((t) => (t.id === selectedTodo.id ? { ...t, ...newItem } : t))
+      );
     } else {
       // 새로 추가
-      const nextId = todoList.length ? Math.max(...todoList.map((t) => t.id)) + 1 : 1;
+      const nextId = todoList.length
+        ? Math.max(...todoList.map((t) => t.id)) + 1
+        : 1;
       const item = { id: nextId, ...newItem };
       setTodoList((prev) => [item, ...prev]);
       setPage(1);
@@ -105,7 +115,6 @@ function MyTodo() {
     setOpen(true);
   };
 
-  // 편집 버튼(상세에서 편집 토글하는 걸 NewTodo 내부에서 해도 되지만 외부에서도 가능)
   const openCreateModal = () => {
     setSelectedTodo(null);
     setModalMode("create");
@@ -236,7 +245,10 @@ function MyTodo() {
                   onClick={() => handleRowClick(item)}
                   sx={{ cursor: "pointer" }}
                 >
-                  <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+                  <TableCell
+                    padding="checkbox"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Checkbox
                       checked={selected.includes(item.id)}
                       onChange={() => handleSelectOne(item.id)}
@@ -245,7 +257,9 @@ function MyTodo() {
 
                   <TableCell>{(page - 1) * rowsPerPage + idx + 1}</TableCell>
                   <TableCell>{item.title}</TableCell>
-                  <TableCell>{item.disclosure === "public" ? "공개" : "비공개"}</TableCell>
+                  <TableCell>
+                    {item.disclosure === "public" ? "public" : "private"}
+                  </TableCell>
                   <TableCell>{item.priority}</TableCell>
                   <TableCell>{item.status}</TableCell>
                 </TableRow>
@@ -287,7 +301,16 @@ function MyTodo() {
           }}
         >
           <Box sx={{ width: "100%", height: 50 }}>
-            <HeaderTemplet title={modalMode === "create" ? "New TODO" : modalMode === "view" ? "View TODO" : "Edit TODO"} onClose={() => setOpen(false)} />
+            <HeaderTemplet
+              title={
+                modalMode === "create"
+                  ? "New TODO"
+                  : modalMode === "view"
+                  ? "View TODO"
+                  : "Edit TODO"
+              }
+              onClose={() => setOpen(false)}
+            />
           </Box>
 
           <Box sx={{ flex: 1, mt: 2, overflow: "auto" }}>
@@ -301,12 +324,10 @@ function MyTodo() {
               }}
               onSave={(item) => handleSaveNewTodo(item)}
               onEdit={() => {
-                // 외부에서 edit 모드로 전환시키고 싶다면 호출
                 setModalMode("edit");
               }}
             />
           </Box>
-
         </Box>
       </Modal>
     </Box>
