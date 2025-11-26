@@ -23,6 +23,7 @@ import NewTodo from "../common/TodoModal";
 import HeaderTemplet from "../../components/common/HeaderTemplet";
 import AppPagination from "../../components/common/AppPagination";
 import { myTodo as initialMyTodo } from "../../data/TodoData";
+import axios from "axios";
 
 function MyTodo() {
   const [todoList, setTodoList] = useState(initialMyTodo);
@@ -108,7 +109,7 @@ function MyTodo() {
     setModalMode("create");
   };
 
-  // 테이블 행 클릭 -> 상세 (view)
+  // 테이블 행 클릭 시, view
   const handleRowClick = (item) => {
     setSelectedTodo(item);
     setModalMode("view");
