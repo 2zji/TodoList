@@ -173,7 +173,7 @@ function MyTodo() {
                 setPage(1);
                 setSelected([]);
               }}
-              inputProps={{
+              slotProps={{
                 name: "disclosure",
                 id: "disclosure-native",
               }}
@@ -226,7 +226,7 @@ function MyTodo() {
                       pagedItems.every((item) => selected.includes(item.id))
                     }
                     onChange={handleSelectAll}
-                    inputProps={{ "aria-label": "select all" }}
+                    slotProps={{ "aria-label": "select all" }}
                   />
                 </TableCell>
                 <TableCell>No.</TableCell>
@@ -298,6 +298,7 @@ function MyTodo() {
             outline: "none",
             display: "flex",
             flexDirection: "column",
+            overflow: "hidden",
           }}
         >
           <Box sx={{ width: "100%", height: 50 }}>
@@ -313,7 +314,18 @@ function MyTodo() {
             />
           </Box>
 
-          <Box sx={{ flex: 1, mt: 2, overflow: "auto" }}>
+          <Box
+            sx={{
+              flex: 1,
+              mt: 2,
+              overflow: "auto",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              "&::-webkit-scrollbar": {
+                display: "none",
+              },
+            }}
+          >
             <NewTodo
               mode={modalMode}
               infoObject={selectedTodo}
