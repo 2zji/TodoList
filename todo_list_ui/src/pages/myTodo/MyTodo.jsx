@@ -144,7 +144,7 @@ function MyTodo() {
       display: "flex",
       flexDirection: "column",
       flex: 1,
-      width: "95%",
+      width: "96%",
       //margin: "50px",
       padding: "32px",
       // height: "calc(100%-120px)",
@@ -179,9 +179,9 @@ function MyTodo() {
                 id: "disclosure-native",
               }}
             >
-              <option value="all">전체</option>
-              <option value="public">공개</option>
-              <option value="private">비공개</option>
+              <option value="all">all</option>
+              <option value="public">public</option>
+              <option value="private">private</option>
             </Select>
           </FormControl>
 
@@ -269,7 +269,7 @@ function MyTodo() {
               {pagedItems.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} align="center">
-                    목록이 없습니다.
+                    데이터가 없습니다.
                   </TableCell>
                 </TableRow>
               )}

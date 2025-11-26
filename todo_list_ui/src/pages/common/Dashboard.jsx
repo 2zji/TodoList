@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@mui/material";
 
-import NewTodo from "./NewTodo";
+import NewTodo from "./TodoModal";
 import HeaderTemplet from "../../components/common/HeaderTemplet";
 import AppPagination from "../../components/common/AppPagination";
 import { myTodo, friendsTodo, likedTodo } from "../../data/TodoData";
@@ -22,36 +22,18 @@ function Dashboard() {
   const [open, setOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [page, setPage] = useState(1);
+
+  const [selectedTodo, setSelectedTodo] = useState(null);
+
   const rowsPerPage = 10;
   const [currentList, setCurrentList] = useState([]);
 
-  const dataSource = {
-    0: myTodo,
-    1: friendsTodo,
-    2: likedTodo,
-  };
-
-  // const currentList = dataSource[tabValue] ?? [];
-  const pageCount = Math.ceil(currentList.length / rowsPerPage);
-
-  const paginatedData = currentList.slice(
-    (page - 1) * rowsPerPage,
-    page * rowsPerPage
-  );
-
   useEffect(() => {
-    // console.log(tabValue)
     getList();
   }, [tabValue]);
 
   const getList = () => {
-    const response =
-      tabValue === 0
-        ? { data: myTodo }
-        : tabValue === 1
-        ? { data: friendsTodo }
-        : { data: likedTodo }; //axios.
-    const data = response.data;
+    const data = tabValue === 0 ? myTodo : tabValue === 1 ? friendsTodo : likedTodo;
     setCurrentList(data);
   };
 
@@ -60,33 +42,29 @@ function Dashboard() {
     setPage(1);
   };
 
+  const pageCount = Math.ceil(currentList.length / rowsPerPage);
+  const paginatedData = currentList.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
+
+  const handleRowClick = (item) => {
+    setSelectedTodo(item);
+    setOpen(true);
+  };
+
   return (
     <Box sx={{ width: "100%", height: "100vh" }}>
-      {/* Main */}
-      <Box
-        sx={{
-          width: "100%",
-          height: "calc(100vh - 120px - 32px)",
-          padding: 4,
-          boxSizing: "border-box",
-        }}
-      >
+      <Box sx={{ width: "100%", height: "calc(100vh - 152px)", padding: 4, boxSizing: "border-box" }}>
         {/* Tabs */}
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          sx={{ marginBottom: 2, "& .MuiTab-root": { outline: "none" } }}
-        >
+        <Tabs value={tabValue} onChange={handleTabChange} sx={{ marginBottom: 2, "& .MuiTab-root": { outline: "none" } }}>
           <Tab label="My TODO" />
           <Tab label="Friends TODO" />
           <Tab label="Likes TODO" />
         </Tabs>
 
         {/* Table */}
-        <TableContainer
-          component={Paper}
-          sx={{ borderRadius: "6px", overflow: "hidden", maxHeight: "100%" }}
-        >
+        <TableContainer component={Paper} sx={{ borderRadius: "6px", overflow: "hidden", maxHeight: "100%" }}>
           <Table stickyHeader>
             <TableHead>
               <TableRow>
@@ -100,7 +78,7 @@ function Dashboard() {
 
             <TableBody>
               {paginatedData.map((item, i) => (
-                <TableRow key={item.id} hover>
+                <TableRow key={item.id} hover onClick={() => handleRowClick(item)} sx={{ cursor: "pointer" }}>
                   <TableCell>{(page - 1) * rowsPerPage + i + 1}</TableCell>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.title}</TableCell>
@@ -108,14 +86,6 @@ function Dashboard() {
                   <TableCell>{item.status}</TableCell>
                 </TableRow>
               ))}
-
-              {paginatedData.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    데이터가 없습니다.
-                  </TableCell>
-                </TableRow>
-              )}
             </TableBody>
           </Table>
         </TableContainer>
@@ -132,17 +102,31 @@ function Dashboard() {
           sx={{
             width: 900,
             height: 600,
-            bgcolor: "white",
+            bgcolor: "#fff",
             p: 4,
-            borderRadius: "12px",
+            borderRadius: "10px",
             position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
+            outline: "none",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
           }}
         >
-          <HeaderTemplet title="New TODO" />
-          <NewTodo />
+          <Box sx={{ width: "100%", height: 50 }}>
+            <HeaderTemplet title="View TODO" onClose={() => setOpen(false)} />
+          </Box>
+
+          <Box sx={{ flex: 1, mt: 2, overflow: "auto", "&::-webkit-scrollbar": { display: "none" } }}>
+            <NewTodo
+              mode="view"
+              infoObject={selectedTodo}
+              onClose={() => setOpen(false)}
+              hideFooter={true} // ← Dashboard에서만 버튼 숨김
+            />
+          </Box>
         </Box>
       </Modal>
     </Box>
