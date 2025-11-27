@@ -60,12 +60,12 @@ def delete_todo(todo_id: int, db: Session = Depends(get_db), current_user: TodoU
 #내 공개된 todo 목록 조회
 @router.get("/my/public", response_model=list[TodoResponse])
 def read_my_public_todos(db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
-    todos = db.query(Todo).filter(Todo.user_id == current_user.id, Todo.is_public == True).all()
+    todos = db.query(Todo).filter(Todo.user_id == current_user.id, Todo.publicity == True).all()
     return todos
 
 #내 비공개된 todo 목록 조회
 @router.get("/my/private", response_model=list[TodoResponse])
 def read_my_private_todos(db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
-    todos = db.query(Todo).filter(Todo.user_id == current_user.id, Todo.is_public == False).all()
+    todos = db.query(Todo).filter(Todo.user_id == current_user.id, Todo.publicity == False).all()
     return todos
 

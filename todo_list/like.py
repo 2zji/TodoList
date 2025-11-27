@@ -35,7 +35,7 @@ def get_my_liked_todo_detail(db: Session = Depends(get_db), current_user: TodoUs
 #좋아요 추가
 @router.post("/{todo_id}", response_model=LikeResponse)
 def add_like(todo_id: int, db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
-    todo = db.query(Todo).filter(Todo.id == todo_id, Todo.is_public == True).first()
+    todo = db.query(Todo).filter(Todo.id == todo_id, Todo.publicity == True).first()
     if not todo:
         raise HTTPException(status_code=404, detail="Todo not found or not public")
 
@@ -76,7 +76,7 @@ def remove_like(todo_id: int, db: Session = Depends(get_db), current_user: TodoU
 #공개된 todo 좋아요 개수 조회
 @router.get("/{todo_id}", response_model=LikeResponse)
 def get_likes_count(todo_id: int, db: Session = Depends(get_db)):
-    todo = db.query(Todo).filter(Todo.id == todo_id, Todo.is_public == True).first()
+    todo = db.query(Todo).filter(Todo.id == todo_id, Todo.publicity == True).first()
     if not todo:
         raise HTTPException(status_code=404, detail="Todo not found or not public")
 

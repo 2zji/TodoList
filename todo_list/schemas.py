@@ -8,7 +8,7 @@ class TodoBase(BaseModel):
     description: Optional[str] = None
     status: Optional[str] = "pending"
     priority: Optional[str] = "medium"
-    is_public: Optional[bool] = False
+    publicity: Optional[bool] = False
 
 class TodoCreate(TodoBase):
 #Todo 생성 시 요청 본문
@@ -20,7 +20,7 @@ class TodoUpdate(BaseModel):
     description: Optional[str] = None
     status: Optional[str] = None
     priority: Optional[str] = None
-    is_public: Optional[bool] = None
+    publicity: Optional[bool] = None
 
 class TodoResponse(TodoBase):
 #Todo 조회 시 응답

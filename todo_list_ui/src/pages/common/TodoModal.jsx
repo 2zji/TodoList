@@ -19,29 +19,30 @@ function TodoModal({
   const [inputValue, setInputValue] = useState({
     title: "",
     description: "",
-    disclosure: "public",
+    publicity: true,
     priority: "medium",
-    status: "proceed",
+    status: "in_progress",
   });
   
   const isReadOnly = mode === "view";
 
   useEffect(() => {
+    console.log(selectedTodo)
     if ((mode === "view" || mode === "edit") && selectedTodo) {
       setInputValue({
         title: selectedTodo.title ?? "",
-        description: selectedTodo.description ?? selectedTodo.discription ?? "",
-        disclosure: selectedTodo.disclosure ?? "public",
+        description: selectedTodo.description ?? selectedTodo.description ?? "",
+        publicity: selectedTodo.publicity ?? true,
         priority: (selectedTodo.priority ?? "medium").toLowerCase(),
-        status: (selectedTodo.status ?? "proceed").toLowerCase(),
+        status: (selectedTodo.status ?? "in_progress").toLowerCase(),
       });
     } else if (mode === "create") {
       setInputValue({
         title: "",
         description: "",
-        disclosure: "public",
+        publicity: true,
         priority: "medium",
-        status: "proceed",
+        status: "in_progress",
       });
     }
   }, [mode]);
@@ -96,21 +97,21 @@ function TodoModal({
 
       {/* 공개여부 */}
       <Box sx={{ display: "flex", gap: 4 }}>
-        <Typography sx={{ width: "20%" }}>Disclosure</Typography>
+        <Typography sx={{ width: "20%" }}>publicity</Typography>
         <RadioGroup
           row
-          name="disclosure"
-          value={inputValue.disclosure}
-          onChange={handleChange("disclosure")}
+          name="publicity"
+          value={inputValue.publicity}
+          onChange={handleChange("publicity")}
         >
           <FormControlLabel
-            value="public"
+            value="true"
             control={<Radio />}
             label="public"
             disabled={isReadOnly}
           />
           <FormControlLabel
-            value="private"
+            value="false"
             control={<Radio />}
             label="private"
             disabled={isReadOnly}
@@ -158,9 +159,9 @@ function TodoModal({
           onChange={handleChange("status")}
         >
           <FormControlLabel
-            value="proceed"
+            value="in_progress"
             control={<Radio />}
-            label="proceed"
+            label="inProgress"
             disabled={isReadOnly}
           />
           <FormControlLabel

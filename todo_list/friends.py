@@ -126,7 +126,7 @@ def get_friend_public_todos(friend_id: int, db: Session = Depends(get_db), curre
     # 친구의 공개된 todo만 가져오기
     todos = db.query(Todo).filter(
         Todo.user_id == friend_id,
-        Todo.is_public == True
+        Todo.publicity == True
     ).all()
 
     return [

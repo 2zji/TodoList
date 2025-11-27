@@ -39,7 +39,7 @@ class Todo(Base):
     description = Column(Text)
     status = Column(Enum('pending','in_progress','completed'), default='pending')
     priority = Column(Enum('high','medium','low'), default='medium')
-    is_public = Column(Boolean, default=False)  #공개 여부
+    publicity = Column(Boolean, default=False)  #공개 여부
     created_at = Column(DateTime, default=datetime.now)
     completed_at = Column(DateTime, nullable=True)
 

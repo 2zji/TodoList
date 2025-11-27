@@ -69,12 +69,12 @@ const styles = {
 function MyTodo() {
   const initMyTodo = {
     title: "",
-    discription: "",
-    priority: "public",
-    disclosure: "medium",
-    status: "proceed",
+    description: "",
+    priority: "medium",
+    publicity: true,
+    status: "in_progress",
   };
-  const [todoList, setTodoList] = useState(initialMyTodo);
+  const [todoList, setTodoList] = useState([]);
   const [open, setOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedTodo, setSelectedTodo] = useState(initMyTodo);
@@ -90,6 +90,7 @@ function MyTodo() {
 
   const fetchTodos = async () => {
     try {
+      console.log("fetchTodos");
       const res = await api.get("/todo/");
       setTodoList(res.data);
       setPage(1);
@@ -100,7 +101,7 @@ function MyTodo() {
 
   // 필터링
   const filteredList = todoList.filter((todo) =>
-    filter === "all" ? true : todo.disclosure === filter
+    filter === "all" ? true : todo.publicity === (filter === "true")
   );
 
   const pageCount = Math.max(1, Math.ceil(filteredList.length / rowsPerPage));
@@ -152,7 +153,7 @@ function MyTodo() {
 
   // 모달 저장
   const handleSaveNewTodo = async (newItem) => {
-    console.log(selectedTodo);
+    // console.log(selectedTodo);
     // if (modalMode === "edit" && selectedTodo) {
     //   // 업데이트
     //   setTodoList((prev) =>
@@ -177,7 +178,8 @@ function MyTodo() {
           prev.map((t) => (t.id === selectedTodo.id ? res.data : t))
         );
       } else {
-        const res = await api.post("/todo/", newItem);
+        console.log(selectedTodo);
+        const res = await api.post("/todo/", selectedTodo);
         setTodoList((prev) => [res.data, ...prev]);
         setPage(1);
       }
@@ -218,13 +220,13 @@ function MyTodo() {
                 setSelected([]);
               }}
               slotProps={{
-                name: "disclosure",
-                id: "disclosure-native",
+                name: "publicity",
+                id: "publicity-native",
               }}
             >
               <option value="all">all</option>
-              <option value="public">public</option>
-              <option value="private">private</option>
+              <option value="true">public</option>
+              <option value="false">private</option>
             </Select>
           </FormControl>
 
@@ -237,7 +239,7 @@ function MyTodo() {
               size="large"
               sx={{
                 "&:focus": { outline: "none" },
-                "&:focusVisible": { outline: "none", boxShadow: "none" }
+                "&:focusVisible": { outline: "none", boxShadow: "none" },
               }}
             >
               <DeleteIcon />
@@ -280,7 +282,7 @@ function MyTodo() {
                 <TableCell sx={{ textAlign: "center" }}>No.</TableCell>
                 <TableCell sx={{ textAlign: "center" }}>Title</TableCell>
                 <TableCell sx={{ textAlign: "center" }}>Description</TableCell>
-                <TableCell sx={{ textAlign: "center" }}>Disclosure</TableCell>
+                <TableCell sx={{ textAlign: "center" }}>publicity</TableCell>
                 <TableCell sx={{ textAlign: "center" }}>Priority</TableCell>
                 <TableCell sx={{ textAlign: "center" }}>Status</TableCell>
               </TableRow>
@@ -316,13 +318,14 @@ function MyTodo() {
                       : item.description}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
-                    {item.disclosure === "public" ? "public" : "private"}
+                    {item.publicity ? "public" : "private"}
                   </TableCell>
+
                   <TableCell sx={{ textAlign: "center" }}>
                     {item.priority}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
-                    {item.status}
+                    {item.status === "in_progress" ? "inProgress" : item.status}
                   </TableCell>
                 </TableRow>
               ))}
