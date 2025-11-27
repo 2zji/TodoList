@@ -79,6 +79,13 @@ function MyTodo() {
   const [modalMode, setModalMode] = useState("create");
   const [selectedTodo, setSelectedTodo] = useState(initMyTodo);
 
+  const convertTodo = (todo) => ({
+    ...todo,
+    publicity: todo.publicity === true || todo.publicity === "true",
+    priority: todo.priority?.toLowerCase(),
+    status: todo.status?.toLowerCase(),
+  });
+
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(1);
@@ -152,34 +159,20 @@ function MyTodo() {
   };
 
   // 모달 저장
-  const handleSaveNewTodo = async (newItem) => {
-    // console.log(selectedTodo);
-    // if (modalMode === "edit" && selectedTodo) {
-    //   // 업데이트
-    //   setTodoList((prev) =>
-    //     prev.map((t) => (t.id === selectedTodo.id ? { ...t, ...infoObject } : t))
-    //   );
-    // } else {
-    //   // 새로 추가
-    //   const nextId = todoList.length
-    //     ? Math.max(...todoList.map((t) => t.id)) + 1
-    //     : 1;
-    //   const item = { id: nextId, ...infoObject };
-    //   setTodoList((prev) => [item, ...prev]);
-    //   setPage(1);
-    // }
-    // setOpen(false);
-    // setSelectedTodo(initMyTodo);
-    // setModalMode("create");
+  const handleSaveNewTodo = async (todo) => {
     try {
       if (modalMode === "edit" && selectedTodo) {
-        const res = await api.put(`/todo/${selectedTodo.id}`, newItem);
+        // 수정
+        const res = await api.put(
+          `/todo/${selectedTodo.id}`,
+          convertTodo(todo)
+        );
         setTodoList((prev) =>
           prev.map((t) => (t.id === selectedTodo.id ? res.data : t))
         );
       } else {
-        console.log(selectedTodo);
-        const res = await api.post("/todo/", selectedTodo);
+        // 모달 저장
+        const res = await api.post("/todo/", convertTodo(todo));
         setTodoList((prev) => [res.data, ...prev]);
         setPage(1);
       }
@@ -191,7 +184,6 @@ function MyTodo() {
       setModalMode("create");
     }
   };
-
   // 테이블 행 클릭 시, view
   const handleRowClick = (item) => {
     setSelectedTodo(item);
@@ -325,7 +317,7 @@ function MyTodo() {
                     {item.priority}
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
-                    {item.status === "in_progress" ? "inProgress" : item.status}
+                    {item.status === "in_progress" ? "inProgress" : item.status === "completed" ? "close" : item.status}
                   </TableCell>
                 </TableRow>
               ))}
@@ -399,11 +391,10 @@ function MyTodo() {
           <Box>
             <FooterTamplet
               mode={modalMode}
+              selectedTodo={selectedTodo}
               onClose={() => setOpen(false)}
-              onSave={handleSaveNewTodo}
-              onEdit={() => {
-                setModalMode("edit");
-              }}
+              onSave={(todo) => handleSaveNewTodo(todo)}
+              onEdit={() => setModalMode("edit")}
             />
           </Box>
         </Box>

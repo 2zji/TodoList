@@ -7,7 +7,7 @@ const styles = {
   },
 };
 
-const FooterTamplet = ({mode, onClose=()=>{}, onSave=()=>{}, onEdit=()=>{}}) => {
+const FooterTamplet = ({mode, selectedTodo, onClose=()=>{}, onSave=()=>{}, onEdit=()=>{}}) => {
   return (
     <Box sx={{ display: "flex", gap: 3, justifyContent: "center", mt: 4 }}>
       {mode === "view" && onEdit && (
@@ -18,7 +18,7 @@ const FooterTamplet = ({mode, onClose=()=>{}, onSave=()=>{}, onEdit=()=>{}}) => 
       {(mode === "create" || mode === "edit") && (
         <Button
           variant="contained"
-          onClick={() => onSave()}
+          onClick={() => onSave(selectedTodo)}
           sx={{ ...styles.button }}
         >
           저장

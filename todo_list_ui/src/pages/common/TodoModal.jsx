@@ -10,12 +10,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
-
-function TodoModal({
-  mode = "create",
-  selectedTodo = {},
-  setSelectedTodo,
-}) {
+function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
   const [inputValue, setInputValue] = useState({
     title: "",
     description: "",
@@ -23,11 +18,11 @@ function TodoModal({
     priority: "medium",
     status: "in_progress",
   });
-  
+
   const isReadOnly = mode === "view";
 
   useEffect(() => {
-    console.log(selectedTodo)
+    console.log(selectedTodo);
     if ((mode === "view" || mode === "edit") && selectedTodo) {
       setInputValue({
         title: selectedTodo.title ?? "",
@@ -46,7 +41,7 @@ function TodoModal({
       });
     }
   }, [mode]);
-  
+
   const handleChange = (field) => (e) => {
     setInputValue((prev) => ({ ...prev, [field]: e.target.value }));
     setSelectedTodo((prev) => ({ ...prev, [field]: e.target.value }));
@@ -105,13 +100,13 @@ function TodoModal({
           onChange={handleChange("publicity")}
         >
           <FormControlLabel
-            value="true"
+            value={true}
             control={<Radio />}
             label="public"
             disabled={isReadOnly}
           />
           <FormControlLabel
-            value="false"
+            value={false}
             control={<Radio />}
             label="private"
             disabled={isReadOnly}
@@ -171,7 +166,7 @@ function TodoModal({
             disabled={isReadOnly}
           />
           <FormControlLabel
-            value="close"
+            value="completed"
             control={<Radio />}
             label="close"
             disabled={isReadOnly}
