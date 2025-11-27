@@ -8,21 +8,13 @@ import {
   RadioGroup,
   Radio,
 } from "@mui/material";
+import axios from "axios";
 
-const styles = {
-  button: {
-    "&:focus": { outline: "none" },
-    "&:focusVisible": { outline: "none", boxShadow: "none" },
-  },
-};
 
 function TodoModal({
   mode = "create",
-  infoObject = null,
-  onSave,
-  onClose,
-  onEdit,
-  hideFooter = false,
+  selectedTodo = {},
+  setSelectedTodo,
 }) {
   const [inputValue, setInputValue] = useState({
     title: "",
@@ -31,15 +23,17 @@ function TodoModal({
     priority: "medium",
     status: "proceed",
   });
+  
+  const isReadOnly = mode === "view";
 
   useEffect(() => {
-    if ((mode === "view" || mode === "edit") && infoObject) {
+    if ((mode === "view" || mode === "edit") && selectedTodo) {
       setInputValue({
-        title: infoObject.title ?? "",
-        description: infoObject.description ?? infoObject.discription ?? "",
-        disclosure: infoObject.disclosure ?? "public",
-        priority: (infoObject.priority ?? "medium").toLowerCase(),
-        status: (infoObject.status ?? "proceed").toLowerCase(),
+        title: selectedTodo.title ?? "",
+        description: selectedTodo.description ?? selectedTodo.discription ?? "",
+        disclosure: selectedTodo.disclosure ?? "public",
+        priority: (selectedTodo.priority ?? "medium").toLowerCase(),
+        status: (selectedTodo.status ?? "proceed").toLowerCase(),
       });
     } else if (mode === "create") {
       setInputValue({
@@ -50,12 +44,11 @@ function TodoModal({
         status: "proceed",
       });
     }
-  }, [mode, infoObject]);
-
-  const isReadOnly = mode === "view";
-
+  }, [mode]);
+  
   const handleChange = (field) => (e) => {
     setInputValue((prev) => ({ ...prev, [field]: e.target.value }));
+    setSelectedTodo((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
   return (
@@ -184,25 +177,6 @@ function TodoModal({
           />
         </RadioGroup>
       </Box>
-
-      {/* 버튼 */}
-      {!hideFooter && (
-        <Box sx={{ display: "flex", gap: 3, justifyContent: "center", mt: 4 }}>
-          {mode === "view" && onEdit && (
-            <Button variant="contained" onClick={onEdit} sx={{...styles.button}}>
-              편집
-            </Button>
-          )}
-          {(mode === "create" || mode === "edit") && (
-            <Button variant="contained" onClick={() => onSave(inputValue)} sx={{...styles.button}}>
-              저장
-            </Button>
-          )}
-          <Button variant="outlined" onClick={onClose} sx={{...styles.button}}>
-            닫기
-          </Button>
-        </Box>
-      )}
     </Box>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -19,28 +19,84 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import NewTodo from "../common/TodoModal";
+import TodoModal from "../common/TodoModal";
 import HeaderTemplet from "../../components/common/HeaderTemplet";
 import AppPagination from "../../components/common/AppPagination";
+import FooterTamplet from "../../components/common/FooterTemplet";
 import { myTodo as initialMyTodo } from "../../data/TodoData";
+
+import api from "../../api/axiosInstance";
 import axios from "axios";
 
+const styles = {
+  container: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "10px",
+  },
+  header: {
+    width: "100%",
+    height: "120px",
+    display: "flex",
+    alignItems: "center",
+    paddingLeft: "40px",
+    background: "#f9f9f9",
+    borderBottom: "1px solid #ccc",
+  },
+  body: {
+    display: "flex",
+    flexDirection: "column",
+    flex: 1,
+    width: "96%",
+    //margin: "50px",
+    padding: "32px",
+    // height: "calc(100%-120px)",
+  },
+  controlsRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  tableWrap: {
+    flex: 1,
+    overflow: "auto",
+  },
+};
+
 function MyTodo() {
-  const [todoList, setTodoList] = useState(initialMyTodo);
-  const [open, setOpen] = useState(false);
-  const [modalMode, setModalMode] = useState("create");
-  const [selectedTodo, setSelectedTodo] = useState({
+  const initMyTodo = {
     title: "",
     discription: "",
     priority: "public",
     disclosure: "medium",
     status: "proceed",
-  });
+  };
+  const [todoList, setTodoList] = useState(initialMyTodo);
+  const [open, setOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("create");
+  const [selectedTodo, setSelectedTodo] = useState(initMyTodo);
 
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  const fetchTodos = async () => {
+    try {
+      const res = await api.get("/todo/");
+      setTodoList(res.data);
+      setPage(1);
+    } catch (err) {
+      console.error("TODO 불러오기 실패", err);
+    }
+  };
 
   // 필터링
   const filteredList = todoList.filter((todo) =>
@@ -53,6 +109,7 @@ function MyTodo() {
     page * rowsPerPage
   );
 
+  /* handle */
   const handleSelectOne = (id) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -77,36 +134,60 @@ function MyTodo() {
     }
   };
 
-  const handleDeleteSelected = () => {
+  const handleDeleteSelected = async () => {
     if (selected.length === 0) return;
-    setTodoList((prev) => prev.filter((t) => !selected.includes(t.id)));
-    setSelected([]);
-    const newPageCount = Math.max(
-      1,
-      Math.ceil((filteredList.length - selected.length) / rowsPerPage)
-    );
-    setPage((p) => Math.min(p, newPageCount));
+    try {
+      await Promise.all(selected.map((id) => api.delete(`/todo/${id}`)));
+      setTodoList((prev) => prev.filter((t) => !selected.includes(t.id)));
+      setSelected([]);
+      const newPageCount = Math.max(
+        1,
+        Math.ceil((filteredList.length - selected.length) / rowsPerPage)
+      );
+      setPage((p) => Math.min(p, newPageCount));
+    } catch (err) {
+      console.error("삭제 실패", err);
+    }
   };
 
   // 모달 저장
-  const handleSaveNewTodo = (newItem) => {
-    if (modalMode === "edit" && selectedTodo) {
-      // 업데이트
-      setTodoList((prev) =>
-        prev.map((t) => (t.id === selectedTodo.id ? { ...t, ...newItem } : t))
-      );
-    } else {
-      // 새로 추가
-      const nextId = todoList.length
-        ? Math.max(...todoList.map((t) => t.id)) + 1
-        : 1;
-      const item = { id: nextId, ...newItem };
-      setTodoList((prev) => [item, ...prev]);
-      setPage(1);
+  const handleSaveNewTodo = async (newItem) => {
+    console.log(selectedTodo);
+    // if (modalMode === "edit" && selectedTodo) {
+    //   // 업데이트
+    //   setTodoList((prev) =>
+    //     prev.map((t) => (t.id === selectedTodo.id ? { ...t, ...infoObject } : t))
+    //   );
+    // } else {
+    //   // 새로 추가
+    //   const nextId = todoList.length
+    //     ? Math.max(...todoList.map((t) => t.id)) + 1
+    //     : 1;
+    //   const item = { id: nextId, ...infoObject };
+    //   setTodoList((prev) => [item, ...prev]);
+    //   setPage(1);
+    // }
+    // setOpen(false);
+    // setSelectedTodo(initMyTodo);
+    // setModalMode("create");
+    try {
+      if (modalMode === "edit" && selectedTodo) {
+        const res = await api.put(`/todo/${selectedTodo.id}`, newItem);
+        setTodoList((prev) =>
+          prev.map((t) => (t.id === selectedTodo.id ? res.data : t))
+        );
+      } else {
+        const res = await api.post("/todo/", newItem);
+        setTodoList((prev) => [res.data, ...prev]);
+        setPage(1);
+      }
+    } catch (err) {
+      console.error("저장 실패", err);
+    } finally {
+      setOpen(false);
+      setSelectedTodo(null);
+      setModalMode("create");
     }
-    setOpen(false);
-    setSelectedTodo(null);
-    setModalMode("create");
   };
 
   // 테이블 행 클릭 시, view
@@ -117,47 +198,9 @@ function MyTodo() {
   };
 
   const openCreateModal = () => {
-    setSelectedTodo(null);
+    setSelectedTodo(initMyTodo);
     setModalMode("create");
     setOpen(true);
-  };
-
-  const styles = {
-    container: {
-      width: "100%",
-      height: "100%",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      gap: "10px",
-    },
-    header: {
-      width: "100%",
-      height: "120px",
-      display: "flex",
-      alignItems: "center",
-      paddingLeft: "40px",
-      background: "#f9f9f9",
-      borderBottom: "1px solid #ccc",
-    },
-    body: {
-      display: "flex",
-      flexDirection: "column",
-      flex: 1,
-      width: "96%",
-      //margin: "50px",
-      padding: "32px",
-      // height: "calc(100%-120px)",
-    },
-    controlsRow: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-    },
-    tableWrap: {
-      flex: 1,
-      overflow: "auto",
-    },
   };
 
   return (
@@ -192,6 +235,10 @@ function MyTodo() {
               disabled={selected.length === 0}
               aria-label="delete selected"
               size="large"
+              sx={{
+                "&:focus": { outline: "none" },
+                "&:focusVisible": { outline: "none", boxShadow: "none" }
+              }}
             >
               <DeleteIcon />
             </IconButton>
@@ -230,11 +277,12 @@ function MyTodo() {
                     slotProps={{ "aria-label": "select all" }}
                   />
                 </TableCell>
-                <TableCell>No.</TableCell>
-                <TableCell>Title</TableCell>
-                <TableCell>Disclosure</TableCell>
-                <TableCell>Priority</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell sx={{ textAlign: "center" }}>No.</TableCell>
+                <TableCell sx={{ textAlign: "center" }}>Title</TableCell>
+                <TableCell sx={{ textAlign: "center" }}>Description</TableCell>
+                <TableCell sx={{ textAlign: "center" }}>Disclosure</TableCell>
+                <TableCell sx={{ textAlign: "center" }}>Priority</TableCell>
+                <TableCell sx={{ textAlign: "center" }}>Status</TableCell>
               </TableRow>
             </TableHead>
 
@@ -256,13 +304,26 @@ function MyTodo() {
                     />
                   </TableCell>
 
-                  <TableCell>{(page - 1) * rowsPerPage + idx + 1}</TableCell>
-                  <TableCell>{item.title}</TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {(page - 1) * rowsPerPage + idx + 1}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {item.title}
+                  </TableCell>
                   <TableCell>
+                    {item.description.length > 50
+                      ? `${item.description.slice(0, 50)}...`
+                      : item.description}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
                     {item.disclosure === "public" ? "public" : "private"}
                   </TableCell>
-                  <TableCell>{item.priority}</TableCell>
-                  <TableCell>{item.status}</TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {item.priority}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {item.status}
+                  </TableCell>
                 </TableRow>
               ))}
 
@@ -314,7 +375,6 @@ function MyTodo() {
               onClose={() => setOpen(false)}
             />
           </Box>
-
           <Box
             sx={{
               flex: 1,
@@ -327,15 +387,17 @@ function MyTodo() {
               },
             }}
           >
-            <NewTodo
+            <TodoModal
               mode={modalMode}
-              infoObject={selectedTodo}
-              onClose={() => {
-                setOpen(false);
-                setSelectedTodo(null);
-                setModalMode("create");
-              }}
-              onSave={(item) => handleSaveNewTodo(item)}
+              selectedTodo={selectedTodo}
+              setSelectedTodo={setSelectedTodo}
+            />
+          </Box>
+          <Box>
+            <FooterTamplet
+              mode={modalMode}
+              onClose={() => setOpen(false)}
+              onSave={handleSaveNewTodo}
               onEdit={() => {
                 setModalMode("edit");
               }}

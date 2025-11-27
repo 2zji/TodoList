@@ -124,7 +124,7 @@ function Dashboard() {
               mode="view"
               infoObject={selectedTodo}
               onClose={() => setOpen(false)}
-              hideFooter={true} // ← Dashboard에서만 버튼 숨김
+              hideFooter={true}
             />
           </Box>
         </Box>

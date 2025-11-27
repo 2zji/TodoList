@@ -38,7 +38,7 @@ Read Todo
 GET: http://127.0.0.1:8000/todo/
 
 Update Todo
-PUT: http://127.0.0.1:8000/todo/1
+PUT: http://127.0.0.1:8000/todo/${id}
 
 {
     "title": "고양이를 치면?",
@@ -53,41 +53,41 @@ Read My Private Todo
 GET: http://127.0.0.1:8000/todo/my/private
 
 Delete Todo
-DELETE: http://127.0.0.1:8000/todo/1
+DELETE: http://127.0.0.1:8000/todo/${id}
 
 ------( FRIENDS | Authorization: Bearer <로그인 시 받은 토큰> )------
 
 Send Friend Request
-POST: http://127.0.0.1:8000/friends/1
+POST: http://127.0.0.1:8000/friends/${id}
 
 Friend Request accepted
-PUT: http://127.0.0.1:8000/friends/1
+PUT: http://127.0.0.1:8000/friends/${id}
 
 Reject Friend Request
-PUT: http://127.0.0.1:8000/friends/1
+PUT: http://127.0.0.1:8000/friends/${id}
 
 Friend list
 GET: http://127.0.0.1:8000/friends/
 
 Get Friend Public Todo
-GET: http://127.0.0.1:8000/friends/1/todos
+GET: http://127.0.0.1:8000/friends/${id}/todos
 
 Get Friend Request
 GET: http://127.0.0.1:8000/friends/requests
 
 Delete Friend
-DELETE: http://127.0.0.1:8000/friends/1
+DELETE: http://127.0.0.1:8000/friends/${id}
 
 ------( LIKE | Authorization: Bearer <로그인 시 받은 토큰> )------
 
 Add Like
-POST: http://127.0.0.1:8000/like/1
+POST: http://127.0.0.1:8000/like/${id}
 
 Remove Like
-DELETE: http://127.0.0.1:8000/like/1
+DELETE: http://127.0.0.1:8000/like/${id}
 
 Get Like Count
-GET: http://127.0.0.1:8000/like/1
+GET: http://127.0.0.1:8000/like/${id}
 
 Get My Liked Todo Details
 GET: http://127.0.0.1:8000/like/my
