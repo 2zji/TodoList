@@ -23,7 +23,6 @@ import TodoModal from "../common/TodoModal";
 import HeaderTemplet from "../../components/common/HeaderTemplet";
 import AppPagination from "../../components/common/AppPagination";
 import FooterTamplet from "../../components/common/FooterTemplet";
-import { myTodo as initialMyTodo } from "../../data/TodoData";
 
 import api from "../../api/axiosInstance";
 import axios from "axios";
@@ -35,34 +34,35 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: "10px",
+    backgroundColor: "#f4f7fb",
+    padding: "20px 0px 25px 0px",
   },
-  header: {
-    width: "100%",
-    height: "120px",
-    display: "flex",
-    alignItems: "center",
-    paddingLeft: "40px",
-    background: "#f9f9f9",
-    borderBottom: "1px solid #ccc",
-  },
+
   body: {
     display: "flex",
     flexDirection: "column",
     flex: 1,
-    width: "96%",
-    //margin: "50px",
-    padding: "32px",
-    // height: "calc(100%-120px)",
+    width: "90%",
+    backgroundColor: "#ffffff",
+    borderRadius: "12px",
+    padding: "28px 32px",
+    boxShadow:
+      "0 3px 5px rgba(0,0,0,0.04), 0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
   },
+
   controlsRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: "14px",
   },
+
   tableWrap: {
     flex: 1,
-    overflow: "auto",
+    borderRadius: "10px",
+    overflow: "hidden",
+    boxShadow:
+      "0 2px 4px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.05), 0 1px 10px rgba(0,0,0,0.07)",
   },
 };
 
@@ -202,7 +202,7 @@ function MyTodo() {
       <Box sx={styles.body}>
         {/* Top controls */}
         <Box sx={{ ...styles.controlsRow, mb: 1 }}>
-          <FormControl size="small" sx={{ minWidth: 160, paddingLeft: 0 }}>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
             <Select
               native
               value={filter}
@@ -211,14 +211,24 @@ function MyTodo() {
                 setPage(1);
                 setSelected([]);
               }}
-              slotProps={{
-                name: "publicity",
-                id: "publicity-native",
+              sx={{
+                bgcolor: "#eef4fb",
+                borderRadius: "8px",
+                outline: "none",
+                "&:hover": {
+                  bgcolor: "#e1edf7",
+                },
+                "& .MuiOutlinedInput-notchedOutline": {
+                  border: "none",
+                },
+                "&:focus": {
+                  outline: "none",
+                },
               }}
             >
-              <option value="all">all</option>
-              <option value="true">public</option>
-              <option value="false">private</option>
+              <option value="all">All</option>
+              <option value="true">Public</option>
+              <option value="false">Private</option>
             </Select>
           </FormControl>
 
@@ -227,11 +237,13 @@ function MyTodo() {
               color="error"
               onClick={handleDeleteSelected}
               disabled={selected.length === 0}
-              aria-label="delete selected"
-              size="large"
               sx={{
-                "&:focus": { outline: "none" },
-                "&:focusVisible": { outline: "none", boxShadow: "none" },
+                bgcolor: selected.length > 0 ? "#ffebee" : "#f5f5f5",
+                borderRadius: "8px",
+                padding: "6px",
+                "&:hover": {
+                  bgcolor: selected.length > 0 ? "#ffcdd2" : "#eeeeee",
+                },
               }}
             >
               <DeleteIcon />
@@ -240,15 +252,13 @@ function MyTodo() {
             <Button
               onClick={openCreateModal}
               sx={{
-                backgroundColor: "#c5dbf0ff",
+                backgroundColor: "#90c2f8",
                 borderRadius: "50%",
-                minWidth: "40px",
-                maxWidth: "40px",
-                minHeight: "40px",
-                maxHeight: "40px",
-                "&:hover": { backgroundColor: "#b8d6f8" },
-                "&:focus": { outline: "none" },
-                "&:focusVisible": { outline: "none", boxShadow: "none" },
+                minWidth: "42px",
+                minHeight: "42px",
+                "&:hover": { backgroundColor: "#7bb5f5" },
+                "&:active": { backgroundColor: "#69a6ef" },
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
               }}
             >
               <AddIcon />
@@ -259,8 +269,26 @@ function MyTodo() {
         {/* Table */}
         <TableContainer component={Paper} sx={{ ...styles.tableWrap }}>
           <Table stickyHeader>
-            <TableHead>
-              <TableRow>
+            <TableHead
+              sx={{
+                "& .MuiTableCell-root": {
+                  bgcolor: "#f0f4fa",
+                  fontWeight: 600,
+                  color: "#455a79",
+                  fontSize: "15px",
+                },
+              }}
+            >
+              <TableRow
+                hover
+                onClick={() => handleRowClick(item)}
+                sx={{
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "#f5faff",
+                  },
+                }}
+              >
                 <TableCell padding="checkbox">
                   <Checkbox
                     checked={
@@ -298,26 +326,30 @@ function MyTodo() {
                     />
                   </TableCell>
 
-                  <TableCell sx={{ textAlign: "center" }}>
+                  <TableCell align="center" sx={{ width: "5%" }}>
                     {(page - 1) * rowsPerPage + idx + 1}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
+                  <TableCell align="center" sx={{ width: "20%" }}>
                     {item.title}
                   </TableCell>
-                  <TableCell>
+                  <TableCell align="left" sx={{ width: "45%" }}>
                     {item.description.length > 50
                       ? `${item.description.slice(0, 50)}...`
                       : item.description}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
+                  <TableCell align="center" sx={{ width: "10%" }}>
                     {item.publicity ? "public" : "private"}
                   </TableCell>
 
-                  <TableCell sx={{ textAlign: "center" }}>
+                  <TableCell align="center" sx={{ width: "10%" }}>
                     {item.priority}
                   </TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>
-                    {item.status === "in_progress" ? "inProgress" : item.status === "completed" ? "close" : item.status}
+                  <TableCell align="center" sx={{ width: "10%" }}>
+                    {item.status === "in_progress"
+                      ? "inProgress"
+                      : item.status === "completed"
+                      ? "close"
+                      : item.status}
                   </TableCell>
                 </TableRow>
               ))}
@@ -345,20 +377,22 @@ function MyTodo() {
           sx={{
             width: 900,
             height: 600,
-            bgcolor: "#fff",
+            bgcolor: "#ffffff",
             p: 4,
-            borderRadius: "10px",
+            borderRadius: "14px",
             position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            outline: "none",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.1), 0 8px 20px rgba(0,0,0,0.15)",
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
+            "&:focus": { outline: "none" },
+            "&:focusVisible": { outline: "none", boxShadow: "none" },
           }}
         >
-          <Box sx={{ width: "100%", height: 50 }}>
+          <Box sx={{ width: "100%", flexShrink: 0 }}>
             <HeaderTemplet
               title={
                 modalMode === "create"
@@ -373,13 +407,9 @@ function MyTodo() {
           <Box
             sx={{
               flex: 1,
-              mt: 2,
-              overflow: "auto",
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
-              "&::-webkit-scrollbar": {
-                display: "none",
-              },
+              overflowY: "auto",
+              p: 3,
+              "&::-webkit-scrollbar": { display: "none" },
             }}
           >
             <TodoModal
@@ -388,7 +418,8 @@ function MyTodo() {
               setSelectedTodo={setSelectedTodo}
             />
           </Box>
-          <Box>
+
+          <Box sx={{ height: 70, flexShrink: 0 }}>
             <FooterTamplet
               mode={modalMode}
               selectedTodo={selectedTodo}

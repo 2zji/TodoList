@@ -154,15 +154,15 @@ function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
           onChange={handleChange("status")}
         >
           <FormControlLabel
-            value="in_progress"
-            control={<Radio />}
-            label="inProgress"
-            disabled={isReadOnly}
-          />
-          <FormControlLabel
             value="pending"
             control={<Radio />}
             label="pending"
+            disabled={isReadOnly}
+          />
+          <FormControlLabel
+            value="in_progress"
+            control={<Radio />}
+            label="inProgress"
             disabled={isReadOnly}
           />
           <FormControlLabel
