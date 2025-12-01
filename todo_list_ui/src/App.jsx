@@ -1,13 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { useCallback } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Friends from "./pages/friends/Friends";
 import MyTodo from "./pages/myTodo/MyTodo";
 import Dashboard from "./pages/common/Dashboard";
 import Mypage from "./pages/common/Mypage";
 import { Box } from "@mui/material";
-import { display, flexDirection, width } from "@mui/system";
-
-// import './App.css'
 
 const styles = {
   root: {
@@ -28,13 +25,11 @@ const styles = {
   main: {
     display: "flex",
     flexDirection: "column",
-    // flexGrow: 1,
-    width:"1720px",
+    width: "1720px",
     height: "100%",
     overflow: "auto",
   },
   header: {
-    // width: "100%",
     height: "120px",
     display: "flex",
     alignItems: "center",
@@ -46,55 +41,68 @@ const styles = {
 
 function App() {
   const navigate = useNavigate();
-  const [isFriends, setIsFriends] = useState(false);
-  const handleNavigate = useCallback((path) => {
-    // Navigation logic here
-    console.log(`Navigating to ${path}`, isFriends);
-    if (path === "friends") setIsFriends(true);
-    else setIsFriends(false);
-    navigate(path);
-  }, []);
+  const location = useLocation();
+
+  const isFriends = location.pathname === "/friends";
+
+  const toAbsolute = (path) => {
+    if (!path || path === "") return "/";
+    return path.startsWith("/") ? path : `/${path}`;
+  };
+
+  const handleNavigate = useCallback(
+    (path) => {
+      const to = toAbsolute(path);
+      navigate(to);
+    },
+    [navigate]
+  );
 
   return (
     <div style={styles.root}>
       <div style={styles.menu}>
         <div
-          style={{ margin: "30px", marginTop: "30px" }}
+          style={{ margin: "30px", marginTop: "30px", cursor: "pointer" }}
           onClick={() => handleNavigate("")}
         >
           Dashboard
         </div>
         <div
-          style={{ margin: "30px", marginTop: "30px" }}
+          style={{ margin: "30px", marginTop: "30px", cursor: "pointer" }}
           onClick={() => handleNavigate("myTodo")}
         >
           My TODO
         </div>
         <div
-          style={{ margin: "30px", marginTop: "30px" }}
+          style={{ margin: "30px", marginTop: "30px", cursor: "pointer" }}
           onClick={() => handleNavigate("friends")}
         >
           Friends
         </div>
         <div
-          style={{ margin: "30px", marginTop: "30px" }}
+          style={{ margin: "30px", marginTop: "30px", cursor: "pointer" }}
           onClick={() => handleNavigate("mypage")}
         >
           My Page
         </div>
         <div
-          style={{ margin: "30px", position: "absolute", bottom: 0 }}
+          style={{
+            margin: "30px",
+            position: "absolute",
+            bottom: 0,
+            cursor: "pointer",
+          }}
           onClick={() => handleNavigate("logout")}
         >
           Logout
         </div>
       </div>
+
       <div style={styles.main}>
-        {!isFriends && (
-          <Box sx={styles.header}>
-            <h2 style={{ margin: 0, fontSize: "40px" }}>Hi User!</h2>
-          </Box>
-        )}
+        <Box sx={styles.header}>
+          <h2 style={{ margin: 0, fontSize: "40px" }}>Hi User!</h2>
+        </Box>
+
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/myTodo" element={<MyTodo />} />

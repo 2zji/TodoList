@@ -25,7 +25,6 @@ import AppPagination from "../../components/common/AppPagination";
 import FooterTamplet from "../../components/common/FooterTemplet";
 
 import api from "../../api/axiosInstance";
-import axios from "axios";
 
 const styles = {
   container: {
@@ -244,6 +243,8 @@ function MyTodo() {
                 "&:hover": {
                   bgcolor: selected.length > 0 ? "#ffcdd2" : "#eeeeee",
                 },
+                "&:focus": { outline: "none" },
+                "&:focusVisible": { outline: "none", boxShadow: "none" },
               }}
             >
               <DeleteIcon />
@@ -259,6 +260,8 @@ function MyTodo() {
                 "&:hover": { backgroundColor: "#7bb5f5" },
                 "&:active": { backgroundColor: "#69a6ef" },
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                "&:focus": { outline: "none" },
+                "&:focusVisible": { outline: "none", boxShadow: "none" },
               }}
             >
               <AddIcon />
