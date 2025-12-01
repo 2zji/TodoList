@@ -46,10 +46,14 @@ export default function Friends() {
   };
 
   // Friends 목록 불러오기
-  const fetchMyFriends = async () => {
+  const fetchMyFriends = async (type) => {
     try {
       const res = await api.get("/friends");
-      setMyFriends(res.data);
+      // setMyFriends(res.data);
+      // 단일 검색
+      if (!type) setMyFriends(res.data);
+      else {
+      }
     } catch (err) {
       console.error("친구 목록 에러:", err);
     }
@@ -98,12 +102,11 @@ export default function Friends() {
     if (!searchId) return;
 
     try {
-      const res = await api.get(`/friends`, {
-        params: { user_id: searchId },
-      });
-      setSearchedUser(res.data);
-    } catch (error) {
-      setSearchedUser("NOT_FOUND");
+      const res = await api.get(`/friends/checked/${searchId}`);
+
+      setSearchedUser(res.data); // 전체 객체 저장
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -112,17 +115,14 @@ export default function Friends() {
     if (!searchedUser || searchedUser === "NOT_FOUND") return;
 
     try {
-      await api.post(`/friends/${searchId}`, {
-        addressee_id: searchedUser.id,
-      });
-
+      await api.post(`/friends/${searchedUser.user.id}`);
       alert("친구 요청을 보냈습니다!");
     } catch (err) {
       alert("요청 실패");
     }
   };
 
-  // 날짜 포맷팅
+  // 날짜 포맷
   const formatDate = (dt) => {
     return new Date(dt).toLocaleDateString();
   };
@@ -208,7 +208,7 @@ export default function Friends() {
 
                   <TableCell align="center">
                     <Button
-                      variant="contained"
+                      variant="outlined"
                       sx={{ mr: 1, ...styles.button }}
                       onClick={() => handleAccept(req.request_id)}
                     >
@@ -248,7 +248,11 @@ export default function Friends() {
               value={searchId}
               onChange={(e) => setSearchId(e.target.value)}
             />
-            <Button variant="contained" onClick={handleSearch} sx={styles.button}>
+            <Button
+              variant="contained"
+              onClick={handleSearch}
+              sx={styles.button}
+            >
               Search
             </Button>
           </Box>
@@ -256,21 +260,47 @@ export default function Friends() {
           {/* 검색 결과 */}
           {searchedUser && searchedUser !== "NOT_FOUND" && (
             <Paper sx={{ p: 3 }}>
-              <Typography>ID: {searchedUser.id}</Typography>
-              <Typography>Name: {searchedUser.name}</Typography>
+              <Typography>ID: {searchedUser.user.id}</Typography>
+              <Typography>Name: {searchedUser.user.name}</Typography>
 
-              <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
-                <Button variant="contained" onClick={handleSendRequest} sx={styles.button}>
-                  친구 신청
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => setSearchedUser(null)}
-                  sx={styles.button}
-                >
-                  취소
-                </Button>
-              </Box>
+              {/* 상태별 안내 메시지 */}
+              {searchedUser.status === "accepted" && (
+                <Typography color="primary" sx={{ mt: 1 }}>
+                  이미 추가된 친구입니다.
+                </Typography>
+              )}
+
+              {searchedUser.status === "pending" && (
+                <Typography color="warning.main" sx={{ mt: 1 }}>
+                  친구 추가 대기중입니다.
+                </Typography>
+              )}
+
+              {searchedUser.status === "rejected" && (
+                <Typography color="error" sx={{ mt: 1 }}>
+                  관리자에게 문의 바랍니다.
+                </Typography>
+              )}
+
+              {/* 친구 신청 버튼 (none일 때만 활성화) */}
+              {searchedUser.status === "none" && (
+                <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
+                  <Button
+                    variant="contained"
+                    onClick={handleSendRequest}
+                    sx={styles.button}
+                  >
+                    친구 신청
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setSearchedUser(null)}
+                    sx={styles.button}
+                  >
+                    취소
+                  </Button>
+                </Box>
+              )}
             </Paper>
           )}
 

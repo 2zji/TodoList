@@ -101,6 +101,7 @@ def delete_friend(friend_id: int, db: Session = Depends(get_db), current_user: T
         ),
         Friends.status == 'accepted'
     ).first()
+
     if not friendship:
         raise HTTPException(status_code=404, detail="Friendship not found")
 
@@ -111,7 +112,6 @@ def delete_friend(friend_id: int, db: Session = Depends(get_db), current_user: T
 #친구의 public todo 목록 조회
 @router.get("/{friend_id}/todos")
 def get_friend_public_todos(friend_id: int, db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
-    # 친구 관계인지 확인
     friendship = db.query(Friends).filter(
         or_(
             ((Friends.requester_id == current_user.id) & (Friends.addressee_id == friend_id)),
@@ -123,7 +123,6 @@ def get_friend_public_todos(friend_id: int, db: Session = Depends(get_db), curre
     if not friendship:
         raise HTTPException(status_code=403, detail="You are not friends with this user")
 
-    # 친구의 공개된 todo만 가져오기
     todos = db.query(Todo).filter(
         Todo.user_id == friend_id,
         Todo.publicity == True
@@ -140,3 +139,37 @@ def get_friend_public_todos(friend_id: int, db: Session = Depends(get_db), curre
         }
         for t in todos
     ]
+
+#단일 사용자 상태 조회 API (친구 상태 포함)
+@router.get("/checked/{user_id}")
+def search_user_status(user_id: int, db: Session = Depends(get_db), current_user: TodoUser = Depends(get_current_user)):
+    user = db.query(TodoUser).filter(TodoUser.id == user_id).first()
+
+    if not user:
+        return "NOT_FOUND"
+
+    # 자기 자신 검색
+    if user.id == current_user.id:
+        return {
+            "status": "self",
+            "user": {"id": user.id, "name": user.name}
+        }
+
+    # 기존 친구/요청 상태 조회
+    relation = db.query(Friends).filter(
+        or_(
+            (Friends.requester_id == current_user.id) & (Friends.addressee_id == user_id),
+            (Friends.requester_id == user_id) & (Friends.addressee_id == current_user.id)
+        )
+    ).first()
+
+    if not relation:
+        return {
+            "status": "none",
+            "user": {"id": user.id, "name": user.name}
+        }
+
+    return {
+        "status": relation.status,
+        "user": {"id": user.id, "name": user.name}
+    }

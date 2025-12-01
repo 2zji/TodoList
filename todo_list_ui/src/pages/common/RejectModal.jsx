@@ -27,7 +27,7 @@ function RejectModal({ open, onClose, onConfirm }) {
 
         <Box sx={{ display: "flex", gap: 2 }}>
           <Button
-            variant="contained"
+            variant="outlined"
             color="error"
             sx={{ flex: 1 }}
             onClick={onConfirm}

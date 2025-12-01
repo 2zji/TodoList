@@ -29,7 +29,7 @@ import api from "../../api/axiosInstance";
 const styles = {
   container: {
     width: "100%",
-    height: "100%",
+    height: "82%",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
