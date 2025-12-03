@@ -29,7 +29,7 @@ import api from "../../api/axiosInstance";
 const styles = {
   container: {
     width: "100%",
-    height: "82%",
+    height: "90%",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -88,7 +88,8 @@ function MyTodo() {
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
+  const rowsPerPage = 5;
+  //const rowsPerPage = 10;
 
   useEffect(() => {
     fetchTodos();
