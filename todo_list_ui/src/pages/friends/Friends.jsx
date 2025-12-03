@@ -14,6 +14,7 @@ import {
   Alert,
   Tabs,
   Tab,
+  TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
@@ -67,12 +68,15 @@ export default function Friends() {
   const [targetRejectId, setTargetRejectId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [filteredFriends, setFilteredFriends] = useState([]);
 
   // Friends 목록 불러오기
   const fetchMyFriends = async () => {
     try {
       const res = await api.get("/friends");
       setMyFriends(res.data);
+      setFilteredFriends(res.data);
     } catch (err) {
       console.error("친구 목록 에러:", err);
     }
@@ -106,18 +110,38 @@ export default function Friends() {
     fetchMyFriends();
   };
 
-  // 모달 열기 (거절)
+  // 거절 모달
   const openRejectModal = (id) => {
     setTargetRejectId(id);
     setRejectModalOpen(true);
   };
 
-  // 실제 거절 확정
+  // 거절 확정
   const confirmReject = async () => {
     await api.put(`/friends/${targetRejectId}/reject`);
     setRejectModalOpen(false);
     setSnackbarOpen(true);
     fetchFriendRequests();
+  };
+
+  // 검색
+  const handleSearch = (e) => {
+    const keyword = e.target.value;
+    setSearchKeyword(keyword);
+
+    // 입력값 없으면 전체 조회
+    if (!keyword) {
+      setFilteredFriends(myFriends);
+      return;
+    }
+
+    const filtered = myFriends.filter(
+      (f) =>
+        f.friend_id.toString() === keyword ||
+        f.friend_name.toLowerCase().includes(keyword.toLowerCase())
+    );
+
+    setFilteredFriends(filtered);
   };
 
   const formatDate = (dt) => new Date(dt).toLocaleDateString();
@@ -168,6 +192,29 @@ export default function Friends() {
 
         {/* My Friends */}
         {tab === 0 && (
+          <Box sx={{ mb: 2, display: "flex", gap: 1 }}>
+            <TextField
+              placeholder="친구 검색 (ID 또는 이름)"
+              value={searchKeyword}
+              onChange={handleSearch}
+              size="small"
+              fullWidth
+            />
+            <Button
+              variant="contained"
+              onClick={() => {
+                setSearchKeyword("");
+                setFilteredFriends(myFriends);
+              }}
+              sx={styles.button}
+            >
+              <CloseIcon />
+            </Button>
+          </Box>
+        )}
+
+        {/* My Friends */}
+        {tab === 0 && (
           <TableContainer component={Paper} sx={styles.tableWrap}>
             <Table stickyHeader>
               <TableHead
@@ -195,7 +242,7 @@ export default function Friends() {
               </TableHead>
 
               <TableBody>
-                {myFriends.map((f) => (
+                {filteredFriends.map((f) => (
                   <TableRow key={f.friend_id} hover>
                     <TableCell align="center">{f.friend_id}</TableCell>
                     <TableCell align="center">{f.friend_name}</TableCell>
@@ -204,16 +251,16 @@ export default function Friends() {
                     </TableCell>
                     <TableCell align="center">
                       <Button
-                        variant="none"
+                        variant="text"
                         onClick={() => handleDeleteFriend(f.friend_id)}
                         sx={styles.button}
                       >
-                        <CloseIcon sx={{color: "#ff0000"}} />
+                        <CloseIcon sx={{ color: "#ff0000" }} />
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))}
-                {myFriends.length === 0 && (
+                {filteredFriends.length === 0 && (
                   <TableRow>
                     <TableCell align="center" colSpan={4}>
                       친구가 없습니다.

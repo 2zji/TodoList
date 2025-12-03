@@ -30,7 +30,7 @@ const styles = {
     overflow: "auto",
   },
   header: {
-    height: "120px",
+    height: "100px",
     display: "flex",
     alignItems: "center",
     paddingLeft: "40px",
