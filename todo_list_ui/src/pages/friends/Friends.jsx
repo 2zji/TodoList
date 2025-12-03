@@ -148,48 +148,49 @@ export default function Friends() {
 
   return (
     <Box sx={styles.container}>
-      <Box sx={styles.body}>
-        <Box
+      <Box
+        sx={{
+          width: "90%",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Tabs
+          value={tab}
+          onChange={(e, v) => setTab(v)}
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 3,
+            "& .MuiTab-root": { outline: "none" },
+            "& .Mui-selected": { fontWeight: 700 },
           }}
         >
-          <Tabs
-            value={tab}
-            onChange={(e, v) => setTab(v)}
+          <Tab label="My Friends" value={0} />
+          <Tab label="Friend Requests" value={1} />
+        </Tabs>
+
+        {tab === 0 && (
+          <Button
+            variant="contained"
+            onClick={() => setModalOpen(true)}
             sx={{
-              "& .MuiTab-root": { outline: "none" },
-              "& .Mui-selected": { fontWeight: 700 },
+              ...styles.button,
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              minWidth: 0,
+              padding: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <Tab label="My Friends" value={0} />
-            <Tab label="Friend Requests" value={1} />
-          </Tabs>
+            <AddIcon />
+          </Button>
+        )}
+      </Box>
 
-          {tab === 0 && (
-            <Button
-              variant="contained"
-              onClick={() => setModalOpen(true)}
-              sx={{
-                ...styles.button,
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                minWidth: 0,
-                padding: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <AddIcon />
-            </Button>
-          )}
-        </Box>
-
+      <Box sx={styles.body}>
         {/* My Friends */}
         {tab === 0 && (
           <Box sx={{ mb: 2, display: "flex", gap: 1 }}>
@@ -338,31 +339,29 @@ export default function Friends() {
             </Table>
           </TableContainer>
         )}
-
-        {/* Add Friends Modal */}
-        <FriendsModal open={modalOpen} onClose={() => setModalOpen(false)} />
-
-        {/* Reject Modal */}
-        <RejectModal
-          open={rejectModalOpen}
-          onClose={() => {
-            setRejectModalOpen(false);
-            fetchFriendRequests();
-          }}
-          onConfirm={confirmReject}
-        />
-
-        {/* Snackbar */}
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={2000}
-          onClose={() => setSnackbarOpen(false)}
-        >
-          <Alert severity="error" sx={{ width: "100%" }}>
-            친구 요청이 거절되었습니다.
-          </Alert>
-        </Snackbar>
       </Box>
+
+      {/* Modal */}
+      <FriendsModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <RejectModal
+        open={rejectModalOpen}
+        onClose={() => {
+          setRejectModalOpen(false);
+          fetchFriendRequests();
+        }}
+        onConfirm={confirmReject}
+      />
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={2000}
+        onClose={() => setSnackbarOpen(false)}
+      >
+        <Alert severity="error" sx={{ width: "100%" }}>
+          친구 요청이 거절되었습니다.
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
