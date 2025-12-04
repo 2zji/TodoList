@@ -360,7 +360,7 @@ function MyTodo() {
 
               {pagedItems.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
+                  <TableCell colSpan={7} align="center">
                     데이터가 없습니다.
                   </TableCell>
                 </TableRow>

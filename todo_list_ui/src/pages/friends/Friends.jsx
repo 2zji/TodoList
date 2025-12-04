@@ -149,7 +149,7 @@ export default function Friends() {
     } else {
       updated = [...checkedFriends, id];
     }
-    
+
     setCheckedFriends(updated);
     setAllChecked(updated.length === filteredFriends.length);
   };
@@ -243,21 +243,6 @@ export default function Friends() {
 
         {tab === 0 && (
           <Box sx={{ display: "flex", gap: 1 }}>
-            <Button
-              variant="contained"
-              onClick={() => setModalOpen(true)}
-              sx={{
-                ...styles.button,
-                width: 35,
-                height: 35,
-                borderRadius: "50%",
-                minWidth: 0,
-                padding: 0,
-              }}
-            >
-              <AddIcon />
-            </Button>
-
             {/* checkbox 삭제 버튼 */}
             <Button
               variant="contained"
@@ -265,8 +250,8 @@ export default function Friends() {
               onClick={deleteFriends}
               sx={{
                 ...styles.button,
-                width: 35,
-                height: 35,
+                width: 40,
+                height: 40,
                 borderRadius: "50%",
                 minWidth: 0,
                 padding: 0,
@@ -281,25 +266,43 @@ export default function Friends() {
       <Box sx={styles.body}>
         {/* My Friends */}
         {tab === 0 && (
-          <Box sx={{ mb: 2, display: "flex", gap: 1 }}>
-            <TextField
-              placeholder="친구 검색 (ID 또는 이름)"
-              value={searchKeyword}
-              onChange={handleSearch}
-              size="small"
-              fullWidth
-            />
-            <Button
-              variant="contained"
-              onClick={() => {
-                setSearchKeyword("");
-                setFilteredFriends(myFriends);
-                //setFriendsPage(1);
-              }}
-              sx={styles.button}
-            >
-              <CloseIcon />
-            </Button>
+          <Box sx={{ mb: 1.5, display: "flex", gap: 1 }}>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <TextField
+                placeholder="친구 검색 (ID 또는 이름)"
+                value={searchKeyword}
+                onChange={handleSearch}
+                size="small"
+                fullWidth
+              />
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setSearchKeyword("");
+                  setFilteredFriends(myFriends);
+                  //setFriendsPage(1);
+                }}
+                sx={styles.button}
+              >
+                <CloseIcon />
+              </Button>
+            </Box>
+            <Box sx={{ marginLeft: "auto" }}>
+              <Button
+                variant="contained"
+                onClick={() => setModalOpen(true)}
+                sx={{
+                  ...styles.button,
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  minWidth: 0,
+                  padding: 0,
+                }}
+              >
+                <AddIcon />
+              </Button>
+            </Box>
           </Box>
         )}
 
@@ -315,6 +318,7 @@ export default function Friends() {
                       fontWeight: 600,
                       color: "#455a79",
                       fontSize: "15px",
+                      padding: "10px",
                     },
                   }}
                 >
@@ -332,7 +336,6 @@ export default function Friends() {
                     <TableCell align="center" sx={{ width: "40%" }}>
                       Friend Since
                     </TableCell>
-                    <TableCell align="center">Action</TableCell>
                   </TableRow>
                 </TableHead>
 
@@ -349,16 +352,6 @@ export default function Friends() {
                       <TableCell align="center">{f.friend_name}</TableCell>
                       <TableCell align="center">
                         {formatDate(f.created_at)}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        <Button
-                          variant="text"
-                          onClick={() => handleDeleteFriend(f.friend_id)}
-                          sx={styles.button}
-                        >
-                          <CloseIcon sx={{ color: "#ff0000" }} />
-                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -479,8 +472,12 @@ export default function Friends() {
         open={snackbarOpen}
         autoHideDuration={2000}
         onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert severity="error" sx={{ width: "100%" }}>
+        <Alert
+          severity="error"
+          sx={{ width: "100%" }}
+        >
           친구 요청이 거절되었습니다.
         </Alert>
       </Snackbar>

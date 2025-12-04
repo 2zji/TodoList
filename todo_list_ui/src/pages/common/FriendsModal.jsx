@@ -6,15 +6,21 @@ import {
   Typography,
   Paper,
   IconButton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import SearchIcon from '@mui/icons-material/Search';
-import SendIcon from '@mui/icons-material/Send';
-import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from "@mui/icons-material/Search";
+import SendIcon from "@mui/icons-material/Send";
+import CloseIcon from "@mui/icons-material/Close";
 import api from "../../api/axiosInstance";
 
 export default function FriendsModal({ open, onClose }) {
+
   const [searchId, setSearchId] = useState("");
   const [searchedUser, setSearchedUser] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarType, setSnackbarType] = useState("success");
+  const [snackbarMsg, setSnackbarMsg] = useState("");
 
   const handleSearch = async () => {
     if (!searchId) return;
@@ -28,14 +34,19 @@ export default function FriendsModal({ open, onClose }) {
 
   const handleSendRequest = async () => {
     if (!searchedUser || searchedUser === "NOT_FOUND") return;
+
     try {
       await api.post(`/friends/${searchedUser.user.id}`);
-      alert("친구 요청을 보냈습니다!");
-      setSearchedUser(null);
+      setSnackbarType("success");
+      setSnackbarMsg("친구 요청을 보냈습니다!");
+      setSnackbarOpen(true);
       setSearchId("");
-      onClose();
+      setSearchedUser(null);
+
     } catch (err) {
-      alert("요청 실패");
+      setSnackbarType("error");
+      setSnackbarMsg("친구 요청 실패");
+      setSnackbarOpen(true);
     }
   };
 
@@ -64,7 +75,6 @@ export default function FriendsModal({ open, onClose }) {
       }}
     >
       <Paper sx={{ p: 4, width: 400, borderRadius: 2, position: "relative" }}>
-        {/* Close 버튼 */}
         <IconButton
           onClick={onClose}
           sx={{ ...styles.button, position: "absolute", top: 8, right: 8 }}
@@ -76,7 +86,6 @@ export default function FriendsModal({ open, onClose }) {
           Add Friend
         </Typography>
 
-        {/* 검색 입력 */}
         <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
           <TextField
             placeholder="User ID"
@@ -90,7 +99,6 @@ export default function FriendsModal({ open, onClose }) {
           </Button>
         </Box>
 
-        {/* 검색 결과 */}
         {searchedUser && searchedUser !== "NOT_FOUND" && (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2 }}>
             <Typography>ID: {searchedUser.user.id}</Typography>
@@ -142,12 +150,18 @@ export default function FriendsModal({ open, onClose }) {
             존재하지 않는 ID입니다.
           </Typography>
         )}
-
-        {/* 하단 Close 버튼 */}
-        <Button variant="outlined" fullWidth onClick={onClose} sx={styles.button}>
-          Close
-        </Button>
       </Paper>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={2000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity={snackbarType} sx={{ width: "100%" }}>
+          {snackbarMsg}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
