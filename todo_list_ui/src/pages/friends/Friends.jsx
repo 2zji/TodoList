@@ -15,9 +15,11 @@ import {
   Tab,
   TextField,
   Pagination,
+  Checkbox,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
+import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import api from "../../api/axiosInstance";
 import RejectModal from "../common/RejectModal";
@@ -64,17 +66,20 @@ export default function Friends() {
   const [tab, setTab] = useState(0);
   const [myFriends, setMyFriends] = useState([]);
   const [filteredFriends, setFilteredFriends] = useState([]);
+  const [checkedFriends, setCheckedFriends] = useState([]);
+  const [allChecked, setAllChecked] = useState(false);
   const [friendsPage, setFriendsPage] = useState(1);
-  const friendsPerPage = 5;
   const [friendRequests, setFriendRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [requestsPage, setRequestsPage] = useState(1);
-  const requestsPerPage = 5;
   const [modalOpen, setModalOpen] = useState(false);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [targetRejectId, setTargetRejectId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
+
+  const friendsPerPage = 8;
+  const requestsPerPage = 8;
 
   // Friends 목록 불러오기
   const fetchMyFriends = async () => {
@@ -82,12 +87,15 @@ export default function Friends() {
       const res = await api.get("/friends");
       setMyFriends(res.data);
       setFilteredFriends(res.data);
+      setCheckedFriends([]);
+      setAllChecked(false);
       setFriendsPage(1);
     } catch (err) {
       console.error("친구 목록 불러오기 실패:", err);
     }
   };
 
+  // 친구 요청 불러오기
   const fetchFriendRequests = async () => {
     try {
       const res = await api.get("/friends/requests");
@@ -110,6 +118,42 @@ export default function Friends() {
     fetchMyFriends();
   };
 
+  // 선택 삭제
+  const deleteFriends = async () => {
+    if (checkedFriends.length === 0) return;
+
+    for (const id of checkedFriends) {
+      await api.delete(`/friends/${id}`);
+    }
+
+    fetchMyFriends();
+  };
+
+  // 전체 선택
+  const toggleAll = () => {
+    if (allChecked) {
+      setCheckedFriends([]);
+    } else {
+      const allIds = filteredFriends.map((f) => f.friend_id);
+      setCheckedFriends(allIds);
+    }
+    setAllChecked(!allChecked);
+  };
+
+  // 개별 선택
+  const toggleCheck = (id) => {
+    let updated = [];
+
+    if (checkedFriends.includes(id)) {
+      updated = checkedFriends.filter((v) => v !== id);
+    } else {
+      updated = [...checkedFriends, id];
+    }
+    
+    setCheckedFriends(updated);
+    setAllChecked(updated.length === filteredFriends.length);
+  };
+
   // 친구 요청 수락
   const handleAccept = async (requestId) => {
     await api.put(`/friends/${requestId}/accept`);
@@ -123,6 +167,7 @@ export default function Friends() {
     setRejectModalOpen(true);
   };
 
+  // 친구 요청 거절
   const confirmReject = async () => {
     await api.put(`/friends/${targetRejectId}/reject`);
     setRejectModalOpen(false);
@@ -141,6 +186,7 @@ export default function Friends() {
       return;
     }
 
+    // ID 또는 이름으로 필터링
     const filtered = myFriends.filter(
       (f) =>
         f.friend_id.toString() === keyword ||
@@ -150,6 +196,7 @@ export default function Friends() {
     setFriendsPage(1);
   };
 
+  // 날짜 포맷팅
   const formatDate = (dt) => new Date(dt).toLocaleDateString();
 
   // Pagination
@@ -158,6 +205,7 @@ export default function Friends() {
     friendsPage * friendsPerPage
   );
 
+  // Pagination
   const displayedRequests = filteredRequests.slice(
     (requestsPage - 1) * requestsPerPage,
     requestsPage * requestsPerPage
@@ -182,7 +230,7 @@ export default function Friends() {
           sx={{
             "& .MuiTab-root": { outline: "none" },
             "& .Mui-selected": { fontWeight: 700 },
-          /*  backgroundColor: "#ffffff",
+            /*  backgroundColor: "#ffffff",
             borderTopLeftRadius: "12px",
             borderTopRightRadius: "12px",
             boxShadow:
@@ -194,24 +242,39 @@ export default function Friends() {
         </Tabs>
 
         {tab === 0 && (
-          <Button
-            variant="contained"
-            onClick={() => setModalOpen(true)}
-            sx={{
-              ...styles.button,
-              width: 35,
-              height: 35,
-              borderRadius: "50%",
-              minWidth: 0,
-              padding: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              mb: 1,
-            }}
-          >
-            <AddIcon />
-          </Button>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              variant="contained"
+              onClick={() => setModalOpen(true)}
+              sx={{
+                ...styles.button,
+                width: 35,
+                height: 35,
+                borderRadius: "50%",
+                minWidth: 0,
+                padding: 0,
+              }}
+            >
+              <AddIcon />
+            </Button>
+
+            {/* checkbox 삭제 버튼 */}
+            <Button
+              variant="contained"
+              color="error"
+              onClick={deleteFriends}
+              sx={{
+                ...styles.button,
+                width: 35,
+                height: 35,
+                borderRadius: "50%",
+                minWidth: 0,
+                padding: 0,
+              }}
+            >
+              <DeleteIcon />
+            </Button>
+          </Box>
         )}
       </Box>
 
@@ -231,7 +294,7 @@ export default function Friends() {
               onClick={() => {
                 setSearchKeyword("");
                 setFilteredFriends(myFriends);
-                setFriendsPage(1);
+                //setFriendsPage(1);
               }}
               sx={styles.button}
             >
@@ -256,13 +319,17 @@ export default function Friends() {
                   }}
                 >
                   <TableRow>
+                    <TableCell align="center" sx={{ width: "5%" }}>
+                      {/* 전체 선택 체크박스 */}
+                      <Checkbox checked={allChecked} onChange={toggleAll} />
+                    </TableCell>
                     <TableCell align="center" sx={{ width: "15%" }}>
                       Friend ID
                     </TableCell>
                     <TableCell align="center" sx={{ width: "20%" }}>
                       Name
                     </TableCell>
-                    <TableCell align="center" sx={{ width: "50%" }}>
+                    <TableCell align="center" sx={{ width: "40%" }}>
                       Friend Since
                     </TableCell>
                     <TableCell align="center">Action</TableCell>
@@ -273,30 +340,31 @@ export default function Friends() {
                   {displayedFriends.map((f) => (
                     <TableRow key={f.friend_id} hover>
                       <TableCell align="center">
-                        <Box sx={{ py: 0.5 }}>{f.friend_id}</Box>
+                        <Checkbox
+                          checked={checkedFriends.includes(f.friend_id)}
+                          onChange={() => toggleCheck(f.friend_id)}
+                        />
                       </TableCell>
+                      <TableCell align="center">{f.friend_id}</TableCell>
+                      <TableCell align="center">{f.friend_name}</TableCell>
                       <TableCell align="center">
-                        <Box sx={{ py: 0.5 }}>{f.friend_name}</Box>
+                        {formatDate(f.created_at)}
                       </TableCell>
+
                       <TableCell align="center">
-                        <Box sx={{ py: 0.5 }}>{formatDate(f.created_at)}</Box>
-                      </TableCell>
-                      <TableCell align="center">
-                        <Box sx={{ py: 0.5 }}>
-                          <Button
-                            variant="text"
-                            onClick={() => handleDeleteFriend(f.friend_id)}
-                            sx={styles.button}
-                          >
-                            <CloseIcon sx={{ color: "#ff0000" }} />
-                          </Button>
-                        </Box>
+                        <Button
+                          variant="text"
+                          onClick={() => handleDeleteFriend(f.friend_id)}
+                          sx={styles.button}
+                        >
+                          <CloseIcon sx={{ color: "#ff0000" }} />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
                   {displayedFriends.length === 0 && (
                     <TableRow>
-                      <TableCell align="center" colSpan={4}>
+                      <TableCell align="center" colSpan={5}>
                         친구가 없습니다.
                       </TableCell>
                     </TableRow>
@@ -347,34 +415,28 @@ export default function Friends() {
                 <TableBody>
                   {displayedRequests.map((req) => (
                     <TableRow key={req.request_id} hover>
+                      <TableCell align="center">{req.requester_name}</TableCell>
                       <TableCell align="center">
-                        <Box sx={{ py: 0.06 }}>{req.requester_name}</Box>
+                        {formatDate(req.created_at)}
                       </TableCell>
                       <TableCell align="center">
-                        <Box sx={{ py: 0.06 }}>
-                          {formatDate(req.created_at)}
-                        </Box>
-                      </TableCell>
-                      <TableCell align="center">
-                        <Box sx={{ py: 0.06 }}>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            sx={{ mr: 1, ...styles.button }}
-                            onClick={() => handleAccept(req.request_id)}
-                          >
-                            <CheckIcon />
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            color="error"
-                            onClick={() => openRejectModal(req.request_id)}
-                            sx={styles.button}
-                          >
-                            <CloseIcon />
-                          </Button>
-                        </Box>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          sx={{ mr: 1, ...styles.button }}
+                          onClick={() => handleAccept(req.request_id)}
+                        >
+                          <CheckIcon />
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          color="error"
+                          onClick={() => openRejectModal(req.request_id)}
+                          sx={styles.button}
+                        >
+                          <CloseIcon />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

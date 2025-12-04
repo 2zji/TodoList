@@ -105,7 +105,7 @@ export default function FriendsModal({ open, onClose }) {
                   fullWidth
                   sx={styles.button}
                 >
-                  Send Request
+                  Add Friend
                 </Button>
                 <Button
                   variant="outlined"
