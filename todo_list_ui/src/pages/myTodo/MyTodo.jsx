@@ -233,34 +233,37 @@ function MyTodo() {
           </FormControl>
 
           <Stack direction="row" spacing={1}>
-            <IconButton
+            <Button
+              variant="contained"
               color="error"
               onClick={handleDeleteSelected}
               disabled={selected.length === 0}
               sx={{
-                bgcolor: selected.length > 0 ? "#ffebee" : "#f5f5f5",
-                borderRadius: "8px",
-                padding: "6px",
+                bgcolor: selected.length > 0 ? "#e91232ff" : "#a8a8a8ff",
                 "&:hover": {
-                  bgcolor: selected.length > 0 ? "#ffcdd2" : "#eeeeee",
+                  bgcolor: selected.length > 0 ? "#d30c2aff" : "#a8a8a8ff",
                 },
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                minWidth: 0,
+                padding: 0,
                 "&:focus": { outline: "none" },
                 "&:focusVisible": { outline: "none", boxShadow: "none" },
               }}
             >
               <DeleteIcon />
-            </IconButton>
+            </Button>
 
             <Button
+              variant="contained"
               onClick={openCreateModal}
               sx={{
-                backgroundColor: "#90c2f8",
+                width: 40,
+                height: 40,
                 borderRadius: "50%",
-                minWidth: "42px",
-                minHeight: "42px",
-                "&:hover": { backgroundColor: "#7bb5f5" },
-                "&:active": { backgroundColor: "#69a6ef" },
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                minWidth: 0,
+                padding: 0,
                 "&:focus": { outline: "none" },
                 "&:focusVisible": { outline: "none", boxShadow: "none" },
               }}

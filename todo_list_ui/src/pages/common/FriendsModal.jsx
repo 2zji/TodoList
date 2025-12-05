@@ -12,6 +12,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import api from "../../api/axiosInstance";
 
 export default function FriendsModal({ open, onClose }) {
@@ -83,7 +84,7 @@ export default function FriendsModal({ open, onClose }) {
         </IconButton>
 
         <Typography variant="h6" mb={3}>
-          Add Friend
+          <PersonAddIcon/>Add Friend
         </Typography>
 
         <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
