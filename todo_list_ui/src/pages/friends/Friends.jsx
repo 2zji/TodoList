@@ -244,11 +244,17 @@ export default function Friends() {
         {tab === 0 && (
           <Box sx={{ display: "flex", gap: 1 }}>
             {/* checkbox 삭제 버튼 */}
-            <Button
+            {/* <Button
               variant="contained"
               color="error"
               onClick={deleteFriends}
+              disabled={checkedFriends.length === 0}
               sx={{
+                bgcolor: checkedFriends.length > 0 ? "#e91232ff" : "#a8a8a8ff",
+                "&:hover": {
+                  bgcolor:
+                    checkedFriends.length > 0 ? "#d30c2aff" : "#a8a8a8ff",
+                },
                 ...styles.button,
                 width: 40,
                 height: 40,
@@ -258,7 +264,7 @@ export default function Friends() {
               }}
             >
               <DeleteIcon />
-            </Button>
+            </Button> */}
           </Box>
         )}
       </Box>
@@ -287,7 +293,29 @@ export default function Friends() {
                 <CloseIcon />
               </Button>
             </Box>
-            <Box sx={{ marginLeft: "auto" }}>
+            <Box sx={{ display: "flex", gap: "10px", marginLeft: "auto" }}>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={deleteFriends}
+                disabled={checkedFriends.length === 0}
+                sx={{
+                  bgcolor:
+                    checkedFriends.length > 0 ? "#e91232ff" : "#a8a8a8ff",
+                  "&:hover": {
+                    bgcolor:
+                      checkedFriends.length > 0 ? "#d30c2aff" : "#a8a8a8ff",
+                  },
+                  ...styles.button,
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  minWidth: 0,
+                  padding: 0,
+                }}
+              >
+                <DeleteIcon />
+              </Button>
               <Button
                 variant="contained"
                 onClick={() => setModalOpen(true)}
@@ -474,10 +502,7 @@ export default function Friends() {
         onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert
-          severity="error"
-          sx={{ width: "100%" }}
-        >
+        <Alert severity="error" sx={{ width: "100%" }}>
           친구 요청이 거절되었습니다.
         </Alert>
       </Snackbar>

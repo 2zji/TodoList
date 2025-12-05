@@ -8,6 +8,22 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+#내 정보 조회
+@router.get("/me", response_model=UserResponse)
+def get_my_info(
+    db: Session = Depends(get_db),
+    current_user: TodoUser = Depends(get_current_user)
+):
+    user = db.query(TodoUser).filter(
+        TodoUser.id == current_user.id,
+        TodoUser.is_deleted == False
+    ).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user
+
 #회원가입
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
