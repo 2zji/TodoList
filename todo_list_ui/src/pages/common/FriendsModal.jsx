@@ -83,8 +83,8 @@ export default function FriendsModal({ open, onClose }) {
           <CloseIcon />
         </IconButton>
 
-        <Typography variant="h6" mb={3}>
-          <PersonAddIcon/>Add Friend
+        <Typography variant="h6" mb={3} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <PersonAddIcon sx={{ fontSize: 30 }} />Add Friend
         </Typography>
 
         <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
