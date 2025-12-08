@@ -250,10 +250,10 @@ export default function Friends() {
               onClick={deleteFriends}
               disabled={checkedFriends.length === 0}
               sx={{
-                bgcolor: checkedFriends.length > 0 ? "#e91232ff" : "#a8a8a8ff",
+                bgcolor: checkedFriends.length > 0 ? "#e91232" : "#a8a8a8",
                 "&:hover": {
                   bgcolor:
-                    checkedFriends.length > 0 ? "#d30c2aff" : "#a8a8a8ff",
+                    checkedFriends.length > 0 ? "#d30c2a" : "#a8a8a8",
                 },
                 ...styles.button,
                 width: 40,
@@ -301,10 +301,10 @@ export default function Friends() {
                 disabled={checkedFriends.length === 0}
                 sx={{
                   bgcolor:
-                    checkedFriends.length > 0 ? "#e91232ff" : "#a8a8a8ff",
+                    checkedFriends.length > 0 ? "#EF4444" : "#a8a8a8",
                   "&:hover": {
                     bgcolor:
-                      checkedFriends.length > 0 ? "#d30c2aff" : "#a8a8a8ff",
+                      checkedFriends.length > 0 ? "#d30c2a" : "#a8a8a8",
                   },
                   ...styles.button,
                   width: 40,

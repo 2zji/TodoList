@@ -5,10 +5,14 @@ import MyTodo from "./pages/myTodo/MyTodo";
 import Dashboard from "./pages/common/Dashboard";
 import Mypage from "./pages/common/Mypage";
 import api from "./api/axiosInstance";
-import { Box, Button, Menu, MenuItem } from "@mui/material";
+import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import LogoutIcon from "@mui/icons-material/Logout";
-import NotInterestedIcon from "@mui/icons-material/NotInterested";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 
 const styles = {
   root: {
@@ -26,6 +30,8 @@ const styles = {
     background: "#f9f9f9",
     boxSizing: "border-box",
   },
+  menubar: { cursor: "pointer", padding: "30px 10px", display: "flex" },
+
   main: {
     display: "flex",
     flexDirection: "column",
@@ -42,8 +48,17 @@ const styles = {
     background: "#f9f9f9",
     borderBottom: "1px solid #ccc",
   },
+
   menuUser: {
-    "&.Mui-disabled": { color: "#000", opacity: 1 },
+    padding: "0px 20px 14px 20px",
+    borderBottom: "1px solid rgba(0,0,0,0.07)",
+  },
+  menuUser2: {
+    padding: "12px 25px",
+    borderBottom: "1px solid rgba(0,0,0,0.06)",
+    "&:hover": {
+      background: "#F3F6FA",
+    },
   },
 };
 
@@ -121,22 +136,16 @@ function App() {
     <div style={styles.root}>
       {/* 왼쪽 메뉴 */}
       <div style={styles.menu}>
-        <div
-          style={{ margin: "30px", cursor: "pointer" }}
-          onClick={() => handleNavigate("")}
-        >
+        <div style={styles.menubar} onClick={() => handleNavigate("")}>
+          <DashboardIcon sx={{ marginRight: 1 }} />
           Dashboard
         </div>
-        <div
-          style={{ margin: "30px", cursor: "pointer" }}
-          onClick={() => handleNavigate("myTodo")}
-        >
+        <div style={styles.menubar} onClick={() => handleNavigate("myTodo")}>
+          <ListAltIcon sx={{ marginRight: 1 }} />
           My TODO
         </div>
-        <div
-          style={{ margin: "30px", cursor: "pointer" }}
-          onClick={() => handleNavigate("friends")}
-        >
+        <div style={styles.menubar} onClick={() => handleNavigate("friends")}>
+          <PeopleAltIcon sx={{ marginRight: 1 }} />
           Friends
         </div>
       </div>
@@ -155,17 +164,19 @@ function App() {
               aria-expanded={open ? "true" : undefined}
               onClick={handleMenuOpen}
               sx={{
-                width: 40,
-                height: 40,
+                width: 42,
+                height: 42,
                 borderRadius: "50%",
                 minWidth: 0,
                 padding: 0,
-                color: "#fff",
+                background: "#2A75F3",
+                "&:hover": { background: "#1E63D1" },
+                boxShadow: "0px 3px 8px rgba(0,0,0,0.15)",
                 "&:focus": { outline: "none" },
                 "&:focusVisible": { outline: "none", boxShadow: "none" },
               }}
             >
-              <AccountCircleIcon />
+              <AccountCircleIcon sx={{ width: "80%", height: "80%" }} />
             </Button>
 
             <Menu
@@ -175,22 +186,66 @@ function App() {
               onClose={handleMenuClose}
               anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               transformOrigin={{ vertical: "top", horizontal: "right" }}
+              slotProps={{
+                paper: {
+                  sx: {
+                    mt: "6px",
+                    padding: "10px 0",
+                    borderRadius: "12px",
+                    boxShadow: "0px 8px 20px rgba(0,0,0,0.08)",
+                    width: "250px",
+                  },
+                },
+              }}
             >
-              <MenuItem disabled sx={styles.menuUser}>
-                ID: {user.id}
-              </MenuItem>
-              <MenuItem disabled sx={styles.menuUser}>
-                Name: {user.name}
-              </MenuItem>
+              <Box
+                sx={{
+                  ...styles.menuUser,
+                  display: "flex",
+                  gap: "15px",
+                  alignItems: "center",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "50%",
+                    background: "#E8EEF5",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <AccountCircleOutlinedIcon sx={{ color: "#5B646F" }} />
+                </Box>
+
+                <Box>
+                  <Typography sx={{ color: "#5B646F", fontSize: "14px" }}>
+                    @{user.id}
+                  </Typography>
+                  <Typography sx={{ color: "#333", fontWeight: 600 }}>
+                    {user.name}
+                  </Typography>
+                </Box>
+              </Box>
 
               <MenuItem
                 onClick={() => {
                   handleMenuClose();
                   handleDelete();
                 }}
+                sx={{
+                  ...styles.menuUser2,
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "center",
+                  fontSize: "15px",
+                  color: "#3A4856",
+                }}
               >
-                <NotInterestedIcon sx={{ marginRight: 1 }} />
-                Delete Account
+                <SettingsOutlinedIcon sx={{ color: "#5B646F", pr: "11px" }} />
+                Quit
               </MenuItem>
 
               <MenuItem
@@ -198,8 +253,16 @@ function App() {
                   handleMenuClose();
                   handleLogout();
                 }}
+                sx={{
+                  ...styles.menuUser2,
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "center",
+                  fontSize: "15px",
+                  color: "#3A4856",
+                }}
               >
-                <LogoutIcon sx={{ marginRight: 1 }} />
+                <LogoutOutlinedIcon sx={{ color: "#5B646F", pr: "11px" }} />
                 Logout
               </MenuItem>
             </Menu>

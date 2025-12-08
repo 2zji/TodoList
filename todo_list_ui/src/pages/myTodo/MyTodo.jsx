@@ -239,7 +239,7 @@ function MyTodo() {
               onClick={handleDeleteSelected}
               disabled={selected.length === 0}
               sx={{
-                bgcolor: selected.length > 0 ? "#e91232ff" : "#a8a8a8ff",
+                bgcolor: selected.length > 0 ? "#EF4444" : "#a8a8a8ff",
                 "&:hover": {
                   bgcolor: selected.length > 0 ? "#d30c2aff" : "#a8a8a8ff",
                 },
