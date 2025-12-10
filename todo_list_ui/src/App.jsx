@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import Friends from "./pages/friends/Friends";
 import MyTodo from "./pages/myTodo/MyTodo";
 import Dashboard from "./pages/common/Dashboard";
+import Login from "./pages/login/Login";
 import api from "./api/axiosInstance";
 import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -261,7 +262,7 @@ function App() {
                   color: "#3A4856",
                 }}
               >
-                <LogoutOutlinedIcon sx={{ color: "#5B646F", pr: "11px" }} />
+                <LogoutOutlinedIcon sx={{ color: "#5B646F", pr: "11px" }} onClick={() => handleNavigate("login")}/>
                 Logout
               </MenuItem>
             </Menu>
@@ -272,6 +273,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/myTodo" element={<MyTodo />} />
           <Route path="/friends" element={<Friends />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </div>
     </div>

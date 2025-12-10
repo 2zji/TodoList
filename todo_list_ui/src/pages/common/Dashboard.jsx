@@ -5,6 +5,7 @@ import NewTodo from "./TodoModal";
 import HeaderTemplet from "../../components/common/HeaderTemplet";
 import AppPagination from "../../components/common/AppPagination";
 import ListTable from "../../components/ListTable";
+import FooterTamplet from "../../components/common/FooterTemplet";
 
 import api from "../../api/axiosInstance";
 
@@ -37,6 +38,7 @@ function Dashboard() {
   const [page, setPage] = useState(1);
   const [selectedTodo, setSelectedTodo] = useState(null);
   const [currentList, setCurrentList] = useState([]);
+  const [isLiked, setIsLiked] = useState(false);
   const rowsPerPage = 10;
 
   const columns = useMemo(() => {
@@ -52,14 +54,15 @@ function Dashboard() {
       return [
         { header: "No.", field: "no", width: "5%" },
         { header: "Title", field: "title", width: "40%" },
-        { header: "Name", field: "name", width: "15%" },
+        { header: "Creator", field: "name", width: "15%" },
         { header: "Priority", field: "priority", width: "20%" },
         { header: "Status", field: "status", width: "20%" },
       ];
     }
     return [
-      { header: "No.", field: "no", width: "10%" },
-      { header: "Title", field: "title", width: "50%" },
+      { header: "No.", field: "no", width: "5%" },
+      { header: "Title", field: "title", width: "40%" },
+      { header: "Creator", field: "name", width: "15%" },
       { header: "Priority", field: "priority", width: "20%" },
       { header: "Status", field: "status", width: "20%" },
     ];
@@ -79,18 +82,61 @@ function Dashboard() {
         setCurrentList(res.data || []);
       } else if (tabValue === 1) {
         res = await api.get("/friends/todos");
-        const flattend = (res.data || []).flatMap(friend => friend.todos.map(
-          todo => ({...todo, name: friend.friend_name, friend_id: friend.friend_id})
-        ));
-        setCurrentList(flattend);
+        const flattened = (res.data || []).flatMap(friend => 
+          friend.todos.map(todo => ({
+            ...todo, 
+            name: friend.friend_name, 
+            friend_id: friend.friend_id
+          }))
+        );
+        setCurrentList(flattened);
       } else {
         res = await api.get("/like/my");
-        setCurrentList(res.data || []);
+        const likesTodo = (res.data || []).map(item => ({
+          ...item,
+          name: item.friend_name || 'unknown'
+        }));
+        setCurrentList(likesTodo);
       }
-
     } catch (err) {
       console.error("API 오류:", err);
       setCurrentList([]);
+    }
+  };
+
+  const checkLikeStatus = async (todoId) => {
+    try {
+      if (tabValue === 2) {
+        setIsLiked(true);
+        return;
+      }
+      const likesRes = await api.get("/like/my");
+      const isInLikes = (likesRes.data || []).some(
+        item => item.todo_id === todoId
+      );
+      setIsLiked(isInLikes);
+    } catch (err) {
+      console.error("좋아요 상태 확인 오류:", err);
+      setIsLiked(false);
+    }
+  };
+
+  const handleLikeToggle = async () => {
+    if (!selectedTodo?.todo_id) return;
+
+    try {
+      if (isLiked) {
+        await api.delete(`/like/${selectedTodo.todo_id}`);
+        setIsLiked(false);
+      } else {
+        await api.post(`/like/${selectedTodo.todo_id}`);
+        setIsLiked(true);
+      }
+      if (tabValue === 2) {
+        fetchList();
+      }
+    } catch (err) {
+      console.error("좋아요 토글 오류:", err);
     }
   };
 
@@ -109,7 +155,19 @@ function Dashboard() {
   const handleRowSelect = (item) => {
     setSelectedTodo(item);
     setOpen(true);
+    
+    if ((tabValue === 1 || tabValue === 2) && item.todo_id) {
+      checkLikeStatus(item.todo_id);
+    }
   };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedTodo(null);
+    setIsLiked(false);
+  };
+
+  const showLikeButton = (tabValue === 1 || tabValue === 2);
 
   return (
     <Box sx={styles.container}>
@@ -149,7 +207,7 @@ function Dashboard() {
         </Box>
       </Box>
 
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
             width: 900,
@@ -162,20 +220,32 @@ function Dashboard() {
             left: "50%",
             transform: "translate(-50%, -50%)",
             overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <HeaderTemplet title="View TODO" onClose={() => setOpen(false)} />
+          <HeaderTemplet title="View TODO" onClose={handleClose} />
 
           <Box
             sx={{
               mt: 2,
-              height: "calc(100% - 60px)",
+              flex: 1,
               overflow: "auto",
               "&::-webkit-scrollbar": { display: "none" },
             }}
           >
-            <NewTodo mode="view" infoObject={selectedTodo} hideFooter={true} />
+            <NewTodo mode="view" selectedTodo={selectedTodo} />
           </Box>
+
+          <FooterTamplet
+            mode="view"
+            selectedTodo={selectedTodo}
+            onClose={handleClose}
+            showLike={showLikeButton}
+            isLiked={isLiked}
+            onLikeToggle={handleLikeToggle}
+            onEdit={null}
+          />
         </Box>
       </Modal>
     </Box>

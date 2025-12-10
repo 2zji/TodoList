@@ -82,3 +82,17 @@ def get_likes_count(todo_id: int, db: Session = Depends(get_db)):
 
     likes_count = db.query(Like).filter(Like.todo_id == todo_id).count()
     return LikeResponse(todo_id=todo_id, likes_count=likes_count)
+
+# 좋아요 상태 확인
+@router.get("/check/{todo_id}")
+def check_like_status(
+    todo_id: int, 
+    db: Session = Depends(get_db), 
+    current_user: TodoUser = Depends(get_current_user)
+):
+    like = db.query(Like).filter(
+        Like.user_id == current_user.id,
+        Like.todo_id == todo_id
+    ).first()
+    
+    return {"is_liked": like is not None}

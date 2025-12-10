@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import {
   Box,
-  Button,
   TextField,
   Typography,
   FormControlLabel,
   RadioGroup,
   Radio,
 } from "@mui/material";
-import axios from "axios";
 
-function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
+function TodoModal({ mode = "create", selectedTodo = null, setSelectedTodo }) {
   const [inputValue, setInputValue] = useState({
     title: "",
     description: "",
@@ -22,11 +20,10 @@ function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
   const isReadOnly = mode === "view";
 
   useEffect(() => {
-    console.log(selectedTodo);
     if ((mode === "view" || mode === "edit") && selectedTodo) {
       setInputValue({
         title: selectedTodo.title ?? "",
-        description: selectedTodo.description ?? selectedTodo.description ?? "",
+        description: selectedTodo.description ?? "",
         publicity: selectedTodo.publicity ?? true,
         priority: (selectedTodo.priority ?? "medium").toLowerCase(),
         status: (selectedTodo.status ?? "in_progress").toLowerCase(),
@@ -40,21 +37,24 @@ function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
         status: "in_progress",
       });
     }
-  }, [mode]);
+  }, [mode, selectedTodo]);
 
   const handleChange = (field) => (e) => {
-    setInputValue((prev) => ({ ...prev, [field]: e.target.value }));
-    setSelectedTodo((prev) => ({ ...prev, [field]: e.target.value }));
+    const value = e.target.value;
+    setInputValue((prev) => ({ ...prev, [field]: value }));
+    if (setSelectedTodo) {
+      setSelectedTodo((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       {/* 제목 */}
       <Box sx={{ display: "flex", gap: 4 }}>
-        <Typography sx={{ width: "20%" }}>Title</Typography>
+        <Typography sx={{ width: "20%", fontWeight: 500 }}>Title</Typography>
         <Box sx={{ width: "80%" }}>
           {isReadOnly ? (
-            <Typography>{inputValue.title}</Typography>
+            <Typography>{inputValue.title || "-"}</Typography>
           ) : (
             <TextField
               value={inputValue.title}
@@ -62,7 +62,6 @@ function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
               size="small"
               fullWidth
               placeholder="제목을 입력해주세요."
-              slotProps={{ input: { readOnly: isReadOnly } }}
             />
           )}
         </Box>
@@ -70,11 +69,11 @@ function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
 
       {/* 내용 */}
       <Box sx={{ display: "flex", gap: 4 }}>
-        <Typography sx={{ width: "20%" }}>Description</Typography>
+        <Typography sx={{ width: "20%", fontWeight: 500 }}>Description</Typography>
         <Box sx={{ width: "80%" }}>
           {isReadOnly ? (
             <Typography sx={{ whiteSpace: "pre-wrap" }}>
-              {inputValue.description}
+              {inputValue.description || "null"}
             </Typography>
           ) : (
             <TextField
@@ -84,7 +83,6 @@ function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
               multiline
               rows={4}
               placeholder="내용을 입력해주세요."
-              slotProps={{ input: { readOnly: isReadOnly } }}
             />
           )}
         </Box>
@@ -92,7 +90,7 @@ function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
 
       {/* 공개여부 */}
       <Box sx={{ display: "flex", gap: 4 }}>
-        <Typography sx={{ width: "20%" }}>publicity</Typography>
+        <Typography sx={{ width: "20%", fontWeight: 500 }}>Publicity</Typography>
         <RadioGroup
           row
           name="publicity"
@@ -102,13 +100,13 @@ function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
           <FormControlLabel
             value={true}
             control={<Radio />}
-            label="public"
+            label="Public"
             disabled={isReadOnly}
           />
           <FormControlLabel
             value={false}
             control={<Radio />}
-            label="private"
+            label="Private"
             disabled={isReadOnly}
           />
         </RadioGroup>
@@ -116,7 +114,7 @@ function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
 
       {/* 중요도 */}
       <Box sx={{ display: "flex", gap: 4 }}>
-        <Typography sx={{ width: "20%" }}>Priority</Typography>
+        <Typography sx={{ width: "20%", fontWeight: 500 }}>Priority</Typography>
         <RadioGroup
           row
           name="priority"
@@ -126,19 +124,19 @@ function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
           <FormControlLabel
             value="low"
             control={<Radio />}
-            label="low"
+            label="Low"
             disabled={isReadOnly}
           />
           <FormControlLabel
             value="medium"
             control={<Radio />}
-            label="medium"
+            label="Medium"
             disabled={isReadOnly}
           />
           <FormControlLabel
             value="high"
             control={<Radio />}
-            label="high"
+            label="High"
             disabled={isReadOnly}
           />
         </RadioGroup>
@@ -146,7 +144,7 @@ function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
 
       {/* 상태 */}
       <Box sx={{ display: "flex", gap: 4 }}>
-        <Typography sx={{ width: "20%" }}>Status</Typography>
+        <Typography sx={{ width: "20%", fontWeight: 500 }}>Status</Typography>
         <RadioGroup
           row
           name="status"
@@ -156,19 +154,19 @@ function TodoModal({ mode = "create", selectedTodo = {}, setSelectedTodo }) {
           <FormControlLabel
             value="pending"
             control={<Radio />}
-            label="pending"
+            label="Pending"
             disabled={isReadOnly}
           />
           <FormControlLabel
             value="in_progress"
             control={<Radio />}
-            label="inProgress"
+            label="In Progress"
             disabled={isReadOnly}
           />
           <FormControlLabel
             value="completed"
             control={<Radio />}
-            label="close"
+            label="Completed"
             disabled={isReadOnly}
           />
         </RadioGroup>
