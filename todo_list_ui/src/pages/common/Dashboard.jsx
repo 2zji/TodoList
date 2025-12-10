@@ -38,8 +38,7 @@ function Dashboard() {
       borderRadius: "12px",
       borderTopLeftRadius: 0,
       padding: "28px 32px",
-      boxShadow:
-        "0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
+      boxShadow: "0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
       //  overflow: "hidden",
     },
   };
@@ -73,9 +72,7 @@ function Dashboard() {
         friendsTodo.filter((item) => item.disclosure === "public")
       );
     } else {
-      setCurrentList(
-        likedTodo.filter((item) => item.disclosure === "public")
-      );
+      setCurrentList(likedTodo.filter((item) => item.disclosure === "public"));
     }
   };
 

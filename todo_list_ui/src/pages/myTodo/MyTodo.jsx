@@ -35,6 +35,7 @@ const styles = {
     alignItems: "center",
     backgroundColor: "#f4f7fb",
     padding: "20px 0px 25px 0px",
+    //  overflow: "hidden",
   },
 
   body: {
@@ -45,6 +46,7 @@ const styles = {
     backgroundColor: "#ffffff",
     borderRadius: "12px",
     padding: "28px 32px",
+    //  overflow: "hidden",
     boxShadow:
       "0 3px 5px rgba(0,0,0,0.04), 0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
   },
