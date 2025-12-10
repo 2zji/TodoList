@@ -26,7 +26,7 @@ function Dashboard() {
       alignItems: "center",
       backgroundColor: "#f4f7fb",
       padding: "20px 0px 25px 0px",
-      overflow: "hidden",
+      //  overflow: "hidden",
     },
 
     body: {
@@ -40,24 +40,24 @@ function Dashboard() {
       padding: "28px 32px",
       boxShadow:
         "0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
-      overflow: "hidden",
+      //  overflow: "hidden",
     },
   };
 
   const columns =
     tabValue === 0
       ? [
-          { header: "No.", field: "no" },
-          { header: "Title", field: "title" },
-          { header: "Priority", field: "priority" },
-          { header: "Status", field: "status" },
+          { header: "No.", field: "no", width: "10%" },
+          { header: "Title", field: "title", width: "50%" },
+          { header: "Priority", field: "priority", width: "20%" },
+          { header: "Status", field: "status", width: "20%" },
         ]
       : [
-          { header: "No.", field: "no" },
-          { header: "Name", field: "name" },
-          { header: "Title", field: "title" },
-          { header: "Priority", field: "priority" },
-          { header: "Status", field: "status" },
+          { header: "No.", field: "no", width: "5%" },
+          { header: "Name", field: "name", width: "15%" },
+          { header: "Title", field: "title", width: "40%" },
+          { header: "Priority", field: "priority", width: "20%" },
+          { header: "Status", field: "status", width: "20%" },
         ];
 
   useEffect(() => {
@@ -98,7 +98,7 @@ function Dashboard() {
 
   return (
     <Box sx={styles.container}>
-      {/* Tabs 영역 */}
+      {/* Tabs*/}
       <Box
         sx={{
           width: "calc(90% + 64px)",

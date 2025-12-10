@@ -1,4 +1,3 @@
-// ListTable.jsx
 import {
   Checkbox,
   Paper,
@@ -74,7 +73,7 @@ const ListTable = ({
             )}
 
             {columns.map((col) => (
-              <TableCell key={col.field} sx={{ ...styles.header }}>
+              <TableCell key={col.field} sx={{ ...styles.header, width: col.width }}>
                 {col.header}
               </TableCell>
             ))}
@@ -106,7 +105,7 @@ const ListTable = ({
               )}
 
               {columns.map((col) => (
-                <TableCell key={col.field} sx={styles.body}>
+                <TableCell key={col.field} sx={{...styles.body, width: col.width}}>
                   {item[col.field]}
                 </TableCell>
               ))}
