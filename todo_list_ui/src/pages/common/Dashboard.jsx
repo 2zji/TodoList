@@ -1,78 +1,96 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Box, Modal, Tabs, Tab } from "@mui/material";
 
 import NewTodo from "./TodoModal";
 import HeaderTemplet from "../../components/common/HeaderTemplet";
 import AppPagination from "../../components/common/AppPagination";
-import { myTodo, friendsTodo, likedTodo } from "../../data/TodoData";
 import ListTable from "../../components/ListTable";
 
-// import api from "../../api/axiosInstance";
+import api from "../../api/axiosInstance";
+
+const styles = {
+  container: {
+    width: "100%",
+    height: "90%",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    backgroundColor: "#f4f7fb",
+    padding: "20px 0px 25px 0px",
+  },
+  body: {
+    display: "flex",
+    flexDirection: "column",
+    flex: 1,
+    width: "90%",
+    backgroundColor: "#ffffff",
+    borderRadius: "12px",
+    borderTopLeftRadius: 0,
+    padding: "28px 32px",
+    boxShadow: "0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
+  },
+};
 
 function Dashboard() {
   const [open, setOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [page, setPage] = useState(1);
   const [selectedTodo, setSelectedTodo] = useState(null);
-  const rowsPerPage = 10;
   const [currentList, setCurrentList] = useState([]);
+  const rowsPerPage = 10;
 
-  const styles = {
-    container: {
-      width: "100%",
-      height: "90%",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      backgroundColor: "#f4f7fb",
-      padding: "20px 0px 25px 0px",
-      //  overflow: "hidden",
-    },
-
-    body: {
-      display: "flex",
-      flexDirection: "column",
-      flex: 1,
-      width: "90%",
-      backgroundColor: "#ffffff",
-      borderRadius: "12px",
-      borderTopLeftRadius: 0,
-      padding: "28px 32px",
-      boxShadow: "0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
-      //  overflow: "hidden",
-    },
-  };
-
-  const columns =
-    tabValue === 0
-      ? [
-          { header: "No.", field: "no", width: "10%" },
-          { header: "Title", field: "title", width: "50%" },
-          { header: "Priority", field: "priority", width: "20%" },
-          { header: "Status", field: "status", width: "20%" },
-        ]
-      : [
-          { header: "No.", field: "no", width: "5%" },
-          { header: "Name", field: "name", width: "15%" },
-          { header: "Title", field: "title", width: "40%" },
-          { header: "Priority", field: "priority", width: "20%" },
-          { header: "Status", field: "status", width: "20%" },
-        ];
+  const columns = useMemo(() => {
+    if (tabValue === 0) {
+      return [
+        { header: "No.", field: "no", width: "10%" },
+        { header: "Title", field: "title", width: "50%" },
+        { header: "Priority", field: "priority", width: "20%" },
+        { header: "Status", field: "status", width: "20%" },
+      ];
+    }
+    if (tabValue === 1) {
+      return [
+        { header: "No.", field: "no", width: "5%" },
+        { header: "Title", field: "title", width: "40%" },
+        { header: "Name", field: "name", width: "15%" },
+        { header: "Priority", field: "priority", width: "20%" },
+        { header: "Status", field: "status", width: "20%" },
+      ];
+    }
+    return [
+      { header: "No.", field: "no", width: "10%" },
+      { header: "Title", field: "title", width: "50%" },
+      { header: "Priority", field: "priority", width: "20%" },
+      { header: "Status", field: "status", width: "20%" },
+    ];
+  }, [tabValue]);
 
   useEffect(() => {
-    getList();
+    fetchList();
     setPage(1);
   }, [tabValue]);
 
-  const getList = () => {
-    if (tabValue === 0) {
-      setCurrentList(myTodo);
-    } else if (tabValue === 1) {
-      setCurrentList(
-        friendsTodo.filter((item) => item.disclosure === "public")
-      );
-    } else {
-      setCurrentList(likedTodo.filter((item) => item.disclosure === "public"));
+  const fetchList = async () => {
+    try {
+      let res;
+
+      if (tabValue === 0) {
+        res = await api.get("/todo/");
+        setCurrentList(res.data || []);
+      } else if (tabValue === 1) {
+        res = await api.get("/friends/todos");
+        const flattend = (res.data || []).flatMap(friend => friend.todos.map(
+          todo => ({...todo, name: friend.friend_name, friend_id: friend.friend_id})
+        ));
+        setCurrentList(flattend);
+      } else {
+        res = await api.get("/like/my");
+        setCurrentList(res.data || []);
+      }
+
+    } catch (err) {
+      console.error("API 오류:", err);
+      setCurrentList([]);
     }
   };
 
@@ -95,7 +113,6 @@ function Dashboard() {
 
   return (
     <Box sx={styles.container}>
-      {/* Tabs*/}
       <Box
         sx={{
           width: "calc(90% + 64px)",
@@ -120,7 +137,6 @@ function Dashboard() {
         </Tabs>
       </Box>
 
-      {/* Body */}
       <Box sx={styles.body}>
         <ListTable
           columns={columns}
@@ -133,7 +149,6 @@ function Dashboard() {
         </Box>
       </Box>
 
-      {/* Modal */}
       <Modal open={open} onClose={() => setOpen(false)}>
         <Box
           sx={{

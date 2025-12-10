@@ -78,8 +78,8 @@ export default function Friends() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
 
-  const friendsPerPage = 8;
-  const requestsPerPage = 8;
+  const friendsPerPage = 9;
+  const requestsPerPage = 10;
 
   // Friends 목록 불러오기
   const fetchMyFriends = async () => {
@@ -370,7 +370,7 @@ export default function Friends() {
                 <TableBody>
                   {displayedFriends.map((f) => (
                     <TableRow key={f.friend_id} hover>
-                      <TableCell align="center">
+                      <TableCell align="center" sx={{padding: 0}}>
                         <Checkbox
                           checked={checkedFriends.includes(f.friend_id)}
                           onChange={() => toggleCheck(f.friend_id)}

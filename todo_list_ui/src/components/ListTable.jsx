@@ -73,7 +73,10 @@ const ListTable = ({
             )}
 
             {columns.map((col) => (
-              <TableCell key={col.field} sx={{ ...styles.header, width: col.width }}>
+              <TableCell
+                key={col.field}
+                sx={{ ...styles.header, width: col.width }}
+              >
                 {col.header}
               </TableCell>
             ))}
@@ -83,7 +86,7 @@ const ListTable = ({
         <TableBody>
           {rows.map((item) => (
             <TableRow
-              key={item.id}
+              key={item.id ?? item.todo_id ?? item.friend_id ?? item.no}
               hover
               onClick={() => onRowSelect(item)}
               sx={{
@@ -105,7 +108,10 @@ const ListTable = ({
               )}
 
               {columns.map((col) => (
-                <TableCell key={col.field} sx={{...styles.body, width: col.width}}>
+                <TableCell
+                  key={col.field}
+                  sx={{ ...styles.body, width: col.width }}
+                >
                   {item[col.field]}
                 </TableCell>
               ))}
