@@ -3,7 +3,6 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import Friends from "./pages/friends/Friends";
 import MyTodo from "./pages/myTodo/MyTodo";
 import Dashboard from "./pages/common/Dashboard";
-import Mypage from "./pages/common/Mypage";
 import api from "./api/axiosInstance";
 import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -53,7 +52,7 @@ const styles = {
     padding: "0px 20px 14px 20px",
     borderBottom: "1px solid rgba(0,0,0,0.07)",
   },
-  menuUser2: {
+  menuOption: {
     padding: "12px 25px",
     borderBottom: "1px solid rgba(0,0,0,0.06)",
     "&:hover": {
@@ -153,7 +152,7 @@ function App() {
       {/* 메인 화면 */}
       <div style={styles.main}>
         <Box sx={styles.header}>
-          <h2 style={{ margin: 0, fontSize: "40px" }}>Hi {user.name}!</h2>
+          <h2 style={{ margin: 0, fontSize: "38px" }}>Hi {user.name}!</h2>
 
           <Box sx={{ marginLeft: "auto", position: "relative" }}>
             <Button
@@ -164,8 +163,8 @@ function App() {
               aria-expanded={open ? "true" : undefined}
               onClick={handleMenuOpen}
               sx={{
-                width: 42,
-                height: 42,
+                width: 40,
+                height: 40,
                 borderRadius: "50%",
                 minWidth: 0,
                 padding: 0,
@@ -236,7 +235,7 @@ function App() {
                   handleDelete();
                 }}
                 sx={{
-                  ...styles.menuUser2,
+                  ...styles.menuOption,
                   display: "flex",
                   gap: "10px",
                   alignItems: "center",
@@ -254,7 +253,7 @@ function App() {
                   handleLogout();
                 }}
                 sx={{
-                  ...styles.menuUser2,
+                  ...styles.menuOption,
                   display: "flex",
                   gap: "10px",
                   alignItems: "center",
@@ -273,7 +272,6 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/myTodo" element={<MyTodo />} />
           <Route path="/friends" element={<Friends />} />
-          <Route path="/mypage" element={<Mypage />} />
         </Routes>
       </div>
     </div>

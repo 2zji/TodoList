@@ -173,3 +173,50 @@ def search_user_status(user_id: int, db: Session = Depends(get_db), current_user
         "status": relation.status,
         "user": {"id": user.id, "name": user.name}
     }
+
+
+@router.get("/todos")
+def get_all_friends_public_todos(
+    db: Session = Depends(get_db),
+    current_user: TodoUser = Depends(get_current_user)
+):
+    friends = db.query(Friends).filter(
+        or_(
+            Friends.requester_id == current_user.id,
+            Friends.addressee_id == current_user.id
+        ),
+        Friends.status == "accepted"
+    ).all()
+    if not friends:
+        return []
+
+    result = []
+
+    for f in friends:
+        friend_id = f.requester_id if f.requester_id != current_user.id else f.addressee_id
+
+        friend_user = db.query(TodoUser).filter(TodoUser.id == friend_id).first()
+
+        todos = db.query(Todo).filter(
+            Todo.user_id == friend_id,
+            Todo.publicity == True
+        ).all()
+
+        result.append({
+            "friend_id": friend_id,
+            "friend_name": friend_user.name,
+            "todos": [
+                {
+                    "todo_id": t.id,
+                    "title": t.title,
+                    "description": t.description,
+                    "status": t.status,
+                    "priority": t.priority,
+                    "created_at": t.created_at
+                }
+                for t in todos
+            ]
+        })
+
+    return result
+

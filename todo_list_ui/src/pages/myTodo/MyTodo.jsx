@@ -73,10 +73,16 @@ function MyTodo() {
     publicity: true,
     status: "in_progress",
   };
+
   const [todoList, setTodoList] = useState([]);
   const [open, setOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedTodo, setSelectedTodo] = useState(initMyTodo);
+  const [filter, setFilter] = useState("all");
+  const [selected, setSelected] = useState([]);
+  const [page, setPage] = useState(1);
+
+  const rowsPerPage = 9;
 
   const convertTodo = (todo) => ({
     ...todo,
@@ -84,12 +90,6 @@ function MyTodo() {
     priority: todo.priority?.toLowerCase(),
     status: todo.status?.toLowerCase(),
   });
-
-  const [filter, setFilter] = useState("all");
-  const [selected, setSelected] = useState([]);
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 5;
-  //const rowsPerPage = 10;
 
   useEffect(() => {
     fetchTodos();
@@ -283,6 +283,7 @@ function MyTodo() {
                   fontWeight: 600,
                   color: "#455a79",
                   fontSize: "15px",
+                  padding: "10px",
                 },
               }}
             >
