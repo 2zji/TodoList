@@ -66,6 +66,7 @@ const Login = () => {
       <Box
         sx={{
           width: "60%",
+          //  backgroundImage: "url(/testBack.jpg)",
           backgroundColor: "rgba(243, 243, 243, 1)",
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -121,7 +122,8 @@ const Login = () => {
             value={formData.passwd}
             onChange={handleChange("passwd")}
             placeholder="비밀번호를 입력하세요"
-            InputProps={{
+            slotProps={{
+                input:{
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
@@ -133,6 +135,7 @@ const Login = () => {
                   </IconButton>
                 </InputAdornment>
               ),
+            },
             }}
           />
 
