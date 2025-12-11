@@ -157,13 +157,15 @@ const Login = () => {
             로그인
           </Button>
 
-          <Box sx={{ textAlign: "center", mt: 1 }}>
+          <Box sx={{ textAlign: "center", mt: 1, display: "flex", justifyContent: "center" }}>
+            <Typography sx={{color: "#5B646F", fontSize: "14px"}}>TodoList가 처음이신가요? </Typography>
             <Link
               onClick={handleSignupClick}
               underline="hover"
               sx={{
                 color: "#1976d2",
                 fontSize: "14px",
+                ml: 0.5,
                 cursor: "pointer",
               }}
             >

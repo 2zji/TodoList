@@ -104,7 +104,6 @@ function App() {
 
   const handleLogout = () => {
     try {
-      api.post("/auth/logout");
       handleMenuClose();
       navigate("/login");
     } catch (err) {
