@@ -3,16 +3,35 @@ import axios from "axios";
 const api = axios.create({
   baseURL: "http://127.0.0.1:8001",
   timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 //토큰 가져오기
-api.interceptors.request.use((config) => {
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkb2dAZS1taXJpbS5rciIsImV4cCI6MTc2NDM0MjY2OX0.BNLzF04ydp2FiFcDnsuzI3zeZLKHeRe_FiAr9_x4XlY";
-
-  if(token){
-    config.headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error); // 비동기 작업 실패 시, error 표시
   }
-  return config;
-})
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // 토큰이 만료되었거나 유효하지 않은 경우
+      localStorage.removeItem("access_token");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

@@ -1,9 +1,10 @@
 import { useEffect, useCallback, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Friends from "./pages/friends/Friends";
 import MyTodo from "./pages/myTodo/MyTodo";
 import Dashboard from "./pages/common/Dashboard";
 import Login from "./pages/login/Login";
+import Signup from "./pages/signup/Signup";
 import api from "./api/axiosInstance";
 import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -64,11 +65,14 @@ const styles = {
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [user, setUser] = useState({
     id: "",
     name: "",
   });
+
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/signup";
 
   const fetchUserInfo = async () => {
     try {
@@ -80,8 +84,10 @@ function App() {
   };
 
   useEffect(() => {
-    fetchUserInfo();
-  }, []);
+    if (!isAuthPage) {
+      fetchUserInfo();
+    }
+  }, [isAuthPage]);
 
   const toAbsolute = (path) => {
     if (!path || path === "") return "/";
@@ -100,6 +106,7 @@ function App() {
     try {
       api.post("/auth/logout");
       handleMenuClose();
+      navigate("/login");
     } catch (err) {
       console.error("로그아웃 실패:", err);
     }
@@ -131,6 +138,16 @@ function App() {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+
+  // 로그인/회원가입 페이지면 레이아웃 없이 렌더링
+  if (isAuthPage) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+    );
+  }
 
   return (
     <div style={styles.root}>
@@ -249,10 +266,7 @@ function App() {
               </MenuItem>
 
               <MenuItem
-                onClick={() => {
-                  handleMenuClose();
-                  handleLogout();
-                }}
+                onClick={handleLogout}
                 sx={{
                   ...styles.menuOption,
                   display: "flex",
@@ -262,7 +276,7 @@ function App() {
                   color: "#3A4856",
                 }}
               >
-                <LogoutOutlinedIcon sx={{ color: "#5B646F", pr: "11px" }} onClick={() => handleNavigate("login")}/>
+                <LogoutOutlinedIcon sx={{ color: "#5B646F", pr: "11px" }} />
                 Logout
               </MenuItem>
             </Menu>
@@ -273,7 +287,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/myTodo" element={<MyTodo />} />
           <Route path="/friends" element={<Friends />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
         </Routes>
       </div>
     </div>
