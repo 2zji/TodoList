@@ -108,6 +108,7 @@ const Login = () => {
 
           <TextField
             type="email"
+            autoComplete="off"
             variant="outlined"
             fullWidth
             value={formData.email}
@@ -117,6 +118,7 @@ const Login = () => {
 
           <TextField
             type={showpasswd ? "text" : "password"}
+            autoComplete="off"
             variant="outlined"
             fullWidth
             value={formData.passwd}
