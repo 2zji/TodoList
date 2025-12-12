@@ -2,18 +2,18 @@ import { useEffect, useCallback, useState } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Friends from "./pages/friends/Friends";
 import MyTodo from "./pages/myTodo/MyTodo";
-import Dashboard from "./pages/common/Dashboard";
 import Login from "./pages/login/Login";
 import Signup from "./pages/signup/Signup";
+import Action from "./pages/action/Action";
 import api from "./api/axiosInstance";
 import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import DashboardIcon from "@mui/icons-material/Dashboard";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import ContactPageIcon from '@mui/icons-material/ContactPage';
 
 const styles = {
   root: {
@@ -118,7 +118,7 @@ function App() {
     if (!ok) return;
 
     try {
-      await api.delete("/users/cleanup");
+      await api.delete("/users/me");
       alert("탈퇴 요청이 완료되었습니다.\n7일 후 완전히 삭제됩니다.");
       navigate("/login");
     } catch (err) {
@@ -153,16 +153,16 @@ function App() {
       {/* 왼쪽 메뉴 */}
       <div style={styles.menu}>
         <div style={styles.menubar} onClick={() => handleNavigate("")}>
-          <DashboardIcon sx={{ marginRight: 1 }} />
-          Dashboard
-        </div>
-        <div style={styles.menubar} onClick={() => handleNavigate("myTodo")}>
           <ListAltIcon sx={{ marginRight: 1 }} />
           My TODO
         </div>
         <div style={styles.menubar} onClick={() => handleNavigate("friends")}>
           <PeopleAltIcon sx={{ marginRight: 1 }} />
           Friends
+        </div>
+        <div style={styles.menubar} onClick={() => handleNavigate("action")}>
+          <ContactPageIcon sx={{ marginRight: 1 }} />
+          Action
         </div>
       </div>
 
@@ -283,10 +283,10 @@ function App() {
         </Box>
 
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/myTodo" element={<MyTodo />} />
+          <Route path="/" element={<MyTodo />} />
           <Route path="/friends" element={<Friends />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/action" element={<Action/>} />
         </Routes>
       </div>
     </div>
