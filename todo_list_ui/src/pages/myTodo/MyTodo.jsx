@@ -15,6 +15,7 @@ import {
   Paper,
   IconButton,
   Stack,
+  Chip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -67,6 +68,23 @@ const styles = {
   },
 };
 
+const TAG_COLORS = {
+  publicity: {
+    Public: "#2D9CDB",
+    Private: "#636E72",
+  },
+  priority: {
+    Low: "#6AB04A",
+    Medium: "#F39C12",
+    High: "#E84118",
+  },
+  status: {
+    Pending: "#778CA3",
+    InProgress: "#22A6B3",
+    Completed: "#1ABC9C",
+  },
+};
+
 function MyTodo() {
   const initMyTodo = {
     title: "",
@@ -108,7 +126,6 @@ function MyTodo() {
     }
   };
 
-  // 필터링
   const filteredList = todoList.filter((todo) =>
     filter === "all" ? true : todo.publicity === (filter === "true")
   );
@@ -119,7 +136,6 @@ function MyTodo() {
     page * rowsPerPage
   );
 
-  /* handle */
   const handleSelectOne = (id) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -160,11 +176,9 @@ function MyTodo() {
     }
   };
 
-  // 모달 저장
   const handleSaveNewTodo = async (todo) => {
     try {
       if (modalMode === "edit" && selectedTodo) {
-        // 수정
         const res = await api.put(
           `/todo/${selectedTodo.id}`,
           convertTodo(todo)
@@ -173,7 +187,6 @@ function MyTodo() {
           prev.map((t) => (t.id === selectedTodo.id ? res.data : t))
         );
       } else {
-        // 모달 저장
         const res = await api.post("/todo/", convertTodo(todo));
         setTodoList((prev) => [res.data, ...prev]);
         setPage(1);
@@ -186,7 +199,6 @@ function MyTodo() {
       setModalMode("create");
     }
   };
-  // 테이블 행 클릭 시, view
   const handleRowClick = (item) => {
     setSelectedTodo(item);
     setModalMode("view");
@@ -202,7 +214,6 @@ function MyTodo() {
   return (
     <Box sx={styles.container}>
       <Box sx={styles.body}>
-        {/* Top controls */}
         <Box sx={{ ...styles.controlsRow, mb: 1 }}>
           <FormControl size="small" sx={{ minWidth: 160 }}>
             <Select
@@ -275,7 +286,6 @@ function MyTodo() {
           </Stack>
         </Box>
 
-        {/* Table */}
         <TableContainer component={Paper} sx={{ ...styles.tableWrap }}>
           <Table stickyHeader>
             <TableHead
@@ -319,69 +329,97 @@ function MyTodo() {
             </TableHead>
 
             <TableBody>
-              {pagedItems.map((item, idx) => (
-                <TableRow
-                  key={item.id}
-                  hover
-                  onClick={() => handleRowClick(item)}
-                  sx={{ cursor: "pointer" }}
-                >
-                  <TableCell
-                    padding="checkbox"
-                    onClick={(e) => e.stopPropagation()}
+              {pagedItems.map((item, idx) => {
+                const publicityLabel = item.publicity ? "Public" : "Private";
+                const priorityLabel =
+                  item.priority.charAt(0).toUpperCase() +
+                  item.priority.slice(1);
+                const statusLabel = item.status
+                  .split("_")
+                  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                  .join("");
+
+                return (
+                  <TableRow
+                    key={item.id}
+                    hover
+                    onClick={() => handleRowClick(item)}
+                    sx={{ cursor: "pointer" }}
                   >
-                    <Checkbox
-                      checked={selected.includes(item.id)}
-                      onChange={() => handleSelectOne(item.id)}
-                    />
-                  </TableCell>
+                    <TableCell
+                      padding="checkbox"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Checkbox
+                        checked={selected.includes(item.id)}
+                        onChange={() => handleSelectOne(item.id)}
+                      />
+                    </TableCell>
 
-                  <TableCell align="center" sx={{ width: "5%" }}>
-                    {(page - 1) * rowsPerPage + idx + 1}
-                  </TableCell>
-                  <TableCell align="center" sx={{ width: "20%" }}>
-                    {item.title}
-                  </TableCell>
-                  <TableCell align="left" sx={{ width: "45%" }}>
-                    {item.description.length > 50
-                      ? `${item.description.slice(0, 50)}...`
-                      : item.description}
-                  </TableCell>
-                  <TableCell align="center" sx={{ width: "10%" }}>
-                    {item.publicity ? "public" : "private"}
-                  </TableCell>
+                    <TableCell align="center" sx={{ width: "5%" }}>
+                      {(page - 1) * rowsPerPage + idx + 1}
+                    </TableCell>
 
-                  <TableCell align="center" sx={{ width: "10%" }}>
-                    {item.priority}
-                  </TableCell>
-                  <TableCell align="center" sx={{ width: "10%" }}>
-                    {item.status === "in_progress"
-                      ? "inProgress"
-                      : item.status === "completed"
-                      ? "close"
-                      : item.status}
-                  </TableCell>
-                </TableRow>
-              ))}
+                    <TableCell align="center" sx={{ width: "20%" }}>
+                      {item.title}
+                    </TableCell>
 
-              {pagedItems.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={7} align="center">
-                    데이터가 없습니다.
-                  </TableCell>
-                </TableRow>
-              )}
+                    <TableCell align="left" sx={{ width: "45%" }}>
+                      {item.description.length > 35
+                        ? `${item.description.slice(0, 35)}...`
+                        : item.description}
+                    </TableCell>
+
+                    <TableCell align="center" sx={{ width: "10%" }}>
+                      <Chip
+                        label={publicityLabel}
+                        size="small"
+                        sx={{
+                          bgcolor: TAG_COLORS.publicity[publicityLabel],
+                          color: "#fff",
+                          fontWeight: 500,
+                          fontSize: "0.7rem",
+                        }}
+                      />
+                    </TableCell>
+
+                    <TableCell align="center" sx={{ width: "10%" }}>
+                      <Chip
+                        label={priorityLabel}
+                        size="small"
+                        sx={{
+                          bgcolor: TAG_COLORS.priority[priorityLabel],
+                          color: "#fff",
+                          fontWeight: 500,
+                          fontSize: "0.7rem",
+                        }}
+                      />
+                    </TableCell>
+
+                    <TableCell align="center" sx={{ width: "10%" }}>
+                      <Chip
+                        label={statusLabel}
+                        size="small"
+                        sx={{
+                          bgcolor: TAG_COLORS.status[statusLabel],
+                          color: "#fff",
+                          fontWeight: 500,
+                          fontSize: "0.7rem",
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
 
-        {/* Pagination */}
         <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
           <AppPagination page={page} count={pageCount} onChange={setPage} />
         </Box>
       </Box>
 
-      {/* Modal */}
       <Modal open={open} onClose={() => setOpen(false)}>
         <Box
           sx={{

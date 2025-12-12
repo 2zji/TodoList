@@ -25,6 +25,7 @@ def get_my_liked_todo_detail(db: Session = Depends(get_db), current_user: TodoUs
                 "description": todo.description,
                 "status": todo.status,
                 "priority": todo.priority,
+                "publicity": todo.publicity,
                 "created_at": todo.created_at,
                 "likes_count": likes_count
             })

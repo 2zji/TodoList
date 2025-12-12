@@ -7,8 +7,7 @@ export default function AppPagination({ page, count, onChange }) {
         width: "100%",
         display: "flex",
         justifyContent: "center",
-        alignItems: "center",
-        padding: "16px 0",
+        alignItems: "center"
       }}
     >
       <Pagination

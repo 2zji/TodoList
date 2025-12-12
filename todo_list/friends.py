@@ -212,6 +212,7 @@ def get_all_friends_public_todos(
                     "description": t.description,
                     "status": t.status,
                     "priority": t.priority,
+                    "publicity": t.publicity,
                     "created_at": t.created_at
                 }
                 for t in todos
