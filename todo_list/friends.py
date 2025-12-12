@@ -1,4 +1,4 @@
-from todo_list import APIRouter, Depends, HTTPException, status, Session, TodoUser, get_db, Friends, Todo, get_current_user, FriendsResponse
+from todo_list import APIRouter, Depends, HTTPException, status, Session, TodoUser, get_db, Friends, Todo, Like, get_current_user, FriendsResponse
 from sqlalchemy import or_
 
 router = APIRouter(prefix="/friends", tags=["friends"])
@@ -105,6 +105,26 @@ def delete_friend(friend_id: int, db: Session = Depends(get_db), current_user: T
     if not friendship:
         raise HTTPException(status_code=404, detail="Friendship not found")
 
+    # 삭제할 친구의 TODO에 대한 현재 사용자의 좋아요 찾기
+    friend_todos = db.query(Todo).filter(Todo.user_id == friend_id).all()
+    friend_todo_ids = [todo.id for todo in friend_todos]
+    
+    # 해당 TODO에 대한 현재 사용자의 좋아요 삭제
+    db.query(Like).filter(
+        Like.user_id == current_user.id,
+        Like.todo_id.in_(friend_todo_ids)
+    ).delete(synchronize_session=False)
+
+    # 현재 사용자의 TODO에 대한 친구의 좋아요 삭제
+    current_user_todos = db.query(Todo).filter(Todo.user_id == current_user.id).all()
+    current_user_todo_ids = [todo.id for todo in current_user_todos]
+    
+    db.query(Like).filter(
+        Like.user_id == friend_id,
+        Like.todo_id.in_(current_user_todo_ids)
+    ).delete(synchronize_session=False)
+
+    # 친구 관계 삭제
     db.delete(friendship)
     db.commit()
     return
@@ -220,4 +240,3 @@ def get_all_friends_public_todos(
         })
 
     return result
-

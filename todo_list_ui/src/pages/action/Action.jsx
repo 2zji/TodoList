@@ -39,7 +39,7 @@ import FooterTamplet from "../../components/common/FooterTemplet";
 const ITEMS_PER_PAGE = {
   FRIENDS: 9,
   REQUESTS: 10,
-  LIKES: 12,
+  LIKES: 15,
 };
 
 const TABS = {
@@ -109,6 +109,12 @@ const styles = {
     overflow: "auto",
     "&::-webkit-scrollbar": { display: "none" },
   },
+  pagination: {
+    "& .MuiPaginationItem-root": {
+      "&:focus": { outline: "none" },
+      "&:focusVisible": { outline: "none", boxShadow: "none" },
+    },
+  },
 };
 
 const TAG_COLORS = {
@@ -127,14 +133,6 @@ const TAG_COLORS = {
     Completed: "#1ABC9C",
   },
 };
-
-const likesColumns = [
-  { header: "No.", field: "no", width: "5%" },
-  { header: "Title", field: "title", width: "40%" },
-  { header: "Creator", field: "name", width: "15%" },
-  { header: "Priority", field: "priority", width: "20%" },
-  { header: "Status", field: "status", width: "20%" },
-];
 
 export default function Action() {
   const [tab, setTab] = useState(TABS.MY_FRIENDS);
@@ -184,6 +182,11 @@ export default function Action() {
   const fetchLikesList = async () => {
     try {
       const res = await api.get("/like/my");
+      const friendsRes = await api.get("/friends");
+      
+      const currentFriendIds = new Set(
+        friendsRes.data.map((friend) => friend.friend_id)
+      );
 
       const statusMap = {
         pending: "Pending",
@@ -192,30 +195,25 @@ export default function Action() {
         cancelled: "Cancelled",
       };
 
-      const likesTodo = (res.data || []).map((item) => {
-        console.log(
-          "RAW PUBLICITY:",
-          item.publicity,
-          typeof item.publicity,
-          item.title
-        );
+      const likesTodo = (res.data || [])
+        .filter((item) => currentFriendIds.has(item.friend_id))
+        .map((item) => {
+          const publicityBoolean = item.publicity;
 
-        const publicityBoolean = item.publicity;
+          const priorityNormalized = item.priority
+            ? item.priority.trim().charAt(0).toUpperCase() +
+              item.priority.trim().slice(1).toLowerCase()
+            : "Low";
 
-        const priorityNormalized = item.priority
-          ? item.priority.trim().charAt(0).toUpperCase() +
-            item.priority.trim().slice(1).toLowerCase()
-          : "Low";
-
-        return {
-          ...item,
-          name: item.friend_name || "unknown",
-          publicity: publicityBoolean,
-          publicityDisplay: publicityBoolean ? "Public" : "Private",
-          status: statusMap[item.status] || item.status,
-          priority: priorityNormalized,
-        };
-      });
+          return {
+            ...item,
+            name: item.friend_name || "unknown",
+            publicity: publicityBoolean,
+            publicityDisplay: publicityBoolean ? "Public" : "Private",
+            status: statusMap[item.status] || item.status,
+            priority: priorityNormalized,
+          };
+        });
 
       setLikesList(likesTodo);
       setLikesPage(1);
@@ -243,7 +241,12 @@ export default function Action() {
       await Promise.all(
         checkedFriends.map((id) => api.delete(`/friends/${id}`))
       );
+
       fetchMyFriends();
+      
+      if (tab === TABS.LIKES_TODO) {
+        fetchLikesList();
+      }
     } catch (err) {
       console.error("친구 삭제 실패:", err);
     }
@@ -482,6 +485,7 @@ export default function Action() {
           page={friendsPage}
           onChange={(e, v) => setFriendsPage(v)}
           color="primary"
+          sx={styles.pagination}
         />
       </Box>
     </>
@@ -548,6 +552,7 @@ export default function Action() {
           page={requestsPage}
           onChange={(e, v) => setRequestsPage(v)}
           color="primary"
+          sx={styles.pagination}
         />
       </Box>
     </>
@@ -561,7 +566,8 @@ export default function Action() {
             <Grid item xs={12} sm={6} md={2} key={todo.todo_id}>
               <Card
                 sx={{
-                  width: "243px",
+                  width: "295px",
+                  height: "180px",
                   display: "flex",
                   flexDirection: "column",
                   cursor: "pointer",
@@ -601,7 +607,7 @@ export default function Action() {
                         e.stopPropagation();
                         handleLikeToggle(todo.todo_id, true);
                       }}
-                      sx={{ color: "#E74C3C", padding: "4px" }}
+                      sx={{ ...styles.button, color: "#E74C3C", padding: "4px" }}
                     >
                       <FavoriteIcon fontSize="small" />
                     </IconButton>
@@ -686,7 +692,7 @@ export default function Action() {
                 width: "100%",
               }}
             >
-              <Typography variant="h6">좋아요한 Todo가 없습니다.</Typography>
+              <Typography variant="h6">No liked todos found</Typography>
             </Box>
           )}
         </Grid>
@@ -700,6 +706,7 @@ export default function Action() {
           page={likesPage}
           onChange={(e, v) => setLikesPage(v)}
           color="primary"
+          sx={styles.pagination}
         />
       </Box>
     </Box>

@@ -20,6 +20,7 @@ def get_my_liked_todo_detail(db: Session = Depends(get_db), current_user: TodoUs
             likes_count = db.query(Like).filter(Like.todo_id == todo.id).count()
             result.append({
                 "todo_id": todo.id,
+                "friend_id": todo.user_id,
                 "friend_name": friend.name if friend else "Unknown",
                 "title": todo.title,
                 "description": todo.description,
@@ -29,9 +30,7 @@ def get_my_liked_todo_detail(db: Session = Depends(get_db), current_user: TodoUs
                 "created_at": todo.created_at,
                 "likes_count": likes_count
             })
-
     return result
-
 
 #좋아요 추가
 @router.post("/{todo_id}", response_model=LikeResponse)
