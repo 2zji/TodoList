@@ -230,74 +230,111 @@ function MyTodo() {
               return (
                 <Grid item xs={12} sm={6} md={2.4} key={item.id}>
                   <Card
-                    sx={{ width: "297px", height: "180px", cursor: "pointer" }}
+                    sx={{
+                      width: "297px",
+                      height: "150px",
+                      cursor: "pointer",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
+                      p: "12px",
+                    }}
                     onClick={() => {
                       setSelectedTodo(item);
                       setModalMode("view");
                       setOpen(true);
                     }}
                   >
-                    <CardContent>
-                      <Box
+                    {/* Header */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Typography
+                        noWrap={modalMode === "view"}
+                        fontWeight={600}
+                      >
+                        {item.title}
+                      </Typography>
+
+                      <Checkbox
+                        checked={selected.includes(item.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={() => handleSelectOne(item.id)}
+                      />
+                    </Box>
+
+                    {/* Content */}
+                    <Box
+                      sx={{
+                        height: "50px",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
                         sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
                         }}
                       >
-                        <Typography noWrap fontWeight={600}>
-                          {item.title}
-                        </Typography>
-                        <Checkbox
-                          checked={selected.includes(item.id)}
-                          onClick={(e) => e.stopPropagation()}
-                          onChange={() => handleSelectOne(item.id)}
-                        />
-                      </Box>
-
-                      <Typography variant="body2" color="text.secondary" noWrap>
                         {item.description || "설명이 없습니다."}
                       </Typography>
-                      <br />
+                    </Box>
 
-                      <Box sx={{ mt: 1, display: "flex", gap: 0.5 }}>
-                        <Chip
-                          size="small"
-                          label={publicityLabel}
-                          sx={{
-                            bgcolor:
-                              TAG_COLORS.publicity[publicityLabel] ||
-                              TAG_COLORS.publicity.Private,
-                            color: "#fff",
-                            fontWeight: 500,
-                            fontSize: "0.7rem",
-                          }}
-                        />
-                        <Chip
-                          size="small"
-                          label={priorityLabel}
-                          sx={{
-                            bgcolor:
-                              TAG_COLORS.priority[priorityLabel] ||
-                              TAG_COLORS.priority.Medium,
-                            color: "#fff",
-                            fontWeight: 500,
-                            fontSize: "0.7rem",
-                          }}
-                        />
-                        <Chip
-                          size="small"
-                          label={statusLabel}
-                          sx={{
-                            bgcolor:
-                              TAG_COLORS.status[statusLabel] ||
-                              TAG_COLORS.status.InProgress,
-                            color: "#fff",
-                            fontWeight: 500,
-                            fontSize: "0.7rem",
-                          }}
-                        />
-                      </Box>
-                    </CardContent>
+                    {/* Footer */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 0.5,
+                        flexWrap: "wrap",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Chip
+                        size="small"
+                        label={publicityLabel}
+                        sx={{
+                          bgcolor:
+                            TAG_COLORS.publicity[publicityLabel] ||
+                            TAG_COLORS.publicity.Private,
+                          color: "#fff",
+                          fontWeight: 500,
+                          fontSize: "0.7rem",
+                        }}
+                      />
+                      <Chip
+                        size="small"
+                        label={priorityLabel}
+                        sx={{
+                          bgcolor:
+                            TAG_COLORS.priority[priorityLabel] ||
+                            TAG_COLORS.priority.Medium,
+                          color: "#fff",
+                          fontWeight: 500,
+                          fontSize: "0.7rem",
+                        }}
+                      />
+                      <Chip
+                        size="small"
+                        label={statusLabel}
+                        sx={{
+                          bgcolor:
+                            TAG_COLORS.status[statusLabel] ||
+                            TAG_COLORS.status.InProgress,
+                          color: "#fff",
+                          fontWeight: 500,
+                          fontSize: "0.7rem",
+                        }}
+                      />
+                    </Box>
                   </Card>
                 </Grid>
               );
@@ -324,7 +361,13 @@ function MyTodo() {
           }}
         >
           <HeaderTemplet
-            title={modalMode === "create" ? "New TODO" : selectedTodo?.title}
+            title={
+              modalMode === "create"
+                ? "New TODO"
+                : modalMode === "edit"
+                ? "Edit Modal"
+                : selectedTodo?.title
+            }
             onClose={() => setOpen(false)}
           />
 

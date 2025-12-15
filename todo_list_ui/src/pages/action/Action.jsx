@@ -61,7 +61,6 @@ const styles = {
   body: {
     display: "flex",
     flexDirection: "column",
-    //flex: 1,
     height: "100%",
     width: "90%",
     backgroundColor: "#ffffff",
@@ -70,7 +69,6 @@ const styles = {
     boxShadow: "0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
     overflowY: "auto",
   },
-
   tableWrap: {
     flex: 1,
     borderRadius: "10px",
@@ -190,13 +188,6 @@ export default function Action() {
         friendsRes.data.map((friend) => friend.friend_id)
       );
 
-      const statusMap = {
-        pending: "Pending",
-        in_progress: "InProgress",
-        completed: "Completed",
-        cancelled: "Cancelled",
-      };
-
       const likesTodo = (res.data || [])
         .filter((item) => currentFriendIds.has(item.friend_id))
         .map((item) => {
@@ -212,7 +203,7 @@ export default function Action() {
             name: item.friend_name || "unknown",
             publicity: publicityBoolean,
             publicityDisplay: publicityBoolean ? "Public" : "Private",
-            status: statusMap[item.status] || item.status,
+            status: item.status,
             priority: priorityNormalized,
           };
         });
@@ -366,9 +357,17 @@ export default function Action() {
   const paginateLikes = () => {
     const start = (likesPage - 1) * ITEMS_PER_PAGE.LIKES;
     const end = start + ITEMS_PER_PAGE.LIKES;
+    
+    const statusLabelMap = {
+      pending: "Pending",
+      in_progress: "InProgress",
+      completed: "Completed",
+    };
+    
     return likesList.slice(start, end).map((item, i) => ({
       ...item,
       no: start + i + 1,
+      statusLabel: statusLabelMap[item.status] || item.status || "Pending",
     }));
   };
 
@@ -569,17 +568,7 @@ export default function Action() {
         overflow: "auto",
       }}
     >
-      <Box
-        sx={{
-          // flex: 1,
-          // overflowY: "auto",
-          // pr: 1,
-          // "&::-webkit-scrollbar": { display: "none" },
-          // scrollbarWidth: "none",
-          flex: 1,
-          pr: 1,
-        }}
-      >
+      <Box sx={{ flex: 1, pr: 1 }}>
         <Grid container spacing={2}>
           {likesTableRows.map((todo) => (
             <Grid item xs={12} sm={6} md={2} key={todo.todo_id}>
@@ -598,17 +587,25 @@ export default function Action() {
                 }}
                 onClick={() => handleRowSelect(todo)}
               >
-                <CardContent sx={{ flex: 1, pb: 1 }}>
+                <CardContent
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                  }}
+                >
                   <Box
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
-                      mb: 1.5,
+                      alignItems: "center",
                     }}
                   >
                     <Typography noWrap fontWeight={600}>
                       {todo.title}
                     </Typography>
+
                     <IconButton
                       size="small"
                       onClick={(e) => {
@@ -624,62 +621,65 @@ export default function Action() {
                       <FavoriteIcon fontSize="small" />
                     </IconButton>
                   </Box>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      mb: 1,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                    }}
-                  >
-                    {todo.description || "설명이 없습니다."}
-                  </Typography>
 
-                  <Typography variant="caption" color="text.secondary">
-                    Creator: {todo.name}
-                  </Typography>
+                  <Box sx={{ height: "40px", overflow: "hidden" }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {todo.description || "설명이 없습니다."}
+                    </Typography>
+                  </Box>
 
-                  <Box sx={{ display: "flex", gap: 0.5, mt: 1 }}>
-                    <Chip
-                      label={todo.publicityDisplay || "Private"}
-                      size="small"
-                      sx={{
-                        bgcolor:
-                          TAG_COLORS.publicity[todo.publicityDisplay] ||
-                          TAG_COLORS.publicity.Private,
-                        color: "#fff",
-                        fontWeight: 500,
-                        fontSize: "0.7rem",
-                      }}
-                    />
-                    <Chip
-                      label={todo.priority || "Low"}
-                      size="small"
-                      sx={{
-                        bgcolor:
-                          TAG_COLORS.priority[todo.priority] ||
-                          TAG_COLORS.priority.Low,
-                        color: "#fff",
-                        fontWeight: 500,
-                        fontSize: "0.7rem",
-                      }}
-                    />
-                    <Chip
-                      label={todo.status || "Pending"}
-                      size="small"
-                      sx={{
-                        bgcolor:
-                          TAG_COLORS.status[todo.status] ||
-                          TAG_COLORS.status.Pending,
-                        color: "#fff",
-                        fontWeight: 500,
-                        fontSize: "0.7rem",
-                      }}
-                    />
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Creator: {todo.name}
+                    </Typography>
+
+                    <Box sx={{ display: "flex", gap: 0.5, mt: 1 }}>
+                      <Chip
+                        label={todo.publicityDisplay || "Private"}
+                        size="small"
+                        sx={{
+                          bgcolor:
+                            TAG_COLORS.publicity[todo.publicityDisplay] ||
+                            TAG_COLORS.publicity.Private,
+                          color: "#fff",
+                          fontWeight: 500,
+                          fontSize: "0.7rem",
+                        }}
+                      />
+                      <Chip
+                        label={todo.priority || "Low"}
+                        size="small"
+                        sx={{
+                          bgcolor:
+                            TAG_COLORS.priority[todo.priority] ||
+                            TAG_COLORS.priority.Low,
+                          color: "#fff",
+                          fontWeight: 500,
+                          fontSize: "0.7rem",
+                        }}
+                      />
+                      <Chip
+                        label={todo.statusLabel}
+                        size="small"
+                        sx={{
+                          bgcolor:
+                            TAG_COLORS.status[todo.statusLabel] ||
+                            TAG_COLORS.status.Pending,
+                          color: "#fff",
+                          fontWeight: 500,
+                          fontSize: "0.7rem",
+                        }}
+                      />
+                    </Box>
                   </Box>
                 </CardContent>
               </Card>
@@ -751,17 +751,16 @@ export default function Action() {
         <Box sx={styles.modal}>
           <HeaderTemplet title={selectedTodo?.title} onClose={closeTodoModal} />
           <Box sx={styles.modalContent}>
-            <NewTodo mode="view" selectedTodo={selectedTodo} />
+            <NewTodo
+              mode="view"
+              selectedTodo={selectedTodo}
+              showLike={true}
+              isLiked={isLiked}
+              onLikeToggle={() =>
+                handleLikeToggle(selectedTodo?.todo_id, isLiked)
+              }
+            />
           </Box>
-          <NewTodo
-            mode="view"
-            selectedTodo={selectedTodo}
-            showLike={true}
-            isLiked={isLiked}
-            onLikeToggle={() =>
-              handleLikeToggle(selectedTodo?.todo_id, isLiked)
-            }
-          />
         </Box>
       </Modal>
 

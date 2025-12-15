@@ -154,7 +154,7 @@ function Friends() {
       <Box sx={styles.body}>
         <Box sx={{ mb: 2, flexShrink: 0 }}>
           <TextField
-            fullWidth
+            sx={{ width: "300px" }}
             size="small"
             placeholder="친구 이름, 제목, 내용으로 검색"
             value={keyword}
@@ -194,16 +194,26 @@ function Friends() {
                     }}
                     onClick={() => handleCardClick(todo)}
                   >
-                    <CardContent>
+                    <CardContent
+                      sx={{
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "8px",
+                      }}
+                    >
+                      {/* Header */}
                       <Box
                         sx={{
                           display: "flex",
                           justifyContent: "space-between",
+                          alignItems: "center",
                         }}
                       >
                         <Typography noWrap fontWeight={600}>
                           {todo.title}
                         </Typography>
+
                         <IconButton
                           size="small"
                           onClick={(e) => {
@@ -225,62 +235,71 @@ function Friends() {
                         </IconButton>
                       </Box>
 
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
+                      {/* Content */}
+                      <Box
                         sx={{
-                          mb: 1,
+                          height: "40px",
                           overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
                         }}
                       >
-                        {todo.description || "설명이 없습니다."}
-                      </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {todo.description || "설명이 없습니다."}
+                        </Typography>
+                      </Box>
 
-                      <Typography variant="caption" color="text.secondary">
-                        Creator: {todo.name}
-                      </Typography>
+                      {/* Footer */}
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Creator: {todo.name}
+                        </Typography>
 
-                      <Box sx={{ mt: 1, display: "flex", gap: 0.5 }}>
-                        <Chip
-                          size="small"
-                          label={publicityLabel}
-                          sx={{
-                            bgcolor:
-                              TAG_COLORS.publicity[publicityLabel] ||
-                              TAG_COLORS.publicity.Private,
-                            color: "#fff",
-                            fontWeight: 500,
-                            fontSize: "0.7rem",
-                          }}
-                        />
-                        <Chip
-                          size="small"
-                          label={priorityLabel}
-                          sx={{
-                            bgcolor:
-                              TAG_COLORS.priority[priorityLabel] ||
-                              TAG_COLORS.priority.Medium,
-                            color: "#fff",
-                            fontWeight: 500,
-                            fontSize: "0.7rem",
-                          }}
-                        />
-                        <Chip
-                          size="small"
-                          label={statusLabel}
-                          sx={{
-                            bgcolor:
-                              TAG_COLORS.status[statusLabel] ||
-                              TAG_COLORS.status.Pending,
-                            color: "#fff",
-                            fontWeight: 500,
-                            fontSize: "0.7rem",
-                          }}
-                        />
+                        <Box sx={{ mt: 1, display: "flex", gap: 0.5 }}>
+                          <Chip
+                            size="small"
+                            label={publicityLabel}
+                            sx={{
+                              bgcolor:
+                                TAG_COLORS.publicity[publicityLabel] ||
+                                TAG_COLORS.publicity.Private,
+                              color: "#fff",
+                              fontWeight: 500,
+                              fontSize: "0.7rem",
+                            }}
+                          />
+                          <Chip
+                            size="small"
+                            label={priorityLabel}
+                            sx={{
+                              bgcolor:
+                                TAG_COLORS.priority[priorityLabel] ||
+                                TAG_COLORS.priority.Medium,
+                              color: "#fff",
+                              fontWeight: 500,
+                              fontSize: "0.7rem",
+                            }}
+                          />
+                          <Chip
+                            size="small"
+                            label={statusLabel}
+                            sx={{
+                              bgcolor:
+                                TAG_COLORS.status[statusLabel] ||
+                                TAG_COLORS.status.Pending,
+                              color: "#fff",
+                              fontWeight: 500,
+                              fontSize: "0.7rem",
+                            }}
+                          />
+                        </Box>
                       </Box>
                     </CardContent>
                   </Card>
