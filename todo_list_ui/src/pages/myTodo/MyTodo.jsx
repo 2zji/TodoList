@@ -6,25 +6,19 @@ import {
   Select,
   FormControl,
   Checkbox,
-  Table,
-  TableBody,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableCell,
-  Paper,
-  IconButton,
-  Stack,
+  Card,
+  CardContent,
+  Typography,
   Chip,
+  Grid,
+  Stack,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import TodoModal from "../common/TodoModal";
 import HeaderTemplet from "../../components/common/HeaderTemplet";
-import AppPagination from "../../components/common/AppPagination";
 import FooterTamplet from "../../components/common/FooterTemplet";
-
 import api from "../../api/axiosInstance";
 
 const styles = {
@@ -36,7 +30,7 @@ const styles = {
     alignItems: "center",
     backgroundColor: "#f4f7fb",
     padding: "20px 0px 25px 0px",
-    //  overflow: "hidden",
+    overflow: "hidden",
   },
 
   body: {
@@ -47,9 +41,9 @@ const styles = {
     backgroundColor: "#ffffff",
     borderRadius: "12px",
     padding: "28px 32px",
-    //  overflow: "hidden",
     boxShadow:
       "0 3px 5px rgba(0,0,0,0.04), 0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
+    overflow: "hidden",
   },
 
   controlsRow: {
@@ -57,14 +51,12 @@ const styles = {
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: "14px",
+    flexShrink: 0,
   },
 
-  tableWrap: {
-    flex: 1,
-    borderRadius: "10px",
-    overflow: "hidden",
-    boxShadow:
-      "0 2px 4px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.05), 0 1px 10px rgba(0,0,0,0.07)",
+  button: {
+    "&:focus": { outline: "none" },
+    "&:focusVisible": { outline: "none", boxShadow: "none" },
   },
 };
 
@@ -85,6 +77,12 @@ const TAG_COLORS = {
   },
 };
 
+const statusMap = {
+  pending: "Pending",
+  in_progress: "InProgress",
+  completed: "Completed",
+};
+
 function MyTodo() {
   const initMyTodo = {
     title: "",
@@ -100,16 +98,6 @@ function MyTodo() {
   const [selectedTodo, setSelectedTodo] = useState(initMyTodo);
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState([]);
-  const [page, setPage] = useState(1);
-
-  const rowsPerPage = 9;
-
-  const convertTodo = (todo) => ({
-    ...todo,
-    publicity: todo.publicity === true || todo.publicity === "true",
-    priority: todo.priority?.toLowerCase(),
-    status: todo.status?.toLowerCase(),
-  });
 
   useEffect(() => {
     fetchTodos();
@@ -117,10 +105,8 @@ function MyTodo() {
 
   const fetchTodos = async () => {
     try {
-      console.log("fetchTodos");
       const res = await api.get("/todo/");
       setTodoList(res.data);
-      setPage(1);
     } catch (err) {
       console.error("TODO 불러오기 실패", err);
     }
@@ -130,34 +116,10 @@ function MyTodo() {
     filter === "all" ? true : todo.publicity === (filter === "true")
   );
 
-  const pageCount = Math.max(1, Math.ceil(filteredList.length / rowsPerPage));
-  const pagedItems = filteredList.slice(
-    (page - 1) * rowsPerPage,
-    page * rowsPerPage
-  );
-
   const handleSelectOne = (id) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
-  };
-
-  const handleSelectAll = () => {
-    const currentPageIds = pagedItems.map((i) => i.id);
-    const allSelectedOnPage =
-      currentPageIds.length > 0 &&
-      currentPageIds.every((id) => selected.includes(id));
-    if (allSelectedOnPage) {
-      setSelected((prev) => prev.filter((id) => !currentPageIds.includes(id)));
-    } else {
-      setSelected((prev) => {
-        const next = [...prev];
-        currentPageIds.forEach((id) => {
-          if (!next.includes(id)) next.push(id);
-        });
-        return next;
-      });
-    }
   };
 
   const handleDeleteSelected = async () => {
@@ -166,11 +128,6 @@ function MyTodo() {
       await Promise.all(selected.map((id) => api.delete(`/todo/${id}`)));
       setTodoList((prev) => prev.filter((t) => !selected.includes(t.id)));
       setSelected([]);
-      const newPageCount = Math.max(
-        1,
-        Math.ceil((filteredList.length - selected.length) / rowsPerPage)
-      );
-      setPage((p) => Math.min(p, newPageCount));
     } catch (err) {
       console.error("삭제 실패", err);
     }
@@ -179,64 +136,38 @@ function MyTodo() {
   const handleSaveNewTodo = async (todo) => {
     try {
       if (modalMode === "edit" && selectedTodo) {
-        const res = await api.put(
-          `/todo/${selectedTodo.id}`,
-          convertTodo(todo)
-        );
+        const res = await api.put(`/todo/${selectedTodo.id}`, todo);
         setTodoList((prev) =>
           prev.map((t) => (t.id === selectedTodo.id ? res.data : t))
         );
       } else {
-        const res = await api.post("/todo/", convertTodo(todo));
+        const res = await api.post("/todo/", todo);
         setTodoList((prev) => [res.data, ...prev]);
-        setPage(1);
       }
     } catch (err) {
       console.error("저장 실패", err);
     } finally {
       setOpen(false);
-      setSelectedTodo(null);
       setModalMode("create");
     }
-  };
-  const handleRowClick = (item) => {
-    setSelectedTodo(item);
-    setModalMode("view");
-    setOpen(true);
-  };
-
-  const openCreateModal = () => {
-    setSelectedTodo(initMyTodo);
-    setModalMode("create");
-    setOpen(true);
   };
 
   return (
     <Box sx={styles.container}>
       <Box sx={styles.body}>
-        <Box sx={{ ...styles.controlsRow, mb: 1 }}>
+        <Box sx={styles.controlsRow}>
           <FormControl size="small" sx={{ minWidth: 160 }}>
             <Select
               native
               value={filter}
               onChange={(e) => {
                 setFilter(e.target.value);
-                setPage(1);
                 setSelected([]);
               }}
               sx={{
                 bgcolor: "#eef4fb",
                 borderRadius: "8px",
-                outline: "none",
-                "&:hover": {
-                  bgcolor: "#e1edf7",
-                },
-                "& .MuiOutlinedInput-notchedOutline": {
-                  border: "none",
-                },
-                "&:focus": {
-                  outline: "none",
-                },
+                "& .MuiOutlinedInput-notchedOutline": { border: "none" },
               }}
             >
               <option value="all">All</option>
@@ -251,172 +182,105 @@ function MyTodo() {
               color="error"
               onClick={handleDeleteSelected}
               disabled={selected.length === 0}
-              sx={{
-                bgcolor: selected.length > 0 ? "#EF4444" : "#a8a8a8ff",
-                "&:hover": {
-                  bgcolor: selected.length > 0 ? "#d30c2aff" : "#a8a8a8ff",
-                },
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                minWidth: 0,
-                padding: 0,
-                "&:focus": { outline: "none" },
-                "&:focusVisible": { outline: "none", boxShadow: "none" },
-              }}
+              sx={{ width: 40, height: 40, borderRadius: "50%", minWidth: 0 }}
             >
               <DeleteIcon />
             </Button>
 
             <Button
               variant="contained"
-              onClick={openCreateModal}
-              sx={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                minWidth: 0,
-                padding: 0,
-                "&:focus": { outline: "none" },
-                "&:focusVisible": { outline: "none", boxShadow: "none" },
+              onClick={() => {
+                setSelectedTodo(initMyTodo);
+                setModalMode("create");
+                setOpen(true);
               }}
+              sx={{ width: 40, height: 40, borderRadius: "50%", minWidth: 0 }}
             >
               <AddIcon />
             </Button>
           </Stack>
         </Box>
 
-        <TableContainer component={Paper} sx={{ ...styles.tableWrap }}>
-          <Table stickyHeader>
-            <TableHead
-              sx={{
-                "& .MuiTableCell-root": {
-                  bgcolor: "#f0f4fa",
-                  fontWeight: 600,
-                  color: "#455a79",
-                  fontSize: "15px",
-                  padding: "10px",
-                },
-              }}
-            >
-              <TableRow
-                hover
-                onClick={() => handleRowClick(item)}
-                sx={{
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f5faff",
-                  },
-                }}
-              >
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={
-                      pagedItems.length > 0 &&
-                      pagedItems.every((item) => selected.includes(item.id))
-                    }
-                    onChange={handleSelectAll}
-                    slotProps={{ "aria-label": "select all" }}
-                  />
-                </TableCell>
-                <TableCell sx={{ textAlign: "center" }}>No.</TableCell>
-                <TableCell sx={{ textAlign: "center" }}>Title</TableCell>
-                <TableCell sx={{ textAlign: "center" }}>Description</TableCell>
-                <TableCell sx={{ textAlign: "center" }}>publicity</TableCell>
-                <TableCell sx={{ textAlign: "center" }}>Priority</TableCell>
-                <TableCell sx={{ textAlign: "center" }}>Status</TableCell>
-              </TableRow>
-            </TableHead>
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: "auto",
+            "&::-webkit-scrollbar": { display: "none" },
+            scrollbarWidth: "none",
+          }}
+        >
+          <Grid container spacing={2}>
+            {filteredList.map((item) => {
+              const publicityLabel = item.publicity ? "Public" : "Private";
+              const priorityLabel =
+                item.priority?.charAt(0).toUpperCase() +
+                  item.priority?.slice(1) || "Medium";
+              const statusLabel = statusMap[item.status] || "InProgress";
 
-            <TableBody>
-              {pagedItems.map((item, idx) => {
-                const publicityLabel = item.publicity ? "Public" : "Private";
-                const priorityLabel =
-                  item.priority.charAt(0).toUpperCase() +
-                  item.priority.slice(1);
-                const statusLabel = item.status
-                  .split("_")
-                  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                  .join("");
-
-                return (
-                  <TableRow
-                    key={item.id}
-                    hover
-                    onClick={() => handleRowClick(item)}
-                    sx={{ cursor: "pointer" }}
+              return (
+                <Grid item xs={12} sm={6} md={2.4} key={item.id}>
+                  <Card
+                    sx={{ width: "295px", height: "180px", cursor: "pointer" }}
+                    onClick={() => {
+                      setSelectedTodo(item);
+                      setModalMode("view");
+                      setOpen(true);
+                    }}
                   >
-                    <TableCell
-                      padding="checkbox"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Checkbox
-                        checked={selected.includes(item.id)}
-                        onChange={() => handleSelectOne(item.id)}
-                      />
-                    </TableCell>
+                    <CardContent>
+                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                        <Typography noWrap fontWeight={600}>
+                          {item.title}
+                        </Typography>
+                        <Checkbox
+                          checked={selected.includes(item.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={() => handleSelectOne(item.id)}
+                        />
+                      </Box>
 
-                    <TableCell align="center" sx={{ width: "5%" }}>
-                      {(page - 1) * rowsPerPage + idx + 1}
-                    </TableCell>
+                      <Typography variant="body2" color="text.secondary" noWrap>
+                        {item.description || "설명이 없습니다."}
+                      </Typography>
 
-                    <TableCell align="center" sx={{ width: "20%" }}>
-                      {item.title}
-                    </TableCell>
-
-                    <TableCell align="left" sx={{ width: "45%" }}>
-                      {item.description.length > 35
-                        ? `${item.description.slice(0, 35)}...`
-                        : item.description}
-                    </TableCell>
-
-                    <TableCell align="center" sx={{ width: "10%" }}>
-                      <Chip
-                        label={publicityLabel}
-                        size="small"
-                        sx={{
-                          bgcolor: TAG_COLORS.publicity[publicityLabel],
-                          color: "#fff",
-                          fontWeight: 500,
-                          fontSize: "0.7rem",
-                        }}
-                      />
-                    </TableCell>
-
-                    <TableCell align="center" sx={{ width: "10%" }}>
-                      <Chip
-                        label={priorityLabel}
-                        size="small"
-                        sx={{
-                          bgcolor: TAG_COLORS.priority[priorityLabel],
-                          color: "#fff",
-                          fontWeight: 500,
-                          fontSize: "0.7rem",
-                        }}
-                      />
-                    </TableCell>
-
-                    <TableCell align="center" sx={{ width: "10%" }}>
-                      <Chip
-                        label={statusLabel}
-                        size="small"
-                        sx={{
-                          bgcolor: TAG_COLORS.status[statusLabel],
-                          color: "#fff",
-                          fontWeight: 500,
-                          fontSize: "0.7rem",
-                        }}
-                      />
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
-          <AppPagination page={page} count={pageCount} onChange={setPage} />
+                      <Box sx={{ mt: 1, display: "flex", gap: 0.5 }}>
+                        <Chip
+                          size="small"
+                          label={publicityLabel}
+                          sx={{
+                            bgcolor:
+                              TAG_COLORS.publicity[publicityLabel] ||
+                              TAG_COLORS.publicity.Private,
+                            color: "#fff",
+                          }}
+                        />
+                        <Chip
+                          size="small"
+                          label={priorityLabel}
+                          sx={{
+                            bgcolor:
+                              TAG_COLORS.priority[priorityLabel] ||
+                              TAG_COLORS.priority.Medium,
+                            color: "#fff",
+                          }}
+                        />
+                        <Chip
+                          size="small"
+                          label={statusLabel}
+                          sx={{
+                            bgcolor:
+                              TAG_COLORS.status[statusLabel] ||
+                              TAG_COLORS.status.InProgress,
+                            color: "#fff",
+                          }}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              );
+            })}
+          </Grid>
         </Box>
       </Box>
 
@@ -425,38 +289,27 @@ function MyTodo() {
           sx={{
             width: 900,
             height: 600,
-            bgcolor: "#ffffff",
+            bgcolor: "#fff",
             p: 4,
             borderRadius: "14px",
             position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            boxShadow: "0 4px 8px rgba(0,0,0,0.1), 0 8px 20px rgba(0,0,0,0.15)",
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            "&:focus": { outline: "none" },
-            "&:focusVisible": { outline: "none", boxShadow: "none" },
           }}
         >
-          <Box sx={{ width: "100%", flexShrink: 0 }}>
-            <HeaderTemplet
-              title={
-                modalMode === "create"
-                  ? "New TODO"
-                  : modalMode === "view"
-                  ? "View TODO"
-                  : "Edit TODO"
-              }
-              onClose={() => setOpen(false)}
-            />
-          </Box>
+          <HeaderTemplet
+            title={modalMode === "create" ? "New TODO" : selectedTodo?.title}
+            onClose={() => setOpen(false)}
+          />
+
           <Box
             sx={{
               flex: 1,
               overflowY: "auto",
-              p: 3,
               "&::-webkit-scrollbar": { display: "none" },
             }}
           >
@@ -467,15 +320,13 @@ function MyTodo() {
             />
           </Box>
 
-          <Box sx={{ height: 70, flexShrink: 0 }}>
-            <FooterTamplet
-              mode={modalMode}
-              selectedTodo={selectedTodo}
-              onClose={() => setOpen(false)}
-              onSave={(todo) => handleSaveNewTodo(todo)}
-              onEdit={() => setModalMode("edit")}
-            />
-          </Box>
+          <FooterTamplet
+            mode={modalMode}
+            selectedTodo={selectedTodo}
+            onClose={() => setOpen(false)}
+            onSave={handleSaveNewTodo}
+            onEdit={() => setModalMode("edit")}
+          />
         </Box>
       </Modal>
     </Box>
