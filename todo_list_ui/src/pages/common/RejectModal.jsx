@@ -1,4 +1,3 @@
-// src/components/common/RejectModal.jsx
 import { Modal, Box, Typography, Button } from "@mui/material";
 
 function RejectModal({ open, onClose, onConfirm }) {
@@ -33,14 +32,6 @@ function RejectModal({ open, onClose, onConfirm }) {
             onClick={onConfirm}
           >
             Reject
-          </Button>
-
-          <Button
-            variant="outlined"
-            sx={{ flex: 1 }}
-            onClick={onClose}
-          >
-            Cancel
           </Button>
         </Box>
       </Box>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -98,6 +98,7 @@ function MyTodo() {
   const [selectedTodo, setSelectedTodo] = useState(initMyTodo);
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState([]);
+  const todoRef = useRef(null);
 
   useEffect(() => {
     fetchTodos();
@@ -133,15 +134,18 @@ function MyTodo() {
     }
   };
 
-  const handleSaveNewTodo = async (todo) => {
+  const handleSaveNewTodo = async () => {
+    const validated = todoRef.current?.getValidatedData();
+    if (!validated) return;
+
     try {
-      if (modalMode === "edit" && selectedTodo) {
-        const res = await api.put(`/todo/${selectedTodo.id}`, todo);
+      if (modalMode === "edit" && selectedTodo?.id) {
+        const res = await api.put(`/todo/${selectedTodo.id}`, validated);
         setTodoList((prev) =>
           prev.map((t) => (t.id === selectedTodo.id ? res.data : t))
         );
       } else {
-        const res = await api.post("/todo/", todo);
+        const res = await api.post("/todo/", validated);
         setTodoList((prev) => [res.data, ...prev]);
       }
     } catch (err) {
@@ -194,7 +198,13 @@ function MyTodo() {
                 setModalMode("create");
                 setOpen(true);
               }}
-              sx={{ width: 40, height: 40, borderRadius: "50%", minWidth: 0 }}
+              sx={{
+                ...styles.button,
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                minWidth: 0,
+              }}
             >
               <AddIcon />
             </Button>
@@ -326,6 +336,7 @@ function MyTodo() {
             }}
           >
             <TodoModal
+              ref={todoRef}
               mode={modalMode}
               selectedTodo={selectedTodo}
               setSelectedTodo={setSelectedTodo}

@@ -1,4 +1,9 @@
-import { useEffect, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useState,
+  useImperativeHandle,
+} from "react";
 import {
   Box,
   TextField,
@@ -8,7 +13,6 @@ import {
   Radio,
   Chip,
   IconButton,
-  Grid,
 } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -30,97 +34,124 @@ const TAG_COLORS = {
   },
 };
 
-function TodoModal({
-  mode = "create",
-  selectedTodo = null,
-  setSelectedTodo,
-  showLike = false,
-  isLiked = false,
-  onLikeToggle = () => {},
-}) {
-  const [inputValue, setInputValue] = useState({
-    title: "",
-    description: "",
-    publicity: "true",
-    priority: "medium",
-    status: "in_progress",
-  });
+const TodoModal = forwardRef(
+  (
+    {
+      mode = "create",
+      selectedTodo = null,
+      setSelectedTodo,
+      showLike = false,
+      isLiked = false,
+      onLikeToggle = () => {},
+    },
+    ref
+  ) => {
+    const [inputValue, setInputValue] = useState({
+      title: "",
+      description: "",
+      publicity: "true",
+      priority: "medium",
+      status: "in_progress",
+    });
 
-  const isReadOnly = mode === "view";
+    const [errors, setErrors] = useState({
+      title: false,
+      description: false,
+    });
 
-  useEffect(() => {
-    if ((mode === "view" || mode === "edit") && selectedTodo) {
-      setInputValue({
-        title: selectedTodo.title ?? "",
-        description: selectedTodo.description ?? "",
-        publicity: String(selectedTodo.publicity ?? true),
-        priority: (selectedTodo.priority ?? "medium").toLowerCase(),
-        status: (selectedTodo.status ?? "in_progress").toLowerCase(),
-      });
-    } else if (mode === "create") {
-      setInputValue({
-        title: "",
-        description: "",
-        publicity: "true",
-        priority: "medium",
-        status: "in_progress",
-      });
-    }
-  }, [mode, selectedTodo]);
+    const isReadOnly = mode === "view";
 
-  const handleChange = (field) => (e) => {
-    const value = e.target.value;
-    setInputValue((prev) => ({ ...prev, [field]: value }));
+    useEffect(() => {
+      if ((mode === "view" || mode === "edit") && selectedTodo) {
+        setInputValue({
+          title: selectedTodo.title ?? "",
+          description: selectedTodo.description ?? "",
+          publicity: String(selectedTodo.publicity ?? true),
+          priority: (selectedTodo.priority ?? "medium").toLowerCase(),
+          status: (selectedTodo.status ?? "in_progress").toLowerCase(),
+        });
+        setErrors({ title: false, description: false });
+      }
 
-    if (setSelectedTodo) {
-      const updatedValue = field === "publicity" ? value === "true" : value;
-      setSelectedTodo((prev) => ({ ...prev, [field]: updatedValue }));
-    }
-  };
+      if (mode === "create") {
+        setInputValue({
+          title: "",
+          description: "",
+          publicity: "true",
+          priority: "medium",
+          status: "in_progress",
+        });
+        setErrors({ title: false, description: false });
+      }
+    }, [mode, selectedTodo]);
 
-  const getPublicityLabel = () =>
-    inputValue.publicity === "true" ? "Public" : "Private";
-  const getPriorityLabel = () =>
-    inputValue.priority.charAt(0).toUpperCase() + inputValue.priority.slice(1);
-  const getStatusLabel = () => {
-    const statusMap = {
-      pending: "Pending",
-      in_progress: "InProgress",
-      completed: "Completed",
+    const handleChange = (field) => (e) => {
+      const value = e.target.value;
+
+      setInputValue((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+
+      if (field === "title" || field === "description") {
+        setErrors((prev) => ({
+          ...prev,
+          [field]: value.trim() === "",
+        }));
+      }
+
+      if (setSelectedTodo) {
+        const parsed =
+          field === "publicity" ? value === "true" : value;
+        setSelectedTodo((prev) => ({
+          ...prev,
+          [field]: parsed,
+        }));
+      }
     };
-    return statusMap[inputValue.status] || "InProgress";
-  };
 
-  if (isReadOnly) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          overflow: "hidden",
-        }}
-      >
-        <Box sx={{ flexShrink: 0 }}>
-          <Box
-            sx={{
-              display: "flex",
-              gap: 1,
-              flexWrap: "wrap",
-              mb: 3,
-              alignItems: "center",
-            }}
-          >
-            {mode === "view" && showLike && (
-              <IconButton
-                onClick={onLikeToggle}
-                size="small"
-                sx={{
-                  color: isLiked ? "#2A75F3" : "#999",
-                  "&:focus": { outline: "none" },
-                  "&:focusVisible": { outline: "none", boxShadow: "none" },
-                }}
-              >
+    const validateAndGetData = () => {
+      const newErrors = {
+        title: inputValue.title.trim() === "",
+        description: inputValue.description.trim() === "",
+      };
+
+      setErrors(newErrors);
+
+      if (newErrors.title || newErrors.description) {
+        return null;
+      }
+
+      return {
+        ...inputValue,
+        publicity: inputValue.publicity === "true",
+      };
+    };
+
+    useImperativeHandle(ref, () => ({
+      getValidatedData: validateAndGetData,
+    }));
+
+    const getPublicityLabel = () =>
+      inputValue.publicity === "true" ? "Public" : "Private";
+    const getPriorityLabel = () =>
+      inputValue.priority.charAt(0).toUpperCase() +
+      inputValue.priority.slice(1);
+    const getStatusLabel = () => {
+      const map = {
+        pending: "Pending",
+        in_progress: "InProgress",
+        completed: "Completed",
+      };
+      return map[inputValue.status] || "Pending";
+    };
+
+    if (isReadOnly) {
+      return (
+        <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+          <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
+            {showLike && (
+              <IconButton onClick={onLikeToggle}>
                 {isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
               </IconButton>
             )}
@@ -129,7 +160,6 @@ function TodoModal({
               sx={{
                 bgcolor: TAG_COLORS.publicity[getPublicityLabel()],
                 color: "#fff",
-                fontWeight: 500,
               }}
             />
             <Chip
@@ -137,7 +167,6 @@ function TodoModal({
               sx={{
                 bgcolor: TAG_COLORS.priority[getPriorityLabel()],
                 color: "#fff",
-                fontWeight: 500,
               }}
             />
             <Chip
@@ -145,99 +174,59 @@ function TodoModal({
               sx={{
                 bgcolor: TAG_COLORS.status[getStatusLabel()],
                 color: "#fff",
-                fontWeight: 500,
               }}
             />
           </Box>
-        </Box>
 
-        <Box sx={{ flex: 1, overflow: "auto", pr: 1 }}>
-          <Typography
-            variant="subtitle2"
-            sx={{ fontWeight: 600, mb: 1, color: "#666" }}
-          >
-            Description
-          </Typography>
-          <Typography
-            sx={{
-              whiteSpace: "pre-wrap",
-              lineHeight: 1.6,
-              color: "#333",
-            }}
-          >
+          <Typography sx={{ whiteSpace: "pre-wrap" }}>
             {inputValue.description || "내용이 없습니다."}
           </Typography>
         </Box>
-      </Box>
-    );
-  }
+      );
+    }
 
-  return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      <Box sx={{ display: "flex", gap: 4 }}>
-        <Typography sx={{ width: "20%", fontWeight: 500 }}>Title</Typography>
-        <Box sx={{ width: "80%" }}>
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        {/* Title */}
+        <Box sx={{ display: "flex", gap: 4 }}>
+          <Typography sx={{ width: "20%" }}>Title</Typography>
           <TextField
             value={inputValue.title}
             onChange={handleChange("title")}
-            size="small"
             fullWidth
-            placeholder="제목을 입력해주세요."
-            required
-            error={inputValue.title.trim() === ""}
+            size="small"
+            error={errors.title}
+            helperText={errors.title ? "제목을 입력해주세요." : ""}
           />
         </Box>
-      </Box>
 
-      {/* 내용 */}
-      <Box sx={{ display: "flex", gap: 4 }}>
-        <Typography sx={{ width: "20%", fontWeight: 500 }}>
-          Description
-        </Typography>
-        <Box sx={{ width: "80%", height: 180 }}>
+        {/* Description */}
+        <Box sx={{ display: "flex", gap: 4 }}>
+          <Typography sx={{ width: "20%" }}>Description</Typography>
           <TextField
             value={inputValue.description}
             onChange={handleChange("description")}
             fullWidth
             multiline
-            placeholder="내용을 입력해주세요."
             minRows={4}
-            required
-            error={inputValue.description.trim() === ""}
-            slotProps={{
-              input: {
-                sx: {
-                  maxHeight: 180,
-                  overflow: "auto",
-                },
-              },
-            }}
+            error={errors.description}
+            helperText={errors.description ? "내용을 입력해주세요." : ""}
           />
         </Box>
-      </Box>
 
-      {/* 공개여부 */}
-      <Box sx={{ display: "flex", gap: 4 }}>
-        <Typography sx={{ width: "20%", fontWeight: 500 }}>
-          Publicity
-        </Typography>
+        {/* Publicity */}
         <RadioGroup
           row
-          name="publicity"
           value={inputValue.publicity}
           onChange={handleChange("publicity")}
         >
           <FormControlLabel value="true" control={<Radio />} label="Public" />
           <FormControlLabel value="false" control={<Radio />} label="Private" />
         </RadioGroup>
-      </Box>
 
-      {/* 중요도 */}
-      <Box sx={{ display: "flex", gap: 4 }}>
-        <Typography sx={{ width: "20%", fontWeight: 500 }}>Priority</Typography>
+        {/* Priority */}
         <RadioGroup
           row
-          name="priority"
           value={inputValue.priority}
           onChange={handleChange("priority")}
         >
@@ -245,22 +234,14 @@ function TodoModal({
           <FormControlLabel value="medium" control={<Radio />} label="Medium" />
           <FormControlLabel value="high" control={<Radio />} label="High" />
         </RadioGroup>
-      </Box>
 
-      {/* 상태 */}
-      <Box sx={{ display: "flex", gap: 4 }}>
-        <Typography sx={{ width: "20%", fontWeight: 500 }}>Status</Typography>
+        {/* Status */}
         <RadioGroup
           row
-          name="status"
           value={inputValue.status}
           onChange={handleChange("status")}
         >
-          <FormControlLabel
-            value="pending"
-            control={<Radio />}
-            label="Pending"
-          />
+          <FormControlLabel value="pending" control={<Radio />} label="Pending" />
           <FormControlLabel
             value="in_progress"
             control={<Radio />}
@@ -273,8 +254,8 @@ function TodoModal({
           />
         </RadioGroup>
       </Box>
-    </Box>
-  );
-}
+    );
+  }
+);
 
 export default TodoModal;
