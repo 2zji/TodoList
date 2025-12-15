@@ -85,9 +85,16 @@ function App() {
 
   useEffect(() => {
     if (!isAuthPage) {
+      const accessToken = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
+      
+      if (!accessToken) {
+        navigate("/login");
+        return;
+      }
+      
       fetchUserInfo();
     }
-  }, [isAuthPage]);
+  }, [isAuthPage, navigate]);
 
   const toAbsolute = (path) => {
     if (!path || path === "") return "/";
@@ -104,8 +111,16 @@ function App() {
 
   const handleLogout = () => {
     try {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      sessionStorage.removeItem("accessToken");
+      sessionStorage.removeItem("refreshToken");
+      
+      setUser({ id: "", name: "" });
       handleMenuClose();
       navigate("/login");
+      
+      console.log("로그아웃 성공");
     } catch (err) {
       console.error("로그아웃 실패:", err);
     }
@@ -119,7 +134,14 @@ function App() {
 
     try {
       await api.delete("/users/me");
+      
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      sessionStorage.removeItem("accessToken");
+      sessionStorage.removeItem("refreshToken");
+      
       alert("탈퇴 요청이 완료되었습니다.\n7일 후 완전히 삭제됩니다.");
+      handleMenuClose();
       navigate("/login");
     } catch (err) {
       console.error("회원 탈퇴 실패:", err);
@@ -138,7 +160,6 @@ function App() {
     setAnchorEl(null);
   };
 
-  // 로그인/회원가입 페이지면 레이아웃 없이 렌더링
   if (isAuthPage) {
     return (
       <Routes>
