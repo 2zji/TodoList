@@ -34,7 +34,6 @@ import RejectModal from "../common/RejectModal";
 import FriendsModal from "../common/FriendsModal";
 import NewTodo from "../common/TodoModal";
 import HeaderTemplet from "../../components/common/HeaderTemplet";
-import FooterTamplet from "../../components/common/FooterTemplet";
 
 const ITEMS_PER_PAGE = {
   FRIENDS: 9,
@@ -57,18 +56,21 @@ const styles = {
     alignItems: "center",
     backgroundColor: "#f4f7fb",
     padding: "20px 0px 25px 0px",
+    overflow: "hidden",
   },
   body: {
     display: "flex",
     flexDirection: "column",
-    flex: 1,
+    //flex: 1,
+    height: "100%",
     width: "90%",
     backgroundColor: "#ffffff",
     borderRadius: "12px",
-    borderTopLeftRadius: 0,
     padding: "28px 32px",
     boxShadow: "0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
+    overflowY: "auto",
   },
+
   tableWrap: {
     flex: 1,
     borderRadius: "10px",
@@ -183,7 +185,7 @@ export default function Action() {
     try {
       const res = await api.get("/like/my");
       const friendsRes = await api.get("/friends");
-      
+
       const currentFriendIds = new Set(
         friendsRes.data.map((friend) => friend.friend_id)
       );
@@ -243,7 +245,7 @@ export default function Action() {
       );
 
       fetchMyFriends();
-      
+
       if (tab === TABS.LIKES_TODO) {
         fetchLikesList();
       }
@@ -559,14 +561,31 @@ export default function Action() {
   );
 
   const renderLikesTable = () => (
-    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-      <Box sx={{ flex: 1, overflowY: "auto", pr: 1 }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        flex: 1,
+        overflow: "auto",
+      }}
+    >
+      <Box
+        sx={{
+          // flex: 1,
+          // overflowY: "auto",
+          // pr: 1,
+          // "&::-webkit-scrollbar": { display: "none" },
+          // scrollbarWidth: "none",
+          flex: 1,
+          pr: 1,
+        }}
+      >
         <Grid container spacing={2}>
           {likesTableRows.map((todo) => (
             <Grid item xs={12} sm={6} md={2} key={todo.todo_id}>
               <Card
                 sx={{
-                  width: "295px",
+                  width: "297px",
                   height: "180px",
                   display: "flex",
                   flexDirection: "column",
@@ -587,18 +606,7 @@ export default function Action() {
                       mb: 1.5,
                     }}
                   >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: "1.1rem",
-                        flex: 1,
-                        mr: 1,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
+                    <Typography noWrap fontWeight={600}>
                       {todo.title}
                     </Typography>
                     <IconButton
@@ -607,7 +615,11 @@ export default function Action() {
                         e.stopPropagation();
                         handleLikeToggle(todo.todo_id, true);
                       }}
-                      sx={{ ...styles.button, color: "#E74C3C", padding: "4px" }}
+                      sx={{
+                        ...styles.button,
+                        color: "#E74C3C",
+                        padding: "4px",
+                      }}
                     >
                       <FavoriteIcon fontSize="small" />
                     </IconButton>
@@ -616,8 +628,7 @@ export default function Action() {
                     variant="body2"
                     color="text.secondary"
                     sx={{
-                      mb: 2,
-                      minHeight: "40px",
+                      mb: 1,
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       display: "-webkit-box",
@@ -625,22 +636,14 @@ export default function Action() {
                       WebkitBoxOrient: "vertical",
                     }}
                   >
-                    {todo.description
-                      ? todo.description.length > 50
-                        ? `${todo.description.slice(0, 50)}...`
-                        : todo.description
-                      : "설명이 없습니다."}
+                    {todo.description || "설명이 없습니다."}
                   </Typography>
 
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ mb: 1.5, display: "block" }}
-                  >
-                    Created by: {todo.name}
+                  <Typography variant="caption" color="text.secondary">
+                    Creator: {todo.name}
                   </Typography>
 
-                  <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
+                  <Box sx={{ display: "flex", gap: 0.5, mt: 1 }}>
                     <Chip
                       label={todo.publicityDisplay || "Private"}
                       size="small"
@@ -697,18 +700,6 @@ export default function Action() {
           )}
         </Grid>
       </Box>
-
-      <Box
-        sx={{ display: "flex", justifyContent: "center", mt: 2, flexShrink: 0 }}
-      >
-        <Pagination
-          count={likesPageCount}
-          page={likesPage}
-          onChange={(e, v) => setLikesPage(v)}
-          color="primary"
-          sx={styles.pagination}
-        />
-      </Box>
     </Box>
   );
 
@@ -758,20 +749,18 @@ export default function Action() {
 
       <Modal open={todoModalOpen} onClose={closeTodoModal}>
         <Box sx={styles.modal}>
-          <HeaderTemplet title="View TODO" onClose={closeTodoModal} />
+          <HeaderTemplet title={selectedTodo?.title} onClose={closeTodoModal} />
           <Box sx={styles.modalContent}>
             <NewTodo mode="view" selectedTodo={selectedTodo} />
           </Box>
-          <FooterTamplet
+          <NewTodo
             mode="view"
             selectedTodo={selectedTodo}
-            onClose={closeTodoModal}
             showLike={true}
             isLiked={isLiked}
             onLikeToggle={() =>
               handleLikeToggle(selectedTodo?.todo_id, isLiked)
             }
-            onEdit={null}
           />
         </Box>
       </Modal>

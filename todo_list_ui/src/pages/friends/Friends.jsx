@@ -36,13 +36,14 @@ const styles = {
   body: {
     display: "flex",
     flexDirection: "column",
-    flex: 1,
+    //flex: 1,
+    height: "100%",
     width: "90%",
     backgroundColor: "#ffffff",
     borderRadius: "12px",
     padding: "28px 32px",
     boxShadow: "0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
-    overflow: "hidden",
+    //overflow: "hidden",
   },
   button: {
     "&:focus": { outline: "none" },
@@ -166,8 +167,8 @@ function Friends() {
             flex: 1,
             overflowY: "auto",
             pr: 1,
-            "&::-webkit-scrollbar": { display: "none" },
-            scrollbarWidth: "none",
+            // "&::-webkit-scrollbar": { display: "none" },
+            // scrollbarWidth: "none",
           }}
         >
           <Grid container spacing={2}>
@@ -194,7 +195,12 @@ function Friends() {
                     onClick={() => handleCardClick(todo)}
                   >
                     <CardContent>
-                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
                         <Typography noWrap fontWeight={600}>
                           {todo.title}
                         </Typography>
@@ -247,6 +253,8 @@ function Friends() {
                               TAG_COLORS.publicity[publicityLabel] ||
                               TAG_COLORS.publicity.Private,
                             color: "#fff",
+                            fontWeight: 500,
+                            fontSize: "0.7rem",
                           }}
                         />
                         <Chip
@@ -257,6 +265,8 @@ function Friends() {
                               TAG_COLORS.priority[priorityLabel] ||
                               TAG_COLORS.priority.Medium,
                             color: "#fff",
+                            fontWeight: 500,
+                            fontSize: "0.7rem",
                           }}
                         />
                         <Chip
@@ -267,6 +277,8 @@ function Friends() {
                               TAG_COLORS.status[statusLabel] ||
                               TAG_COLORS.status.Pending,
                             color: "#fff",
+                            fontWeight: 500,
+                            fontSize: "0.7rem",
                           }}
                         />
                       </Box>
@@ -313,7 +325,13 @@ function Friends() {
               "&::-webkit-scrollbar": { display: "none" },
             }}
           >
-            <NewTodo mode="view" selectedTodo={selectedTodo} />
+            <NewTodo
+              mode="view"
+              selectedTodo={selectedTodo}
+              showLike={true}
+              isLiked={isLiked}
+              onLikeToggle={() => handleLikeToggle(selectedTodo.todo_id)}
+            />
           </Box>
         </Box>
       </Modal>
