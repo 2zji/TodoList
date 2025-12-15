@@ -169,7 +169,7 @@ function App() {
       {/* 메인 화면 */}
       <div style={styles.main}>
         <Box sx={styles.header}>
-          <h2 style={{ margin: 0, fontSize: "38px" }}>Hi {user.name}!</h2>
+          <h2 style={{ margin: 0, fontSize: "38px" }}>Hi, {user.name}!</h2>
 
           <Box sx={{ marginLeft: "auto", position: "relative" }}>
             <Button

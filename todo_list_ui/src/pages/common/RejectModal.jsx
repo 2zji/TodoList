@@ -32,7 +32,7 @@ function RejectModal({ open, onClose, onConfirm }) {
             sx={{ flex: 1 }}
             onClick={onConfirm}
           >
-            거절하기
+            Reject
           </Button>
 
           <Button
@@ -40,7 +40,7 @@ function RejectModal({ open, onClose, onConfirm }) {
             sx={{ flex: 1 }}
             onClick={onClose}
           >
-            취소
+            Cancel
           </Button>
         </Box>
       </Box>
