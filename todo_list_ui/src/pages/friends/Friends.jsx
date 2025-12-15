@@ -7,15 +7,14 @@ import {
   Chip,
   IconButton,
   Grid,
-  Pagination,
   Modal,
+  TextField,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import api from "../../api/axiosInstance";
 import NewTodo from "../common/TodoModal";
 import HeaderTemplet from "../../components/common/HeaderTemplet";
-import FooterTamplet from "../../components/common/FooterTemplet";
 
 const statusMap = {
   pending: "Pending",
@@ -32,6 +31,7 @@ const styles = {
     alignItems: "center",
     backgroundColor: "#f4f7fb",
     padding: "20px 0px 25px 0px",
+    overflow: "hidden",
   },
   body: {
     display: "flex",
@@ -42,6 +42,7 @@ const styles = {
     borderRadius: "12px",
     padding: "28px 32px",
     boxShadow: "0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
+    overflow: "hidden",
   },
   button: {
     "&:focus": { outline: "none" },
@@ -51,7 +52,7 @@ const styles = {
 
 const TAG_COLORS = {
   publicity: {
-    Public: "#2D9CDB",
+    Public: "#268fcc",
     Private: "#636E72",
   },
   priority: {
@@ -67,13 +68,12 @@ const TAG_COLORS = {
 };
 
 function Friends() {
-  const [page, setPage] = useState(1);
   const [todoList, setTodoList] = useState([]);
   const [likedTodos, setLikedTodos] = useState(new Set());
   const [open, setOpen] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
-  const todosPerPage = 15;
+  const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
     fetchFriendsTodos();
@@ -108,22 +108,20 @@ function Friends() {
   };
 
   const handleLikeToggle = async (todoId) => {
+    const isLiked = likedTodos.has(todoId);
     try {
-      const isLiked = likedTodos.has(todoId);
-
       if (isLiked) {
         await api.delete(`/like/${todoId}`);
         setLikedTodos((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(todoId);
-          return newSet;
+          const n = new Set(prev);
+          n.delete(todoId);
+          return n;
         });
-        setIsLiked(false);
       } else {
         await api.post(`/like/${todoId}`);
         setLikedTodos((prev) => new Set(prev).add(todoId));
-        setIsLiked(true);
       }
+      setIsLiked(!isLiked);
     } catch (err) {
       console.error("좋아요 토글 오류:", err);
     }
@@ -141,200 +139,151 @@ function Friends() {
     setIsLiked(false);
   };
 
-  const handleModalLikeToggle = async () => {
-    if (!selectedTodo?.todo_id) return;
-    await handleLikeToggle(selectedTodo.todo_id);
-  };
-
-  const pageCount = Math.ceil(todoList.length / todosPerPage);
-  const paginatedTodos = todoList.slice(
-    (page - 1) * todosPerPage,
-    page * todosPerPage
-  );
+  const filteredTodos = todoList.filter((todo) => {
+    const q = keyword.toLowerCase();
+    return (
+      todo.name?.toLowerCase().includes(q) ||
+      todo.title?.toLowerCase().includes(q) ||
+      todo.description?.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <Box sx={styles.container}>
       <Box sx={styles.body}>
-        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-          <Box sx={{ flex: 1, overflowY: "auto", pr: 1 }}>
-            <Grid container spacing={2}>
-              {paginatedTodos.map((todo) => {
-                const publicityLabel = todo.publicity ? "Public" : "Private";
-                const priorityLabel =
-                  todo.priority?.charAt(0).toUpperCase() +
-                    todo.priority?.slice(1) || "Medium";
-                const statusLabel = statusMap[todo.status] || "Pending";
+        <Box sx={{ mb: 2, flexShrink: 0 }}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="친구 이름, 제목, 내용으로 검색"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+          />
+        </Box>
 
-                return (
-                  <Grid item xs={12} sm={6} md={2} key={todo.todo_id}>
-                    <Card
-                      sx={{
-                        width: "295px",
-                        height: "180px",
-                        display: "flex",
-                        flexDirection: "column",
-                        cursor: "pointer",
-                        transition: "all 0.2s",
-                        "&:hover": {
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                          transform: "translateY(-2px)",
-                        },
-                      }}
-                      onClick={() => handleCardClick(todo)}
-                    >
-                      <CardContent sx={{ flex: 1, pb: 1 }}>
-                        <Box
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: "auto",
+            pr: 1,
+            "&::-webkit-scrollbar": { display: "none" },
+            scrollbarWidth: "none",
+          }}
+        >
+          <Grid container spacing={2}>
+            {filteredTodos.map((todo) => {
+              const publicityLabel = todo.publicity ? "Public" : "Private";
+              const priorityLabel =
+                todo.priority?.charAt(0).toUpperCase() +
+                  todo.priority?.slice(1) || "Medium";
+              const statusLabel = statusMap[todo.status] || "Pending";
+
+              return (
+                <Grid item xs={12} sm={6} md={2} key={todo.todo_id}>
+                  <Card
+                    sx={{
+                      width: "297px",
+                      height: "180px",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      "&:hover": {
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                    onClick={() => handleCardClick(todo)}
+                  >
+                    <CardContent>
+                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                        <Typography noWrap fontWeight={600}>
+                          {todo.title}
+                        </Typography>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleLikeToggle(todo.todo_id);
+                          }}
                           sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            mb: 1.5,
+                            ...styles.button,
+                            color: likedTodos.has(todo.todo_id)
+                              ? "#E74C3C"
+                              : "#CCC",
                           }}
                         >
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              fontWeight: 600,
-                              fontSize: "1.1rem",
-                              flex: 1,
-                              mr: 1,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {todo.title}
-                          </Typography>
-                          <IconButton
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleLikeToggle(todo.todo_id);
-                            }}
-                            sx={{
-                              ...styles.button,
-                              color: likedTodos.has(todo.todo_id)
-                                ? "#E74C3C"
-                                : "#CCC",
-                              padding: "4px",
-                            }}
-                          >
-                            {likedTodos.has(todo.todo_id) ? (
-                              <FavoriteIcon fontSize="small" />
-                            ) : (
-                              <FavoriteBorderIcon fontSize="small" />
-                            )}
-                          </IconButton>
-                        </Box>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
+                          {likedTodos.has(todo.todo_id) ? (
+                            <FavoriteIcon fontSize="small" />
+                          ) : (
+                            <FavoriteBorderIcon fontSize="small" />
+                          )}
+                        </IconButton>
+                      </Box>
+
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          mb: 1,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                        }}
+                      >
+                        {todo.description || "설명이 없습니다."}
+                      </Typography>
+
+                      <Typography variant="caption" color="text.secondary">
+                        Creator: {todo.name}
+                      </Typography>
+
+                      <Box sx={{ mt: 1, display: "flex", gap: 0.5 }}>
+                        <Chip
+                          size="small"
+                          label={publicityLabel}
                           sx={{
-                            mb: 2,
-                            minHeight: "40px",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
+                            bgcolor:
+                              TAG_COLORS.publicity[publicityLabel] ||
+                              TAG_COLORS.publicity.Private,
+                            color: "#fff",
                           }}
-                        >
-                          {todo.description
-                            ? todo.description.length > 50
-                              ? `${todo.description.slice(0, 50)}...`
-                              : todo.description
-                            : "설명이 없습니다."}
-                        </Typography>
+                        />
+                        <Chip
+                          size="small"
+                          label={priorityLabel}
+                          sx={{
+                            bgcolor:
+                              TAG_COLORS.priority[priorityLabel] ||
+                              TAG_COLORS.priority.Medium,
+                            color: "#fff",
+                          }}
+                        />
+                        <Chip
+                          size="small"
+                          label={statusLabel}
+                          sx={{
+                            bgcolor:
+                              TAG_COLORS.status[statusLabel] ||
+                              TAG_COLORS.status.Pending,
+                            color: "#fff",
+                          }}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              );
+            })}
 
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ mb: 1.5, display: "block" }}
-                        >
-                          Created by: {todo.name || "Unknown"}
-                        </Typography>
-
-                        <Box
-                          sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}
-                        >
-                          <Chip
-                            label={publicityLabel}
-                            size="small"
-                            sx={{
-                              bgcolor:
-                                TAG_COLORS.publicity[publicityLabel] ||
-                                TAG_COLORS.publicity.Private,
-                              color: "#fff",
-                              fontWeight: 500,
-                              fontSize: "0.7rem",
-                            }}
-                          />
-                          <Chip
-                            label={priorityLabel}
-                            size="small"
-                            sx={{
-                              bgcolor:
-                                TAG_COLORS.priority[priorityLabel] ||
-                                TAG_COLORS.priority.Medium,
-                              color: "#fff",
-                              fontWeight: 500,
-                              fontSize: "0.7rem",
-                            }}
-                          />
-                          <Chip
-                            label={statusLabel}
-                            size="small"
-                            sx={{
-                              bgcolor:
-                                TAG_COLORS.status[statusLabel] ||
-                                TAG_COLORS.status.Pending,
-                              color: "#fff",
-                              fontWeight: 500,
-                              fontSize: "0.7rem",
-                            }}
-                          />
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                );
-              })}
-
-              {paginatedTodos.length === 0 && (
-                <Box
-                  sx={{
-                    textAlign: "center",
-                    py: 8,
-                    color: "text.secondary",
-                    width: "100%",
-                  }}
-                >
-                  <Typography variant="h6">No friends Todo</Typography>
-                </Box>
-              )}
-            </Grid>
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              mt: 2,
-              flexShrink: 0,
-            }}
-          >
-            <Pagination
-              count={pageCount}
-              page={page}
-              onChange={(e, v) => setPage(v)}
-              color="primary"
-              sx={{
-                "& .MuiPaginationItem-root": {
-                  "&:focus": { outline: "none" },
-                  "&:focusVisible": { outline: "none", boxShadow: "none" },
-                },
-              }}
-            />
-          </Box>
+            {filteredTodos.length === 0 && (
+              <Box sx={{ width: "100%", textAlign: "center", py: 8 }}>
+                <Typography color="text.secondary">
+                  검색 결과가 없습니다.
+                </Typography>
+              </Box>
+            )}
+          </Grid>
         </Box>
       </Box>
 
@@ -356,28 +305,16 @@ function Friends() {
             flexDirection: "column",
           }}
         >
-          <HeaderTemplet title="View TODO" onClose={handleClose} />
-
+          <HeaderTemplet title={selectedTodo?.title} onClose={handleClose} />
           <Box
             sx={{
-              mt: 2,
               flex: 1,
-              overflow: "auto",
+              overflowY: "auto",
               "&::-webkit-scrollbar": { display: "none" },
             }}
           >
             <NewTodo mode="view" selectedTodo={selectedTodo} />
           </Box>
-
-          <FooterTamplet
-            mode="view"
-            selectedTodo={selectedTodo}
-            onClose={handleClose}
-            showLike={true}
-            isLiked={isLiked}
-            onLikeToggle={handleModalLikeToggle}
-            onEdit={null}
-          />
         </Box>
       </Modal>
     </Box>
