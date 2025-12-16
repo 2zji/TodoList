@@ -255,7 +255,7 @@ function MyTodo() {
                       }}
                     >
                       <Typography
-                        noWrap={modalMode === "view"}
+                        noWrap
                         fontWeight={600}
                       >
                         {item.title}
