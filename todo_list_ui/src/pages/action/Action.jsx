@@ -357,13 +357,13 @@ export default function Action() {
   const paginateLikes = () => {
     const start = (likesPage - 1) * ITEMS_PER_PAGE.LIKES;
     const end = start + ITEMS_PER_PAGE.LIKES;
-    
+
     const statusLabelMap = {
       pending: "Pending",
       in_progress: "InProgress",
       completed: "Completed",
     };
-    
+
     return likesList.slice(start, end).map((item, i) => ({
       ...item,
       no: start + i + 1,
@@ -737,7 +737,11 @@ export default function Action() {
         {tab === TABS.LIKES_TODO && renderLikesTable()}
       </Box>
 
-      <FriendsModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <FriendsModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        sx={styles.button}
+      />
       <RejectModal
         open={rejectModalOpen}
         onClose={() => {
@@ -745,9 +749,10 @@ export default function Action() {
           fetchFriendRequests();
         }}
         onConfirm={confirmReject}
+        sx={styles.button}
       />
 
-      <Modal open={todoModalOpen} onClose={closeTodoModal}>
+      <Modal open={todoModalOpen} onClose={closeTodoModal} sx={styles.button}>
         <Box sx={styles.modal}>
           <HeaderTemplet title={selectedTodo?.title} onClose={closeTodoModal} />
           <Box sx={styles.modalContent}>

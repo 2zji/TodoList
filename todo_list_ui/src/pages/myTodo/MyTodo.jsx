@@ -358,6 +358,7 @@ function MyTodo() {
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
+            ...styles.button,
           }}
         >
           <HeaderTemplet

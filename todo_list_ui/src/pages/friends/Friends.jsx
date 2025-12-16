@@ -334,6 +334,7 @@ function Friends() {
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
+            ...styles.button,
           }}
         >
           <HeaderTemplet title={selectedTodo?.title} onClose={handleClose} />

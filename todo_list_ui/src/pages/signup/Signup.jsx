@@ -79,7 +79,8 @@ const Signup = () => {
         sx={{
           width: "60%",
           //  backgroundImage: "url(/testBack.jpg)",
-          backgroundColor: "rgba(243, 243, 243, 1)",
+          //  backgroundColor: "rgba(243, 243, 243, 1)",
+          backgroundImage: "url(/todoimg.png)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",

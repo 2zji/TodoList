@@ -124,7 +124,7 @@ const TodoModal = forwardRef(
           }}
         >
           {/* Header */}
-          <Box sx={{ display: "flex", gap: 1, flexShrink: 0 }}>
+          <Box sx={{ display: "flex", gap: 1, flexShrink: 0, paddingTop: 1 }}>
             {showLike && (
               <IconButton onClick={onLikeToggle}>
                 {isLiked ? (
