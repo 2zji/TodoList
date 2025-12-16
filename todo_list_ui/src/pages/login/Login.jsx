@@ -40,10 +40,10 @@ const Login = () => {
       console.log("Login success:", res.data);
 
       if (res.data.access_token) {
-        localStorage.setItem("access_token", res.data.access_token);
+        localStorage.setItem("accessToken", res.data.access_token);
+        console.log("Token saved:", localStorage.getItem("accessToken"));
+        window.location.href = "/";
       }
-
-      navigate("/");
     } catch (err) {
       console.error("Login failed:", err);
       alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
@@ -68,6 +68,7 @@ const Login = () => {
           width: "60%",
           //  backgroundImage: "url(/testBack.jpg)",
           backgroundColor: "rgba(243, 243, 243, 1)",
+          //  backgroundImage: "url(/todoimg.png)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -125,19 +126,19 @@ const Login = () => {
             onChange={handleChange("passwd")}
             placeholder="비밀번호를 입력하세요"
             slotProps={{
-                input:{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowpasswd(!showpasswd)}
-                    edge="end"
-                    sx={styles.button}
-                  >
-                    {showpasswd ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowpasswd(!showpasswd)}
+                      edge="end"
+                      sx={styles.button}
+                    >
+                      {showpasswd ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
             }}
           />
 
@@ -157,8 +158,17 @@ const Login = () => {
             로그인
           </Button>
 
-          <Box sx={{ textAlign: "center", mt: 1, display: "flex", justifyContent: "center" }}>
-            <Typography sx={{color: "#5B646F", fontSize: "14px"}}>TodoList가 처음이신가요? </Typography>
+          <Box
+            sx={{
+              textAlign: "center",
+              mt: 1,
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Typography sx={{ color: "#5B646F", fontSize: "14px" }}>
+              TodoList가 처음이신가요?{" "}
+            </Typography>
             <Link
               onClick={handleSignupClick}
               underline="hover"

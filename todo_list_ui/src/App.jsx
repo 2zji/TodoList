@@ -13,7 +13,7 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import ContactPageIcon from '@mui/icons-material/ContactPage';
+import ContactPageIcon from "@mui/icons-material/ContactPage";
 
 const styles = {
   root: {
@@ -72,7 +72,8 @@ function App() {
     name: "",
   });
 
-  const isAuthPage = location.pathname === "/login" || location.pathname === "/signup";
+  const isAuthPage =
+    location.pathname === "/login" || location.pathname === "/signup";
 
   const fetchUserInfo = async () => {
     try {
@@ -80,21 +81,31 @@ function App() {
       setUser(res.data);
     } catch (err) {
       console.error("유저 정보 불러오기 실패:", err);
+
+      if (err.response?.status === 401) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        sessionStorage.removeItem("accessToken");
+        sessionStorage.removeItem("refreshToken");
+        navigate("/login");
+      }
     }
   };
 
   useEffect(() => {
     if (!isAuthPage) {
-      const accessToken = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
-      
+      const accessToken =
+        localStorage.getItem("accessToken") ||
+        sessionStorage.getItem("accessToken");
+
       if (!accessToken) {
         navigate("/login");
         return;
       }
-      
+
       fetchUserInfo();
     }
-  }, [isAuthPage, navigate]);
+  }, [isAuthPage]);
 
   const toAbsolute = (path) => {
     if (!path || path === "") return "/";
@@ -115,11 +126,11 @@ function App() {
       localStorage.removeItem("refreshToken");
       sessionStorage.removeItem("accessToken");
       sessionStorage.removeItem("refreshToken");
-      
+
       setUser({ id: "", name: "" });
       handleMenuClose();
       navigate("/login");
-      
+
       console.log("로그아웃 성공");
     } catch (err) {
       console.error("로그아웃 실패:", err);
@@ -134,12 +145,13 @@ function App() {
 
     try {
       await api.delete("/users/me");
-      
+
+      // 토큰 제거
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       sessionStorage.removeItem("accessToken");
       sessionStorage.removeItem("refreshToken");
-      
+
       alert("탈퇴 요청이 완료되었습니다.\n7일 후 완전히 삭제됩니다.");
       handleMenuClose();
       navigate("/login");
@@ -160,6 +172,7 @@ function App() {
     setAnchorEl(null);
   };
 
+  // 로그인/회원가입 페이지면 레이아웃 없이 렌더링
   if (isAuthPage) {
     return (
       <Routes>
@@ -307,7 +320,7 @@ function App() {
           <Route path="/" element={<MyTodo />} />
           <Route path="/friends" element={<Friends />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/action" element={<Action/>} />
+          <Route path="/action" element={<Action />} />
         </Routes>
       </div>
     </div>
