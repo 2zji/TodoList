@@ -67,8 +67,8 @@ const Login = () => {
         sx={{
           width: "60%",
           //  backgroundImage: "url(/testBack.jpg)",
-          backgroundColor: "rgba(243, 243, 243, 1)",
-          //  backgroundImage: "url(/todoimg.png)",
+          //  backgroundColor: "rgba(243, 243, 243, 1)",
+          backgroundImage: "url(/todoimg.png)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",

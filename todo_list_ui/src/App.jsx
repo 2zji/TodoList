@@ -93,19 +93,21 @@ function App() {
   };
 
   useEffect(() => {
-    if (!isAuthPage) {
-      const accessToken =
-        localStorage.getItem("accessToken") ||
-        sessionStorage.getItem("accessToken");
-
+    const accessToken =
+      localStorage.getItem("accessToken") ||
+      sessionStorage.getItem("accessToken");
+    if (isAuthPage) {
+      if (accessToken) {
+        navigate("/");
+      }
+    } else {
       if (!accessToken) {
         navigate("/login");
         return;
       }
-
       fetchUserInfo();
     }
-  }, [isAuthPage]);
+  }, [isAuthPage, navigate]);
 
   const toAbsolute = (path) => {
     if (!path || path === "") return "/";
