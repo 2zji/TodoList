@@ -1,9 +1,4 @@
-import {
-  forwardRef,
-  useEffect,
-  useState,
-  useImperativeHandle,
-} from "react";
+import { forwardRef, useEffect, useState, useImperativeHandle } from "react";
 import {
   Box,
   TextField,
@@ -71,9 +66,7 @@ const TodoModal = forwardRef(
           status: (selectedTodo.status ?? "in_progress").toLowerCase(),
         });
         setErrors({ title: false, description: false });
-      }
-
-      if (mode === "create") {
+      } else if (mode === "create") {
         setInputValue({
           title: "",
           description: "",
@@ -87,25 +80,12 @@ const TodoModal = forwardRef(
 
     const handleChange = (field) => (e) => {
       const value = e.target.value;
-
-      setInputValue((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-
+      
+      setInputValue((prev) => ({ ...prev, [field]: value }));
       if (field === "title" || field === "description") {
         setErrors((prev) => ({
           ...prev,
           [field]: value.trim() === "",
-        }));
-      }
-
-      if (setSelectedTodo) {
-        const parsed =
-          field === "publicity" ? value === "true" : value;
-        setSelectedTodo((prev) => ({
-          ...prev,
-          [field]: parsed,
         }));
       }
     };
@@ -117,14 +97,14 @@ const TodoModal = forwardRef(
       };
 
       setErrors(newErrors);
-
-      if (newErrors.title || newErrors.description) {
-        return null;
-      }
+      if (newErrors.title || newErrors.description) return null;
 
       return {
-        ...inputValue,
+        title: inputValue.title.trim(),
+        description: inputValue.description.trim(),
         publicity: inputValue.publicity === "true",
+        priority: inputValue.priority,
+        status: inputValue.status,
       };
     };
 
@@ -132,63 +112,97 @@ const TodoModal = forwardRef(
       getValidatedData: validateAndGetData,
     }));
 
-    const getPublicityLabel = () =>
-      inputValue.publicity === "true" ? "Public" : "Private";
-    const getPriorityLabel = () =>
-      inputValue.priority.charAt(0).toUpperCase() +
-      inputValue.priority.slice(1);
-    const getStatusLabel = () => {
-      const map = {
-        pending: "Pending",
-        in_progress: "InProgress",
-        completed: "Completed",
-      };
-      return map[inputValue.status] || "Pending";
-    };
-
+    /* VIEW */
     if (isReadOnly) {
       return (
-        <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            gap: 2,
+          }}
+        >
+          {/* Header */}
+          <Box sx={{ display: "flex", gap: 1, flexShrink: 0 }}>
             {showLike && (
               <IconButton onClick={onLikeToggle}>
-                {isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                {isLiked ? (
+                  <FavoriteIcon sx={{ color: "#E74C3C" }} />
+                ) : (
+                  <FavoriteBorderIcon sx={{ color: "#CCC" }} />
+                )}
               </IconButton>
             )}
+
             <Chip
-              label={getPublicityLabel()}
+              label={inputValue.publicity === "true" ? "Public" : "Private"}
               sx={{
-                bgcolor: TAG_COLORS.publicity[getPublicityLabel()],
+                bgcolor:
+                  TAG_COLORS.publicity[
+                    inputValue.publicity === "true" ? "Public" : "Private"
+                  ],
                 color: "#fff",
               }}
             />
+
             <Chip
-              label={getPriorityLabel()}
+              label={
+                inputValue.priority.charAt(0).toUpperCase() +
+                inputValue.priority.slice(1)
+              }
               sx={{
-                bgcolor: TAG_COLORS.priority[getPriorityLabel()],
+                bgcolor:
+                  TAG_COLORS.priority[
+                    inputValue.priority.charAt(0).toUpperCase() +
+                      inputValue.priority.slice(1)
+                  ],
                 color: "#fff",
               }}
             />
+
             <Chip
-              label={getStatusLabel()}
+              label={
+                inputValue.status === "in_progress"
+                  ? "InProgress"
+                  : inputValue.status.charAt(0).toUpperCase() +
+                    inputValue.status.slice(1)
+              }
               sx={{
-                bgcolor: TAG_COLORS.status[getStatusLabel()],
+                bgcolor:
+                  TAG_COLORS.status[
+                    inputValue.status === "in_progress"
+                      ? "InProgress"
+                      : inputValue.status.charAt(0).toUpperCase() +
+                        inputValue.status.slice(1)
+                  ],
                 color: "#fff",
               }}
             />
           </Box>
 
-          <Typography sx={{ whiteSpace: "pre-wrap" }}>
-            {inputValue.description || "내용이 없습니다."}
-          </Typography>
+          {/* Content */}
+          <Box sx={{ flex: 1, overflowY: "auto", pr: 1, padding: 0 }}>
+            <Typography sx={{ whiteSpace: "pre-wrap" }}>
+              {inputValue.description || "내용이 없습니다."}
+            </Typography>
+          </Box>
         </Box>
       );
     }
 
+    /* CREATE | EDIT */
     return (
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        {/* Title */}
-        <Box sx={{ display: "flex", gap: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          gap: 2,
+        }}
+      >
+        {/* Header */}
+        <Box sx={{ display: "flex", gap: 4, flexShrink: 0, paddingTop: "15px" }}>
           <Typography sx={{ width: "20%" }}>Title</Typography>
           <TextField
             value={inputValue.title}
@@ -200,59 +214,81 @@ const TodoModal = forwardRef(
           />
         </Box>
 
-        {/* Description */}
-        <Box sx={{ display: "flex", gap: 4 }}>
-          <Typography sx={{ width: "20%" }}>Description</Typography>
-          <TextField
-            value={inputValue.description}
-            onChange={handleChange("description")}
-            fullWidth
-            multiline
-            minRows={4}
-            error={errors.description}
-            helperText={errors.description ? "내용을 입력해주세요." : ""}
-          />
+        {/* Content */}
+        <Box sx={{ flex: 1, pr: 1, padding: 0 }}>
+          <Box sx={{ display: "flex", gap: 4 }}>
+            <Typography sx={{ width: "20%" }}>Description</Typography>
+            <TextField
+              value={inputValue.description}
+              onChange={handleChange("description")}
+              fullWidth
+              multiline
+              rows={9}
+              error={errors.description}
+              helperText={errors.description ? "내용을 입력해주세요." : ""}
+              InputProps={{
+                sx: {
+                  overflowY: "auto",
+                },
+              }}
+            />
+          </Box>
         </Box>
 
-        {/* Publicity */}
-        <RadioGroup
-          row
-          value={inputValue.publicity}
-          onChange={handleChange("publicity")}
-        >
-          <FormControlLabel value="true" control={<Radio />} label="Public" />
-          <FormControlLabel value="false" control={<Radio />} label="Private" />
-        </RadioGroup>
+        {/* Footer */}
+        <Box sx={{ flexShrink: 0 }}>
+          <RadioGroup
+            row
+            value={inputValue.publicity}
+            onChange={handleChange("publicity")}
+            sx={{ padding: "5px 0" }}
+          >
+            <FormControlLabel value="true" control={<Radio />} label="Public" />
+            <FormControlLabel
+              value="false"
+              control={<Radio />}
+              label="Private"
+            />
+          </RadioGroup>
 
-        {/* Priority */}
-        <RadioGroup
-          row
-          value={inputValue.priority}
-          onChange={handleChange("priority")}
-        >
-          <FormControlLabel value="low" control={<Radio />} label="Low" />
-          <FormControlLabel value="medium" control={<Radio />} label="Medium" />
-          <FormControlLabel value="high" control={<Radio />} label="High" />
-        </RadioGroup>
+          <RadioGroup
+            row
+            value={inputValue.priority}
+            onChange={handleChange("priority")}
+            sx={{ padding: "5px 0" }}
+          >
+            <FormControlLabel value="low" control={<Radio />} label="Low" />
+            <FormControlLabel
+              value="medium"
+              control={<Radio />}
+              label="Medium"
+            />
+            <FormControlLabel value="high" control={<Radio />} label="High" />
+          </RadioGroup>
 
-        {/* Status */}
-        <RadioGroup
-          row
-          value={inputValue.status}
-          onChange={handleChange("status")}
-        >
-          <FormControlLabel value="pending" control={<Radio />} label="Pending" />
-          <FormControlLabel
-            value="in_progress"
-            control={<Radio />}
-            label="In Progress"
-          />
-          <FormControlLabel
-            value="completed"
-            control={<Radio />}
-            label="Completed"
-          />
-        </RadioGroup>
+          <RadioGroup
+            row
+            value={inputValue.status}
+            onChange={handleChange("status")}
+            sx={{ padding: "5px 0 0 0" }}
+          >
+            <FormControlLabel
+              value="pending"
+              control={<Radio />}
+              label="Pending"
+            />
+            <FormControlLabel
+              value="in_progress"
+              control={<Radio />}
+              label="In Progress"
+            />
+            <FormControlLabel
+              value="completed"
+              control={<Radio />}
+              label="Completed"
+            />
+          </RadioGroup>
+        </Box>
       </Box>
     );
   }
