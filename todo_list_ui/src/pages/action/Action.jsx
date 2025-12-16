@@ -38,7 +38,6 @@ import HeaderTemplet from "../../components/common/HeaderTemplet";
 const ITEMS_PER_PAGE = {
   FRIENDS: 9,
   REQUESTS: 10,
-  LIKES: 15,
 };
 
 const TABS = {
@@ -146,7 +145,6 @@ export default function Action() {
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [requestsPage, setRequestsPage] = useState(1);
   const [likesList, setLikesList] = useState([]);
-  const [likesPage, setLikesPage] = useState(1);
   const [selectedTodo, setSelectedTodo] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -209,7 +207,6 @@ export default function Action() {
         });
 
       setLikesList(likesTodo);
-      setLikesPage(1);
     } catch (err) {
       console.error("좋아요 목록 불러오기 실패:", err);
       setLikesList([]);
@@ -355,18 +352,15 @@ export default function Action() {
   };
 
   const paginateLikes = () => {
-    const start = (likesPage - 1) * ITEMS_PER_PAGE.LIKES;
-    const end = start + ITEMS_PER_PAGE.LIKES;
-
     const statusLabelMap = {
       pending: "Pending",
       in_progress: "InProgress",
       completed: "Completed",
     };
 
-    return likesList.slice(start, end).map((item, i) => ({
+    return likesList.map((item, i) => ({
       ...item,
-      no: start + i + 1,
+      no: i + 1,
       statusLabel: statusLabelMap[item.status] || item.status || "Pending",
     }));
   };
@@ -381,7 +375,6 @@ export default function Action() {
   const requestsPageCount = Math.ceil(
     filteredRequests.length / ITEMS_PER_PAGE.REQUESTS
   );
-  const likesPageCount = Math.ceil(likesList.length / ITEMS_PER_PAGE.LIKES);
 
   const renderSearchBar = () => (
     <Box sx={{ mb: 1.5, display: "flex", gap: 1 }}>
@@ -562,144 +555,150 @@ export default function Action() {
   const renderLikesTable = () => (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        flex: 1,
-        overflow: "auto",
+        height: "100%",
+        overflowY: "auto",
+        pr: 1,
+        "&::-webkit-scrollbar": { width: "10px" },
+        "&::-webkit-scrollbar-thumb": {
+          background: "rgba(49, 91, 230)",
+          borderRadius: "10px",
+        },
+        "&::-webkit-scrollbar-track": {
+          background: "rgba(49, 91, 230, 0.1)",
+        },
       }}
     >
-      <Box sx={{ flex: 1, pr: 1 }}>
-        <Grid container spacing={2}>
-          {likesTableRows.map((todo) => (
-            <Grid item xs={12} sm={6} md={2} key={todo.todo_id}>
-              <Card
+      <Grid container spacing={2}>
+        {likesTableRows.map((todo) => (
+          <Grid item xs={12} sm={6} md={2} key={todo.todo_id}>
+            <Card
+              sx={{
+                width: "297px",
+                height: "180px",
+                display: "flex",
+                flexDirection: "column",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                "&:hover": {
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                  transform: "translateY(-2px)",
+                },
+              }}
+              onClick={() => handleRowSelect(todo)}
+            >
+              <CardContent
                 sx={{
-                  width: "297px",
-                  height: "180px",
+                  height: "100%",
                   display: "flex",
                   flexDirection: "column",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  "&:hover": {
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                    transform: "translateY(-2px)",
-                  },
+                  gap: "8px",
                 }}
-                onClick={() => handleRowSelect(todo)}
               >
-                <CardContent
+                <Box
                   sx={{
-                    height: "100%",
                     display: "flex",
-                    flexDirection: "column",
-                    gap: "8px",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                   }}
                 >
-                  <Box
+                  <Typography noWrap fontWeight={600}>
+                    {todo.title}
+                  </Typography>
+
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLikeToggle(todo.todo_id, true);
+                    }}
                     sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
+                      ...styles.button,
+                      color: "#E74C3C",
+                      padding: "4px",
                     }}
                   >
-                    <Typography noWrap fontWeight={600}>
-                      {todo.title}
-                    </Typography>
+                    <FavoriteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
 
-                    <IconButton
+                <Box sx={{ height: "40px", overflow: "hidden" }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {todo.description || "설명이 없습니다."}
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Creator: {todo.name}
+                  </Typography>
+
+                  <Box sx={{ display: "flex", gap: 0.5, mt: 1 }}>
+                    <Chip
+                      label={todo.publicityDisplay || "Private"}
                       size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleLikeToggle(todo.todo_id, true);
-                      }}
                       sx={{
-                        ...styles.button,
-                        color: "#E74C3C",
-                        padding: "4px",
+                        bgcolor:
+                          TAG_COLORS.publicity[todo.publicityDisplay] ||
+                          TAG_COLORS.publicity.Private,
+                        color: "#fff",
+                        fontWeight: 500,
+                        fontSize: "0.7rem",
                       }}
-                    >
-                      <FavoriteIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-
-                  <Box sx={{ height: "40px", overflow: "hidden" }}>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
+                    />
+                    <Chip
+                      label={todo.priority || "Low"}
+                      size="small"
                       sx={{
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
+                        bgcolor:
+                          TAG_COLORS.priority[todo.priority] ||
+                          TAG_COLORS.priority.Low,
+                        color: "#fff",
+                        fontWeight: 500,
+                        fontSize: "0.7rem",
                       }}
-                    >
-                      {todo.description || "설명이 없습니다."}
-                    </Typography>
+                    />
+                    <Chip
+                      label={todo.statusLabel}
+                      size="small"
+                      sx={{
+                        bgcolor:
+                          TAG_COLORS.status[todo.statusLabel] ||
+                          TAG_COLORS.status.Pending,
+                        color: "#fff",
+                        fontWeight: 500,
+                        fontSize: "0.7rem",
+                      }}
+                    />
                   </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
 
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">
-                      Creator: {todo.name}
-                    </Typography>
-
-                    <Box sx={{ display: "flex", gap: 0.5, mt: 1 }}>
-                      <Chip
-                        label={todo.publicityDisplay || "Private"}
-                        size="small"
-                        sx={{
-                          bgcolor:
-                            TAG_COLORS.publicity[todo.publicityDisplay] ||
-                            TAG_COLORS.publicity.Private,
-                          color: "#fff",
-                          fontWeight: 500,
-                          fontSize: "0.7rem",
-                        }}
-                      />
-                      <Chip
-                        label={todo.priority || "Low"}
-                        size="small"
-                        sx={{
-                          bgcolor:
-                            TAG_COLORS.priority[todo.priority] ||
-                            TAG_COLORS.priority.Low,
-                          color: "#fff",
-                          fontWeight: 500,
-                          fontSize: "0.7rem",
-                        }}
-                      />
-                      <Chip
-                        label={todo.statusLabel}
-                        size="small"
-                        sx={{
-                          bgcolor:
-                            TAG_COLORS.status[todo.statusLabel] ||
-                            TAG_COLORS.status.Pending,
-                          color: "#fff",
-                          fontWeight: 500,
-                          fontSize: "0.7rem",
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-
-          {likesTableRows.length === 0 && (
+        {likesTableRows.length === 0 && (
+          <Grid item xs={12}>
             <Box
               sx={{
                 textAlign: "center",
                 py: 8,
                 color: "text.secondary",
-                width: "100%",
               }}
             >
               <Typography variant="h6">No liked todos found</Typography>
             </Box>
-          )}
-        </Grid>
-      </Box>
+          </Grid>
+        )}
+      </Grid>
     </Box>
   );
 
@@ -730,7 +729,12 @@ export default function Action() {
         </Tabs>
       </Box>
 
-      <Box sx={styles.body}>
+      <Box 
+        sx={{
+          ...styles.body,
+          overflow: tab === TABS.LIKES_TODO ? "hidden" : "auto",
+        }}
+      >
         {tab === TABS.MY_FRIENDS && renderSearchBar()}
         {tab === TABS.MY_FRIENDS && renderFriendsTable()}
         {tab === TABS.FRIEND_REQUESTS && renderRequestsTable()}

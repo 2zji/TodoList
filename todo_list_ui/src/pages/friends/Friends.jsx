@@ -43,7 +43,7 @@ const styles = {
     borderRadius: "12px",
     padding: "28px 32px",
     boxShadow: "0 6px 10px rgba(0,0,0,0.06), 0 1px 18px rgba(0,0,0,0.08)",
-    //overflow: "hidden",
+    overflow: "hidden",
   },
   button: {
     "&:focus": { outline: "none" },
@@ -169,6 +169,9 @@ function Friends() {
             pr: 1,
             // "&::-webkit-scrollbar": { display: "none" },
             // scrollbarWidth: "none",
+            "&::-webkit-scrollbar": {width: "10px"},
+            "&::-webkit-scrollbar-thumb": {background: "rgba(49, 91, 230)", borderRadius: "10px"},
+            "&::-webkit-scrollbar-track": {background: "rgba(49, 91, 230, 0.1)"},
           }}
         >
           <Grid container spacing={2}>
