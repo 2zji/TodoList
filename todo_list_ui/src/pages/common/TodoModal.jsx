@@ -80,7 +80,7 @@ const TodoModal = forwardRef(
 
     const handleChange = (field) => (e) => {
       const value = e.target.value;
-      
+
       setInputValue((prev) => ({ ...prev, [field]: value }));
       if (field === "title" || field === "description") {
         setErrors((prev) => ({
@@ -126,7 +126,13 @@ const TodoModal = forwardRef(
           {/* Header */}
           <Box sx={{ display: "flex", gap: 1, flexShrink: 0, paddingTop: 1 }}>
             {showLike && (
-              <IconButton onClick={onLikeToggle}>
+              <IconButton
+                onClick={onLikeToggle}
+                sx={{
+                  "&:focus": { outline: "none" },
+                  "&:focusVisible": { outline: "none", boxShadow: "none" },
+                }}
+              >
                 {isLiked ? (
                   <FavoriteIcon sx={{ color: "#E74C3C" }} />
                 ) : (
@@ -182,7 +188,22 @@ const TodoModal = forwardRef(
           </Box>
 
           {/* Content */}
-          <Box sx={{ flex: 1, overflowY: "auto", pr: 1, padding: 0 }}>
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: "auto",
+              pr: 1,
+              padding: 0,
+              "&::-webkit-scrollbar": { width: "5px" },
+              "&::-webkit-scrollbar-thumb": {
+                background: "rgba(0, 0, 0, 0.35)",
+                borderRadius: "10px",
+              },
+              "&::-webkit-scrollbar-track": {
+                background: "rgba(0, 0, 0, 0.05)",
+              },
+            }}
+          >
             <Typography sx={{ whiteSpace: "pre-wrap" }}>
               {inputValue.description || "내용이 없습니다."}
             </Typography>
@@ -202,7 +223,9 @@ const TodoModal = forwardRef(
         }}
       >
         {/* Header */}
-        <Box sx={{ display: "flex", gap: 4, flexShrink: 0, paddingTop: "15px" }}>
+        <Box
+          sx={{ display: "flex", gap: 4, flexShrink: 0, paddingTop: "15px" }}
+        >
           <Typography sx={{ width: "20%" }}>Title</Typography>
           <TextField
             value={inputValue.title}
@@ -210,6 +233,7 @@ const TodoModal = forwardRef(
             fullWidth
             size="small"
             error={errors.title}
+            placeholder="100자 이내로 입력해주세요(넘을 시, 저장 불가)"
             helperText={errors.title ? "제목을 입력해주세요." : ""}
           />
         </Box>
@@ -225,6 +249,7 @@ const TodoModal = forwardRef(
               multiline
               rows={9}
               error={errors.description}
+              placeholder="내용을 입력해주세요."
               helperText={errors.description ? "내용을 입력해주세요." : ""}
               InputProps={{
                 sx: {

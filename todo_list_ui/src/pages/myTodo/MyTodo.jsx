@@ -217,13 +217,13 @@ function MyTodo() {
             pr: 1,
             // "&::-webkit-scrollbar": { display: "none" },
             // scrollbarWidth: "none",
-            "&::-webkit-scrollbar": { width: "10px" },
+            "&::-webkit-scrollbar": { width: "5px" },
             "&::-webkit-scrollbar-thumb": {
-              background: "rgba(49, 91, 230)",
+              background: "rgba(0, 0, 0, 0.35)",
               borderRadius: "10px",
             },
             "&::-webkit-scrollbar-track": {
-              background: "rgba(49, 91, 230, 0.1)",
+              background: "rgba(0, 0, 0, 0.05)",
             },
           }}
         >
@@ -239,13 +239,13 @@ function MyTodo() {
                 <Grid item xs={12} sm={6} md={2.4} key={item.id}>
                   <Card
                     sx={{
-                      width: "297px",
+                      width: "290px",
                       height: "150px",
                       cursor: "pointer",
                       display: "flex",
                       flexDirection: "column",
                       gap: "8px",
-                      p: "12px",
+                      p: "12px 0"
                     }}
                     onClick={() => {
                       setSelectedTodo(item);
@@ -257,20 +257,27 @@ function MyTodo() {
                     <Box
                       sx={{
                         display: "flex",
-                        justifyContent: "space-between",
                         alignItems: "center",
                         flexShrink: 0,
+                        p: "0 12px 0 2px"
                       }}
                     >
-                      <Typography noWrap fontWeight={600}>
-                        {item.title}
-                      </Typography>
-
                       <Checkbox
+                        //size="small"
                         checked={selected.includes(item.id)}
                         onClick={(e) => e.stopPropagation()}
                         onChange={() => handleSelectOne(item.id)}
                       />
+
+                      <Typography noWrap fontWeight={600}>
+                        {item.title}
+                      </Typography>
+                      
+                      {/* <Checkbox
+                        checked={selected.includes(item.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={() => handleSelectOne(item.id)}
+                      /> */}
                     </Box>
 
                     {/* Content */}
@@ -288,6 +295,7 @@ function MyTodo() {
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: "vertical",
                           overflow: "hidden",
+                        p: "0 12px",
                         }}
                       >
                         {item.description || "설명이 없습니다."}
@@ -301,6 +309,7 @@ function MyTodo() {
                         gap: 0.5,
                         flexWrap: "wrap",
                         flexShrink: 0,
+                        p: "0 12px",
                       }}
                     >
                       <Chip

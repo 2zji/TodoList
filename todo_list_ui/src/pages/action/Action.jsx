@@ -232,11 +232,8 @@ export default function Action() {
         checkedFriends.map((id) => api.delete(`/friends/${id}`))
       );
 
-      fetchMyFriends();
-
-      if (tab === TABS.LIKES_TODO) {
-        fetchLikesList();
-      }
+      await fetchMyFriends();
+      await fetchLikesList();
     } catch (err) {
       console.error("친구 삭제 실패:", err);
     }
@@ -316,10 +313,12 @@ export default function Action() {
     try {
       if (currentLikeStatus) {
         await api.delete(`/like/${todoId}`);
+        setIsLiked(false);
       } else {
         await api.post(`/like/${todoId}`);
+        setIsLiked(true);
       }
-      fetchLikesList();
+      await fetchLikesList();
     } catch (err) {
       console.error("좋아요 토글 오류:", err);
     }
@@ -558,13 +557,13 @@ export default function Action() {
         height: "100%",
         overflowY: "auto",
         pr: 1,
-        "&::-webkit-scrollbar": { width: "10px" },
+        "&::-webkit-scrollbar": { width: "5px" },
         "&::-webkit-scrollbar-thumb": {
-          background: "rgba(49, 91, 230)",
+          background: "rgba(0, 0, 0, 0.35)",
           borderRadius: "10px",
         },
         "&::-webkit-scrollbar-track": {
-          background: "rgba(49, 91, 230, 0.1)",
+          background: "rgba(0, 0, 0, 0.05)",
         },
       }}
     >
@@ -573,7 +572,7 @@ export default function Action() {
           <Grid item xs={12} sm={6} md={2} key={todo.todo_id}>
             <Card
               sx={{
-                width: "297px",
+                width: "290px",
                 height: "180px",
                 display: "flex",
                 flexDirection: "column",

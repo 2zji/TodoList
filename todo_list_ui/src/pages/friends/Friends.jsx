@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Box,
   Card,
@@ -75,13 +75,18 @@ function Friends() {
   const [selectedTodo, setSelectedTodo] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
   const [keyword, setKeyword] = useState("");
+  const hasFetched = useRef(false);
 
   useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+    console.log("useEffect test");
     fetchFriendsTodos();
     fetchLikedTodos();
   }, []);
 
   const fetchFriendsTodos = async () => {
+    console.log("fetchFriendsTodos 호출 성공");
     try {
       const res = await api.get("/friends/todos");
       const flattened = (res.data || []).flatMap((friend) =>
@@ -169,9 +174,12 @@ function Friends() {
             pr: 1,
             // "&::-webkit-scrollbar": { display: "none" },
             // scrollbarWidth: "none",
-            "&::-webkit-scrollbar": {width: "10px"},
-            "&::-webkit-scrollbar-thumb": {background: "rgba(49, 91, 230)", borderRadius: "10px"},
-            "&::-webkit-scrollbar-track": {background: "rgba(49, 91, 230, 0.1)"},
+            "&::-webkit-scrollbar": { width: "5px" },
+            "&::-webkit-scrollbar-thumb": {
+              background: "rgba(0, 0, 0, 0.35)",
+              borderRadius: "10px",
+            },
+            "&::-webkit-scrollbar-track": { background: "rgba(0, 0, 0, 0.05)" },
           }}
         >
           <Grid container spacing={2}>
@@ -186,7 +194,7 @@ function Friends() {
                 <Grid item xs={12} sm={6} md={2} key={todo.todo_id}>
                   <Card
                     sx={{
-                      width: "297px",
+                      width: "290px",
                       height: "180px",
                       cursor: "pointer",
                       transition: "all 0.2s",
