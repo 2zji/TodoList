@@ -18,14 +18,18 @@ load_dotenv()
 
 SECRET_KEY = getenv("SECRET_KEY", "fallback_secret_key")
 ALGORITHM = "HS256"  # JWT 토큰 암호화 알고리즘(대칭키)
-ACCESS_TOKEN_EXPIRE_MINUTES = int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))  # 토큰 유효 시간(24시간/하루)
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440")
+)  # 토큰 유효 시간(24시간/하루)
 
 # JWT 토큰 추출용 OAuth2 스키마
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 # 토큰 생성 함수
 def create_access_token(subject: str, expires_delta: int | None = None):
-    expire = datetime.now() + timedelta(minutes=(expires_delta or ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.now() + timedelta(
+        minutes=(expires_delta or ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     to_encode = {"sub": subject, "exp": expire}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -37,16 +41,22 @@ def login(form_data: UserLogin, db: ActiveSession = Depends(get_active_db)):
     user = db.query(TodoUser).filter(TodoUser.email == form_data.email).first()
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+        )
 
     if not pwd_context.verify(form_data.passwd, user.passwd):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+        )
 
     access_token = create_access_token(subject=user.email)
     return {"access_token": access_token, "token_type": "bearer"}
 
 # 현재 로그인한 사용자 정보 반환
-def get_current_user(token: str = Depends(oauth2_scheme), db: ActiveSession = Depends(get_active_db)):
+def get_current_user(
+    token: str = Depends(oauth2_scheme), db: ActiveSession = Depends(get_active_db)
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

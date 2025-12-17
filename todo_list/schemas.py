@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 from datetime import datetime
 
-#Todo 스키마
+# Todo 스키마
 class TodoBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -11,11 +11,11 @@ class TodoBase(BaseModel):
     publicity: Optional[bool] = False
 
 class TodoCreate(TodoBase):
-#Todo 생성 시 요청 본문
+    # Todo 생성 시 요청 본문
     pass
 
 class TodoUpdate(BaseModel):
-#Todo 수정 시 요청 본문
+    # Todo 수정 시 요청 본문
     title: Optional[str] = None
     description: Optional[str] = None
     status: Optional[str] = None
@@ -23,44 +23,44 @@ class TodoUpdate(BaseModel):
     publicity: Optional[bool] = None
 
 class TodoResponse(TodoBase):
-#Todo 조회 시 응답
+    # Todo 조회 시 응답
     id: int
     created_at: datetime
     completed_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
 
-#User 스키마
+# User 스키마
 class UserBase(BaseModel):
     email: EmailStr
     name: Optional[str] = None
 
 class UserCreate(UserBase):
-#회원가입 요청 본문
+    # 회원가입 요청 본문
     passwd: str
 
 class UserResponse(UserBase):
-#회원정보 응답
+    # 회원정보 응답
     id: int
 
     model_config = ConfigDict(from_attributes=True)
 
 class UserLogin(BaseModel):
-#로그인 요청
+    # 로그인 요청
     email: EmailStr
     passwd: str
 
-#JWT  스키마
+# JWT  스키마
 class Token(BaseModel):
-#로그인 성공 시 토큰 반환
+    # 로그인 성공 시 토큰 반환
     access_token: str
     token_type: str = "bearer"
 
 class TokenData(BaseModel):
-#JWT payload 데이터
+    # JWT payload 데이터
     email: Optional[str] = None
 
-#Friends 스키마
+# Friends 스키마
 class FriendsResponse(BaseModel):
     id: int
     requester_id: int
@@ -69,7 +69,7 @@ class FriendsResponse(BaseModel):
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
-#Like 스키마
+# Like 스키마
 class LikeResponse(BaseModel):
     todo_id: int
     likes_count: int
